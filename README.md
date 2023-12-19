@@ -109,11 +109,11 @@ python3 gen_data/Step1_OSM/OSM_from_generate_nc_dataset.py
 
 Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
 
-#### Generate signal coverage map using Sionna
+<!--- #### Generate signal coverage map using Sionna
 To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defined in xxxx.
 
 #### Train the model
-To train our model, run xxxxx. 
+To train our model, run xxxxx. ---> 
 
 
 

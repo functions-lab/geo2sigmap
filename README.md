@@ -1,8 +1,8 @@
 # GEO2SIGMAP: High-Fidelity RF Signal Mapping Using Geographic Databases
 
 Welcome to the Geo2SigMap, the first work that: 
-* (i)develops an automated framework integrating open-source geographic databases, computer graphics, and ray tracing tools,and 
-* (ii) integrates a novel cascaded U-Net architecture that achieves significantly improved SS map prediction accuracy compared to various baseline methods.
+* (i) Develops an automated framework integrating open-source geographic databases, computer graphics, and ray tracing tools to perform a massive raytracing based on the realworld building information.
+* (ii) Integrates a novel cascaded U-Net architecture that achieves significantly improved signal strength map prediction accuracy compared to various baseline methods.
 
 ## 1. Overview
 
@@ -28,7 +28,7 @@ This is an active project, if you want to have a community discussion, please st
 
 We provide a details document for a clean install and also a docker image for quick try.
 
-Note: that the docker way may suffer from performance loss due to xvfb virtual framebuffer.
+Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
 ### 3.1 Docker
 
 Simply run:
@@ -48,7 +48,7 @@ Note: Following command tested on a clean install Ubuntu:22.04, you can follow t
 #### Install Initial Packages
 ```console
 sudo apt update
-sudo apt install python3 python3-pip git libembree-dev
+sudo apt install python3 python3-pip git
 ```
 #### Clone the Blender Source Code and Apply Changes
 ```console
@@ -65,7 +65,7 @@ perl -i -pe 'BEGIN{undef $/;} s/(patch -d \$_src -p1 < \$SCRIPT_DIR\/patches\/us
 
 #### Install Blender Libraries & Compile Blender
 ```console 
-bash ./build_files/build_environment/install_deps.sh
+bash ./build_files/build_environment/install_deps.sh --with-embree --with-oidn
 ```
 
 When the script complete you will see some thing like the follow:
@@ -80,7 +80,8 @@ Or in all your build directories:
 Copy the first section and add an "release" between "make" and "-j" like the following ones and then execute it.
 
 ```
-make release -j20 BUILD_CMAKE_ARGS="-U *SNDFILE* -U PYTHON* -U *BOOST* -U *Boost* -U *TBB* -U *OPENCOLORIO* -U *OPENEXR* -U *OPENIMAGEIO* -U *LLVM* -U *CLANG* -U *CYCLES* -U *OPENSUBDIV* -U *OPENVDB*  -U *BLOSC* -U *COLLADA* -U *FFMPEG* -U *ALEMBIC* -U *USD* -U *EMBREE* -U *OPENIMAGEDENOISE* -U *OPENXR* -D WITH_CODEC_SNDFILE=ON -D PYTHON_VERSION=3.10 -D TBB_ROOT_DIR=/opt/lib/tbb -D WITH_OPENCOLORIO=ON -D OPENCOLORIO_ROOT_DIR=/opt/lib/ocio -D WITH_IMAGE_WEBP=ON -D OPENEXR_ROOT_DIR=/opt/lib/openexr -D WITH_OPENIMAGEIO=ON -D OPENIMAGEIO_ROOT_DIR=/opt/lib/oiio -D WITH_CYCLES_OSL=ON -D WITH_LLVM=ON -D LLVM_VERSION=12.0.0 -D OSL_ROOT_DIR=/opt/lib/osl -D LLVM_ROOT_DIR=/opt/lib/llvm -D LLVM_STATIC=ON -D WITH_OPENSUBDIV=ON -D OPENSUBDIV_ROOT_DIR=/opt/lib/osd -D WITH_OPENVDB=ON -D WITH_OPENVDB_BLOSC=ON -D OPENVDB_ROOT_DIR=/opt/lib/openvdb -D BLOSC_ROOT_DIR=/opt/lib/blosc -D WITH_ALEMBIC=ON -D ALEMBIC_ROOT_DIR=/opt/lib/alembic -D WITH_USD=ON -D USD_ROOT_DIR=/opt/lib/usd -D WITH_CODEC_FFMPEG=ON -D WITH_XR_OPENXR=ON -D XR_OPENXR_SDK_ROOT_DIR=/opt/lib/xr-openxr-sdk"
+make update
+make release -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
 ```
 #### Download Blender add-on & Apply Changes
 There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and [mitsuba-blender](https://github.com/mitsuba-renderer/). Download the zip file and place them in the root of this project `*/geo2sigmap/`.
@@ -99,12 +100,15 @@ Please follow the Pytorch's official document [here](https://pytorch.org/get-sta
 
 ### 4. Useage
 #### Generate 3D building meshs & 2D building height map
-We start with select a top left GPS coordinate and a bottom right coordinate, for example, (xx,xx) and (xx,xx). Simply put these two number into the .env file, and also defined the lang-to-building ratio. 
-We can start the data generation process by xxxxxx
+We start with select a top left GPS coordinate and a bottom right coordinate. Simply put these two number into the `.env` file, and also defined the lang-to-building threshold to filter out the open space area. 
 
-Note: The public OSM sever have a query limitation around 2 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server, here is OSM offcial document. A reasonable speed of self hosted server would be around 100-200 query/second on a SSD cimputer.
+Then simply run:
+```console
+python3 gen_data/Step1_OSM/OSM_from_generate_nc_dataset.py
+```
 
-When the program complete, you can check the data store at the `geo2sigmap/data/DATE`. 
+Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
+
 #### Generate signal coverage map using Sionna
 To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defined in xxxx.
 

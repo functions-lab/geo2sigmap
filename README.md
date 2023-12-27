@@ -11,7 +11,7 @@ Welcome to the Geo2SigMap, the first work that:
 4. [Example Usage](#example-usage)
 5. [License](#license)
 
-## 1. Overview
+## Overview
 
 Geo2SigMap is an efficient framework for high-fidelity RF signal mapping leveraging geographic databases, ray tracing, and a novel cascaded U-Net model. Geo2SigMap features an automated pipeline that efficiently generates 3D building and path gain (PG) maps via the integration of a suite of open-sourced tools, including OpenStreetMap (OSM), Blender, and Sionna. Geo2SigMap also features a cascaded U-Net model, which is pre-trained on pure synthetic datasets leveraging the building map and sparse SS map as input to predict the full SS map for the target (unseen) area. The performance of Geo2SigMap has been evalauted using large-scale field measurements collected using three types of user equipment (UE) across six LTE cells operating in the citizens broadband radio service (CBRS) band deployed on the Duke University West Campus. Our results show that Geo2SigMap achieves significantly improved root-mean-square error (RMSE) in terms of of the SS map prediction accuracy compared to existing baseline methods based on channel models and ML.
 
@@ -27,7 +27,7 @@ If you find Geo2SigMap useful for your research, please consider citing:
 
 This is an active project, if you are interested to have a community discussion, please start a new discussion thread in the discussion tab and we will get back to you as soon as possible.
 
-## 2. Repo Structure
+## Repo Structure
 
 |  Source Files      |  Description                                                                                                             |
 |  -----             |  -----                                                                                                                   |
@@ -35,13 +35,13 @@ This is an active project, if you are interested to have a community discussion,
 |  `data/`    |  This folder contains the sample data generate by our pipeline.                                                 |
 |  `ml/`       |  This folder contains the code of cascade machine learning models.                                                           |
 
-## 3. Installation
+## Installation
 
 We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
 
 Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
 
-### 3.1 Docker
+### Docker
 
 Run the following command to use our pre-compiled docker image:
 ```console
@@ -53,7 +53,7 @@ We only provide an amd64 arch docker image. If you run on a Apple Silicon or ARM
 docker run --name g2s --platform linux/amd64 -it ffkshakf/geo2sigmap:latest bash
 ```
 
-### 3.2 Install from Scratch
+### Install from Scratch
 Note: The following commands have been tested on a clean install Ubuntu:22.04, you can follow the Blender offcial document about compiling Blender [here](https://wiki.blender.org/wiki/Building_Blender) if you would like to run on other OS/ARCH.
 
 #### Install Initial Packages
@@ -111,9 +111,9 @@ Please follow [Sionna's official document](https://nvlabs.github.io/sionna/insta
 
 Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
 
-## 4. Example Usage
+## Example Usage
 
-### 4.1 Generate 3D Building Meshs & 2D Building Height Map
+### Generate 3D Building Meshs & 2D Building Height Map
 We start with select a top left GPS coordinate and a bottom right coordinate. Simply put these two number into the `.env` file, and also defined the lang-to-building threshold to filter out the open space area. 
 
 Then run:
@@ -129,6 +129,6 @@ To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defi
 #### Train the model
 To train our model, run xxxxx. ---> 
 
-## 5. License
+## License
 
 Distributed under the APACHE LICENSE, VERSION 2.0

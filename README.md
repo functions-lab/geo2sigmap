@@ -1,8 +1,8 @@
 # Geo2SigMap: High-Fidelity RF Signal Mapping Using Geographic Databases
 
-Welcome to the Geo2SigMap, the first work that: 
-* (i) Designs an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;
-* (ii) Develops a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.
+Welcome to the Geo2SigMap, this is the first work that: 
+* Designs an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;
+* Develops a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)

@@ -1,20 +1,28 @@
-# GEO2SIGMAP: High-Fidelity RF Signal Mapping Using Geographic Databases
+# Geo2SigMap: High-Fidelity RF Signal Mapping Using Geographic Databases
 
 Welcome to the Geo2SigMap, the first work that: 
-* (i) Develops an automated framework integrating open-source geographic databases, computer graphics, and ray tracing tools to perform a massive raytracing based on the realworld building information.
-* (ii) Integrates a novel cascaded U-Net architecture that achieves significantly improved signal strength map prediction accuracy compared to various baseline methods.
+* (i) Designs an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;
+* (ii) Develops a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.
+
+## TABLE OF CONTENTS
+1. [Overview](#overview)
+
 
 ## 1. Overview
 
-We presented the design of GEO2SIGMAP, an efficient framework for high-fidelity RF signal mapping leveraging geographic databases and a novel cascaded U-Net model. We first developed an automated pipeline that efficiently generates 3D building and path gain maps via the integration of a suite of open-sourced tools, including OSM, Blender and Sionna. Then, the cascaded U-Net model pre-trained on synthetic datasets utilizes the building map and sparse SS map as input to predict the full SS map for the target (unseen) area. We extensively evaluated the performance of GEO2SIGMAP using large-scale field measurement collected using three UE types across six CBRS LTE cells deployed on the Duke University West Campus. Our results showed that GEO2SIGMAP achieves significantly improved RMSE of the SS map prediction compared to existing baseline methods.
+Geo2SigMap is an efficient framework for high-fidelity RF signal mapping leveraging geographic databases, ray tracing, and a novel cascaded U-Net model. Geo2SigMap features an automated pipeline that efficiently generates 3D building and path gain (PG) maps via the integration of a suite of open-sourced tools, including OpenStreetMap (OSM), Blender, and Sionna. Geo2SigMap also features a cascaded U-Net model, which is pre-trained on pure synthetic datasets leveraging the building map and sparse SS map as input to predict the full SS map for the target (unseen) area. The performance of Geo2SigMap has been evalauted using large-scale field measurements collected using three types of user equipment (UE) across six LTE cells operating in the citizens broadband radio service (CBRS) band deployed on the Duke University West Campus. Our results show that Geo2SigMap achieves significantly improved root-mean-square error (RMSE) in terms of of the SS map prediction accuracy compared to existing baseline methods based on channel models and ML.
 
+If you find Geo2SigMap useful for your research, please consider citing:
+```
+@article{li2023geo2sigmap,
+  title = {{Geo2SigMap}: High-Fidelity {RF} Signal Mapping Using Geographic Databases},
+  author = {Li, Yiming and Li, Zeyu and Gao, Zhihui and Chen, Tingjun},
+  journal={arXiv:2312.14303},
+  year={2023}
+}
+```
 
-For a full technical description on GEO2SIGMAP, please read our paper (Will release to arXiv in a few days):
-
-> Y. Li, Z. Li, Z. Gao, T. Chen,  "GEO2SIGMAP: High-Fidelity RF Signal Mapping Using Geographic Databases," 
-
-This is an active project, if you want to have a community discussion, please start a new discussion thread in the discussion tab, and we will get back to you as soon as possible.
-
+This is an active project, if you are interested to have a community discussion, please start a new discussion thread in the discussion tab and we will get back to you as soon as possible.
 
 ## 2. Repo Structure
 
@@ -26,30 +34,31 @@ This is an active project, if you want to have a community discussion, please st
 
 ## 3. Installation
 
-We provide a details document for a clean install and also a docker image for quick try.
+We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
 
 Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
+
 ### 3.1 Docker
 
-Simply run:
+Run the following command to use our pre-compiled docker image:
 ```console
 docker run --name g2s -it ffkshakf/geo2sigmap:latest bash
 ```
 
-We only provide a amd64 arch docker image. If you run on a Apple Silicon or ARM64, you can add `--platform linux/amd64` to run it under emulation.
+We only provide an amd64 arch docker image. If you run on a Apple Silicon or ARM64, you can add `--platform linux/amd64` to run it under emulation.
 ```console
 docker run --name g2s --platform linux/amd64 -it ffkshakf/geo2sigmap:latest bash
 ```
 
-
 ### 3.2 Install from Scratch
-Note: Following command tested on a clean install Ubuntu:22.04, you can follow the Blender offcial document about compiling Blender [here](https://wiki.blender.org/wiki/Building_Blender) if you would like to run on other OS/ARCH.
+Note: The following commands have been tested on a clean install Ubuntu:22.04, you can follow the Blender offcial document about compiling Blender [here](https://wiki.blender.org/wiki/Building_Blender) if you would like to run on other OS/ARCH.
 
 #### Install Initial Packages
 ```console
 sudo apt update
 sudo apt install python3 python3-pip git
 ```
+
 #### Clone the Blender Source Code and Apply Changes
 ```console
 mkdir ~/blender-git
@@ -71,7 +80,7 @@ bash ./build_files/build_environment/install_deps.sh --with-embree --with-oidn
 When the script complete you will see some thing like the follow:
 ```
 Or even simpler, just run (in your blender-source dir):
-    make -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
+  make -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
 
 Or in all your build directories:
   cmake -U *SNDFILE* -U PYTHON* -U XXXXXXXXXXXXXXXX
@@ -83,7 +92,8 @@ Copy the first section and add an "release" between "make" and "-j" like the fol
 make update
 make release -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
 ```
-#### Download Blender add-on & Apply Changes
+
+#### Download Blender Add-on & Apply Changes
 There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and [mitsuba-blender](https://github.com/mitsuba-renderer/). Download the zip file and place them in the root of this project `*/geo2sigmap/`.
 ```console 
 unzip mitsuba-blender.zip
@@ -92,17 +102,18 @@ zip -r -0 mitsuba-blender.zip mitsuba-blender
 ```
 
 #### Install Sionna
-Please follow the Sionna's official document [here](https://nvlabs.github.io/sionna/installation.html).
+Please follow [Sionna's official document](https://nvlabs.github.io/sionna/installation.html) to install Sionna.
 
 #### Install Pytorch
 
-Please follow the Pytorch's official document [here](https://pytorch.org/get-started/locally/).
+Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
 
-### 4. Useage
-#### Generate 3D building meshs & 2D building height map
+## 4. Example Usage
+
+### 4.1 Generate 3D Building Meshs & 2D Building Height Map
 We start with select a top left GPS coordinate and a bottom right coordinate. Simply put these two number into the `.env` file, and also defined the lang-to-building threshold to filter out the open space area. 
 
-Then simply run:
+Then run:
 ```console
 python3 gen_data/Step1_OSM/OSM_from_generate_nc_dataset.py
 ```
@@ -114,17 +125,6 @@ To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defi
 
 #### Train the model
 To train our model, run xxxxx. ---> 
-
-
-
-
-
-
-
-
-
-
-
 
 ## 5.License
 

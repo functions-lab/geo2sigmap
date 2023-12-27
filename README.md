@@ -6,7 +6,10 @@ Welcome to the Geo2SigMap, the first work that:
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
-
+2. [Repo Structure](#repo-structure)
+3. [Installation](#installation)
+4. [Example Usage](#example-usage)
+5. [License](#license)
 
 ## 1. Overview
 
@@ -126,6 +129,6 @@ To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defi
 #### Train the model
 To train our model, run xxxxx. ---> 
 
-## 5.License
+## 5. License
 
 Distributed under the APACHE LICENSE, VERSION 2.0

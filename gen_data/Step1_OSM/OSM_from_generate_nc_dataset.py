@@ -11,7 +11,6 @@ import osmnx as ox
 import numpy as np
 from tqdm.auto import tqdm
 
-from dotenv import load_dotenv
 
 import argparse
 # 36.460291, -80.728875
@@ -60,7 +59,7 @@ def compute_building_to_land_ration(tmp_top_left_lat, tmp_top_left_lon, queue,to
     ox.settings.overpass_rate_limit = False
     ox.settings.use_cache = False
     ox.settings.cache_only_mode = False
-    ox.settings.overpass_endpoint = os.environ.get('OSM_SERVER_ADDRESS') + "/api/interpreter"
+    ox.settings.overpass_endpoint = OSM_SERVER_ADDRESS + "/api/interpreter"
     print(ox.settings.overpass_endpoint)
     try:
 
@@ -130,6 +129,9 @@ if __name__ == '__main__':
     parser.add_argument('--maxlat', default=36.09139593781888, type=float, help='Maximum latitude')
     parser.add_argument('--minilon', default=-79.04640192793481, type=float, help='Minimum longitude')
     parser.add_argument('--maxlon', default=-78.42138748567791, type=float, help='Maximum longitude')
+    parser.add_argument('--serveraddr', type=str, default='https://overpass-api.de',
+                        help='OSM API Server URL Note:Default public OSM API Server have a limit for less than ten query per second.')
+    parser.add_argument('--basepath', type=str, default='res/tmp', help='Basepath')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -139,14 +141,16 @@ if __name__ == '__main__':
     max_lat = args.maxlat
     min_lon = args.minilon
     max_lon = args.maxlon
+    OSM_SERVER_ADDRESS = args.serveraddr
+    BASE_PATH = args.basepath
 
-    # Your logic here using these values
     print(f"Latitude range: {min_lat} to {max_lat}")
     print(f"Longitude range: {min_lon} to {max_lon}")
+    print(f"OSM API Server URL: {OSM_SERVER_ADDRESS}")
 
-    load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
-    BASE_PATH = os.environ.get('BASE_PATH')
-    RES_FILE_NAME = os.environ.get('RES_FILE_NAME')
+    #load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
+    #BASE_PATH = os.environ.get('BASE_PATH')
+    RES_FILE_NAME = "res.txt"
     os.makedirs(BASE_PATH,exist_ok=True)
     RES_FILE_PATH = os.path.join(BASE_PATH,RES_FILE_NAME)
 

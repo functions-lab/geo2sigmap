@@ -203,16 +203,23 @@ if __name__ == '__main__':
     # pbar.update(1)
     consumer_process = Thread(target=consumer, args=(queue, len(job_queue)))
     consumer_process.start()
-    with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
-        batch_size = 10000
-        for i in range(0, len(job_queue), batch_size):
-            batch = job_queue[i:i + batch_size]  # the result might be shorter than batchsize at the end
+    try:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+            batch_size = 10000
+            for i in range(0, len(job_queue), batch_size):
+                batch = job_queue[i:i + batch_size]  # the result might be shorter than batchsize at the end
 
-            # do stuff with batch
-        #for job in job_queue:
-            a_result = executor.submit(producer, batch,queue)
-            #futures.append(a_result)
-            # pbar.update(1)
-        executor.shutdown()
-    queue.put(None)
-    consumer_process.join()
+                # do stuff with batch
+            #for job in job_queue:
+                a_result = executor.submit(producer, batch,queue)
+                #futures.append(a_result)
+                # pbar.update(1)
+            executor.shutdown()
+
+    except KeyboardInterrupt:
+        for job in futures:
+            job.cancel()
+    finally:
+        queue.put(None)
+        consumer_process.join()
+

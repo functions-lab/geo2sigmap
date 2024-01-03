@@ -12,6 +12,8 @@ import numpy as np
 from tqdm.auto import tqdm
 
 from dotenv import load_dotenv
+
+import argparse
 # 36.460291, -80.728875
 #
 #
@@ -121,7 +123,26 @@ def consumer(queue, tqdm_size):
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(description='Process latitude and longitude ranges.')
 
+    # Adding arguments
+    parser.add_argument('--minilat', default=35.54728625208108, type=float, help='Minimum latitude')
+    parser.add_argument('--maxlat', default=36.09139593781888, type=float, help='Maximum latitude')
+    parser.add_argument('--minilon', default=-79.04640192793481, type=float, help='Minimum longitude')
+    parser.add_argument('--maxlon', default=-78.42138748567791, type=float, help='Maximum longitude')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Accessing the values
+    min_lat = args.minilat
+    max_lat = args.maxlat
+    min_lon = args.minilon
+    max_lon = args.maxlon
+
+    # Your logic here using these values
+    print(f"Latitude range: {min_lat} to {max_lat}")
+    print(f"Longitude range: {min_lon} to {max_lon}")
 
     load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
     BASE_PATH = os.environ.get('BASE_PATH')
@@ -136,10 +157,10 @@ if __name__ == '__main__':
     # max_lon = -69.953232
 
 
-    min_lat = 35.54728625208108
-    max_lat = 36.09139593781888
-    min_lon = -79.04640192793481
-    max_lon = -78.42138748567791
+    # min_lat = 35.54728625208108
+    # max_lat = 36.09139593781888
+    # min_lon = -79.04640192793481
+    # max_lon = -78.42138748567791
 
 
 

@@ -60,6 +60,7 @@ Note: The following commands have been tested on a clean install Ubuntu:22.04, y
 ```console
 sudo apt update
 sudo apt install python3 python3-pip git
+pip install --target=/usr/lib/python3/dist-packages Cython
 ```
 
 #### Clone the Blender Source Code and Apply Changes
@@ -97,10 +98,10 @@ make release -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
 ```
 
 #### Download Blender Add-on & Apply Changes
-There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and [mitsuba-blender](https://github.com/mitsuba-renderer/). Download the zip file and place them in the root of this project `*/geo2sigmap/`.
+There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and [mitsuba-blender](https://github.com/mitsuba-renderer/mitsuba-blender/releases/). Download the zip file and place them in the root of this project `*/geo2sigmap/`.
 ```console 
 unzip mitsuba-blender.zip
-perl -i -pe 's/result = subprocess\.run\(\[sys\.executable, '-m', 'ensurepip'\], capture_output=True\)\n\s+return result\.returncode == 0/return True/' mitsuba-blender/__init__.py
+perl -i -pe 's/  result = subprocess\.run\(\[sys\.executable, '-m', 'ensurepip'\], capture_output=True\)\n\s+return result\.returncode == 0/return True/' mitsuba-blender/__init__.py
 zip -r -0 mitsuba-blender.zip mitsuba-blender
 ```
 

@@ -5,3 +5,5 @@ build_linux_release/
 pyvenv.cfg
 res3_srv1_33.txt
 gen_data/blosm.zip
+gen_data/Step1_OSM/OSM.py
+gen_data/Step1_OSM/OSM_Download.py

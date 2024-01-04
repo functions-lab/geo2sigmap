@@ -49,29 +49,29 @@ def install_Blender_add_on():
     bpy.context.preferences.addons['blosm'].preferences.dataDir = "/tmp"
     print(bpy.context.preferences.addons['blosm'].preferences.dataDir)
     # bpy.ops.wm.save_userpref()
-def install_package(package_name):
-    print("Start pip install process")
-    try:
-        # path to python.exe
-        python_exe = os.path.join(sys.prefix, 'bin', 'python3.10')
-        print(python_exe)
-        # upgrade pip
-        #subprocess.call([python_exe, "-m", "ensurepip"])
-        subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
+# def install_package(package_name):
+#     print("Start pip install process")
+#     try:
+#         # path to python.exe
+#         python_exe = os.path.join(sys.prefix, 'bin', 'python3.10')
+#         print(python_exe)
+#         # upgrade pip
+#         #subprocess.call([python_exe, "-m", "ensurepip"])
+#         subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
 
-        # install required packages
-        subprocess.call([python_exe, "-m", "pip", "install", package_name])
+#         # install required packages
+#         subprocess.call([python_exe, "-m", "pip", "install", package_name])
 
-        print("DONE")
-        return
-    except Exception as e:
-        print("got error in install pip")
-        raise e
+#         print("DONE")
+#         return
+#     except Exception as e:
+#         print("got error in install pip")
+#         raise e
 
 
 
 # install_package("pillow")
-install_package("mitsuba==3.0.1")
+# install_package("mitsuba==3.0.1")
 install_Blender_add_on()
 # from PIL import Image
 def delete_terrain_and_osm_files(PATH_download=BASE_PATH + 'Blender_download_files'):
@@ -557,7 +557,7 @@ def run_with_plane(maxLon, minLon, maxLat, minLat, run_idx, buildingToAreaRatio,
 
         # path of xml file which would be exported in change_material_names_and_export
         save_name = args.idx_uuid
-        building_img_path = BASE_PATH + 'Bl_building_npy/' + save_name + '.npy'
+        building_img_path = os.path.join(BASE_PATH ,'Bl_building_npy/' , save_name + '.npy')
 
         # if args.terrain_or_plane == 'plane':
         add_plane(material_name='itu_concrete', size=1000)
@@ -567,7 +567,7 @@ def run_with_plane(maxLon, minLon, maxLat, minLat, run_idx, buildingToAreaRatio,
         add_osm(**loc_args_dict, from_file=use_path_osm, osmFilepath=osm_f_path)
 
         # change_material_names_and_export WRITES the XML file as well as the Meshes
-        export_path = BASE_PATH + 'Bl_xml_files/' + save_name + '/' + save_name + '.xml'
+        export_path = os.path.join(BASE_PATH, 'Bl_xml_files/', save_name + '/' + save_name + '.xml')
         ret = change_material_names_and_export(wall_name='itu_brick', roof_name='itu_plasterboard',
                                                f_path=export_path, export=args.export_buildings)
         if ret != 0:

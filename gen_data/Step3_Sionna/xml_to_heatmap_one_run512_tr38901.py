@@ -30,7 +30,7 @@ parser.add_argument('-c', '--cm_cell_size', type=float, required=False, default=
 parser.add_argument('-b', '--BASE_PATH_BLENDER', type=str, required=False, default='/res/')
 parser.add_argument('-s', '--BASE_PATH_SIONNA', type=str, required=True)
 parser.add_argument('-n', '--outer_idx', type=int, required=True)
-parser.add_argument('-m', '--cm_num_samples', type=int, required=True)
+parser.add_argument('-m', '--cm_num_samples', type=str, required=True)
 parser.add_argument('-a', '--antenna_pattern', type=str, required=True)
 args = parser.parse_args()
 # print('height file name: ', args.height_file)
@@ -106,13 +106,13 @@ def cm_routine(extra_height):
         file_name = args.file_name_wo_type
         print("file name", file_name)
         cm_conf_list = generate_coverage_map_config_combination(
-            BASE_PATH + 'Bl_building_npy/' + file_name+'.npy')
+            os.path.join(BASE_PATH, 'Bl_building_npy/', file_name+'.npy'))
         exist = True
         for cm_conf in cm_conf_list:
-            image_path = BASE_PATH_SIONNA + file_name
+
             for p in cm_conf:
-                image_path = image_path + "_" + str(p)
-            if not os.path.isfile(image_path + ".npy"):
+                res_file_name = file_name + "_" + str(p)
+            if not os.path.isfile(os.path.join(BASE_PATH, res_file_name + ".npy")):
                 exist = False
                 break
         if exist:
@@ -120,7 +120,7 @@ def cm_routine(extra_height):
             return
                 
         start_loc = time.time()
-        scene = load_scene(BASE_PATH + 'Bl_xml_files/' + file_name + '/' + file_name + '.xml')
+        scene = load_scene(os.path.join(BASE_PATH,'Bl_xml_files/',file_name, file_name + '.xml'))
         print('load scene time: ', str(time.time() - start_loc))
         
         scene.tx_array = PlanarArray(num_rows=1,
@@ -140,10 +140,10 @@ def cm_routine(extra_height):
         print("V")
         # loop to compute all cm
         for cm_conf in cm_conf_list:
-            image_path = BASE_PATH_SIONNA + file_name
+            res_file_name = file_name
             for p in cm_conf:
-                image_path = image_path + "_" + str(p)
-            if os.path.isfile(image_path + ".npy"):
+                res_file_name = res_file_name + "_" + str(p)
+            if os.path.isfile(os.path.join(BASE_PATH_SIONNA, res_file_name + ".npy")):
                 print("Skipping existing file")
                 continue
             start_loc = time.time()
@@ -170,17 +170,19 @@ def cm_routine(extra_height):
                                     cm_orientation=[0, 0, 0],
                                     cm_cell_size=[args.cm_cell_size, args.cm_cell_size], 
                                     cm_size=[512, 512], los=True, reflection=True, diffraction=True, 
-                                    num_samples=args.cm_num_samples, check_scene=False)
+                                    num_samples=float(args.cm_num_samples), check_scene=False)
             # does not check the scene. 
             
             print('compute cm only time: ', str(time.time() - cm_only_start))
                 
-            print("images path",image_path)
+
             
             cm_tensor = cm.as_tensor()
             cm_2D = cm_tensor.numpy()[0, :, :]
 
             # saving as power and do a flip with axis 0
+            image_path = os.path.join(BASE_PATH_SIONNA, res_file_name + ".npy")
+            print("images path",image_path)
             np.save(image_path, np.flip(cm_2D,0))
             
             print('compute cm whole time: ', str(time.time() - start_loc))

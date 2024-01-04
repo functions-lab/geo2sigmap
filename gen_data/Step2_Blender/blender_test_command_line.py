@@ -56,6 +56,7 @@ if args.precheck:
 # this is the path where the results are stored (terrain_npy, building_npy, height files, Mitsuba_export)
 BASE_PATH = args.BASE_PATH  # '/Users/zeyuli/Desktop/Duke/0. Su23_Research/Blender_stuff/res/'
 CAMERA_ORTHO_SCALE = 1920
+
 bpy.ops.preferences.addon_enable(module='blosm')
 bpy.ops.preferences.addon_enable(module='mitsuba-blender')
 bpy.context.preferences.addons['blosm'].preferences.dataDir = "/tmp"

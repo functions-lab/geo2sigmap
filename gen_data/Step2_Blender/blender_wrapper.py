@@ -31,7 +31,7 @@ parser.add_argument('--blender-path', default="~/blender-git/build_linux_release
 parser.add_argument('--command-line-script-path', default="blender_test_command_line.py", type=str, help='Command line python script path.')
 parser.add_argument('--data-dir', type=str, help='Data folder', required=True)
 parser.add_argument('--start-idx', default=0, type=int, help='The index of area which you prefer to start the process.')
-parser.add_argument('--end-idx', type=int, default=80,help='The index of area which you prefer to stop the process. -1 means no stop.')
+parser.add_argument('--stop-idx', type=int, default=80,help='The index of area which you prefer to stop the process. -1 means no stop.')
 # parser.add_argument('--base-path', type=str, default='data/generated', help='Base path to store the generated data.')
 parser.add_argument('--max-process', type=int, default=5, help='Maximum process used for generate data.')
 # parser.add_argument('--max-thread', type=int, default=5, help='Maximum thread used for generate data.')
@@ -67,7 +67,7 @@ BLENDER_COMMAND_LINE_PATH = os.path.join(dirname(__file__), args.command_line_sc
 BLENDER_OSM_DOWNLOAD_PATH = os.path.join(args.data_dir, "OSM_download")
 
 START_FROM_IDX = args.start_idx
-STOP_AT_IDX = args.end_idx
+STOP_AT_IDX = args.stop_idx
 NUM_OF_PROCESS = args.max_process
 DECIMATE_FACTOR = 1
 TERRAIN_OR_PLANE = args.land_type

@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(description='Process latitude and longitude ran
 # Adding arguments
 parser.add_argument('--blender-path', default="~/blender-git/build_linux_release/bin/blender", type=str, help='Blender binary file path.')
 parser.add_argument('--command-line-script-path', default="blender_test_command_line.py", type=str, help='Command line python script path.')
-parser.add_argument('--data-dir', type=str, help='Data folder')
+parser.add_argument('--data-dir', type=str, help='Data folder', required=True)
 parser.add_argument('--start-idx', default=0, type=int, help='The index of area which you prefer to start the process.')
 parser.add_argument('--end-idx', type=int, default=80,help='The index of area which you prefer to stop the process. -1 means no stop.')
 # parser.add_argument('--base-path', type=str, default='data/generated', help='Base path to store the generated data.')
@@ -54,7 +54,10 @@ BASE_PATH = args.data_dir
 
 # BLENDER_PATH should be the path I built, since the things are enabled
 #BLENDER_PATH = os.path.join(PROJECT_BASE_PATH,os.environ.get('BLENDER_PATH'))
-BLENDER_PATH = args.beldner_path
+BLENDER_PATH = os.path.expanduser(args.blender_path)
+
+if not os.path.exists(BLENDER_PATH):
+    logger.error("Blender path is not exist!")
 BLENDER_COMMAND_LINE_PATH = os.path.join(dirname(__file__), args.command_line_script_path)
 BLENDER_OSM_DOWNLOAD_PATH = os.path.join(args.data_dir, "OSM_download")
 
@@ -63,7 +66,7 @@ STOP_AT_IDX = args.end_idx
 NUM_OF_PROCESS = args.max_process
 DECIMATE_FACTOR = 1
 TERRAIN_OR_PLANE = args.land_type
-RES_FILE_NAME = args.res_file_name
+RES_FILE_NAME = args.res_file
 
 
 MITSUBA_EXPORT_BUILDINGS = 'y'  # controls whether mitsuba will export the XML file
@@ -98,8 +101,6 @@ if __name__ == '__main__':
     with concurrent.futures.ProcessPoolExecutor(max_workers=NUM_OF_PROCESS) as executor:
         for idx, line in enumerate(lines):
             minLonOut, maxLatOut, maxLonOut, minLatOut, percent, idx_uuid = splitting_a_line(lll=line, uuid_incl='y')
-            if percent < 0.2:
-                continue
             if idx < START_FROM_IDX:
                 continue
             if idx >= STOP_AT_IDX != -1:

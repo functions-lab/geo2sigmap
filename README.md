@@ -119,9 +119,9 @@ Simply run:
 ```console
 python3 gen_data/Step1_OSM/OSM_from_generate_nc_dataset.py
 ```
-The above command will download the Duke Campus srounding region's OSM XML file with the setting of 512m area dimension, 0.2 building to landing threshold.
+The above command will download the Duke Campus surrounding region's OSM XML file with the setting of 512m area dimension, 0.2 building to landing threshold.
 
-You can check the arguments by the `-h` arguments.
+You can check the detail option by the `-h` arguments.
 
 
 Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.

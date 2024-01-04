@@ -6,19 +6,45 @@ from os.path import join, dirname
 # import uuid
 from dotenv import load_dotenv
 
+
+parser = argparse.ArgumentParser(description='Process latitude and longitude ranges.')
+
+# Adding arguments
+parser.add_argument('--blender-path', default="~/blender-git/build_linux_release/bin/blender", type=str, help='Blender binary file path.')
+parser.add_argument('--command-line-script-path', default="blender_test_command_line.py", type=str, help='Command line python script path.')
+parser.add_argument('--data-dir', type=str, help='Data folder')
+parser.add_argument('--start-idx', default=0, type=int, help='The index of area which you prefer to start the process.')
+parser.add_argument('--end-idx', type=int, default=80,help='The index of area which you prefer to stop the process. -1 means no stop.')
+# parser.add_argument('--base-path', type=str, default='data/generated', help='Base path to store the generated data.')
+parser.add_argument('--max-process', type=int, default=5, help='Maximum process used for generate data.')
+# parser.add_argument('--max-thread', type=int, default=5, help='Maximum thread used for generate data.')
+parser.add_argument('--land-type', choices=['terrain', 'plane'], default='plane', help='The type of land when rendering the 3D meshs. Note this is a experimental feature, Sionna still not supprt dynamical altitude level ray tracing.')
+parser.add_argument('--', type=int, default=0.2, help='Area dimension.')
+
+# Parse the arguments
+args = parser.parse_args()
+
+
+
+
+
 load_dotenv(join(dirname(__file__), '../.env'))
+
 PROJECT_BASE_PATH = os.environ.get('PROJECT_BASE_PATH')
-BASE_PATH = os.path.join(PROJECT_BASE_PATH,os.environ.get('BASE_PATH'))
+
+BASE_PATH = args.data_dir
+
 # BLENDER_PATH should be the path I built, since the things are enabled
-BLENDER_PATH = os.path.join(PROJECT_BASE_PATH,os.environ.get('BLENDER_PATH'))
-BLENDER_COMMAND_LINE_PATH = os.path.join(PROJECT_BASE_PATH,os.environ.get('BLENDER_COMMAND_LINE_PATH'))
-BLENDER_OSM_DOWNLOAD_PATH = os.path.join(PROJECT_BASE_PATH, os.path.join(BASE_PATH, os.environ.get('BLENDER_OSM_DOWNLOAD_PATH')))
-print(BLENDER_COMMAND_LINE_PATH)
-START_FROM_IDX = 0
-STOP_AT_IDX = 80
-NUM_OF_PROCESS = 5
+#BLENDER_PATH = os.path.join(PROJECT_BASE_PATH,os.environ.get('BLENDER_PATH'))
+BLENDER_PATH = args.beldner_path
+BLENDER_COMMAND_LINE_PATH = os.path.join(dirname(__file__), args.command_line_script_path)
+BLENDER_OSM_DOWNLOAD_PATH = os.path.join(args.data_dir, "OSM_download")
+
+START_FROM_IDX = args.start_idx
+STOP_AT_IDX = args.end_idx
+NUM_OF_PROCESS = args.max_process
 DECIMATE_FACTOR = 1
-TERRAIN_OR_PLANE = 'plane'
+TERRAIN_OR_PLANE = args.land_type
 RES_FILE_NAME = os.environ.get('RES_FILE_NAME')
 MITSUBA_EXPORT_BUILDINGS = 'y'  # controls whether mitsuba will export the XML file
 XML_TO_BUILDING_MAP = 'n'  # controls whether to use existing XML to produce building map

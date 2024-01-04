@@ -366,4 +366,5 @@ if __name__ == '__main__':
         print("# of areas checked:                                       {}".format(len(total_areas)))
         print("# of areas with b2l ratio > {}:                           {}".format(b2l_threshold, len(qualified_lines)))
         print("# of areas with b2l ratio > {} and successfully download: {}".format(b2l_threshold, len(download_areas)))
+        print("Generated data stores in: {}".format(BASE_PATH))
 

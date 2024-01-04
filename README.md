@@ -113,18 +113,37 @@ Please follow [Sionna's official document](https://nvlabs.github.io/sionna/insta
 Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
 
 ## Example Usage
+>Note: The public OSM sever have a query limitation around 2-20 query/second, so if you want to achieve a faster process speed, consider deploy a self-host OSM server following the OSM official document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
 
-### Generate 3D Building Meshs & 2D Building Height Map
-Simply run:
+The following command use NC RTP region as an example. 
+For a custom settings, please check the detail option by the `-h` arguments for each python script.
+### Pre-Check the building to land ratio and download the OSM XML file for target area
 ```console
 python3 gen_data/Step1_OSM/OSM_from_generate_nc_dataset.py
 ```
-The above command will download the Duke Campus surrounding region's OSM XML file with the setting of 512m area dimension, 0.2 building to landing threshold.
+The above command have a default setting of 512m area dimension, 0.2 building to landing threshold.
 
-You can check the detail option by the `-h` arguments.
+### Generate 3D Building Meshs & 2D Building Height Map
+
+```console
+python3 gen_data/Step2_Blender/blender_test_wrapper.py
+```
+### Generate synthetic signal coverage map by Sionna RT
+```console
+python3 gen_data/Step2_Blender/xml_to_heatmap_wrapper512_tr38901_randAngle.py
+```
+The above command have a default setting of ISO antenna.
+```console
+python3 gen_data/Step2_Blender/xml_to_heatmap_wrapper512_tr38901_randAngle.py
+```
+
+The above command have a default setting of TR38901 directional antenna with four random select angle for each area.
+### Train cascade U-Net Model
+
+#### Train the first cascade U-Net Model with ISO antenna dataset
+#### Train the second cascade U-Net Model with directional antenna dataset
 
 
-Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
 
 <!--- #### Generate signal coverage map using Sionna
 To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defined in xxxx.

@@ -10,7 +10,7 @@ import uuid
 import osmnx as ox
 import numpy as np
 from tqdm.auto import tqdm
-
+import datetime
 
 import argparse
 # 36.460291, -80.728875
@@ -60,7 +60,7 @@ def compute_building_to_land_ration(tmp_top_left_lat, tmp_top_left_lon, queue,to
     ox.settings.use_cache = False
     ox.settings.cache_only_mode = False
     ox.settings.overpass_endpoint = OSM_SERVER_ADDRESS + "/api/interpreter"
-    print(ox.settings.overpass_endpoint)
+    #print(ox.settings.overpass_endpoint)
     try:
 
         geometries = ox.geometries.geometries_from_bbox(bbox[1], south=bbox[3],
@@ -79,7 +79,7 @@ def producer(batch, queue):
     #ox.settings.overpass_endpoint = "http://192.168.1.164:8088/api"
 
     to4326 = Transformer.from_crs("EPSG:6933", "EPSG:4326")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREAD) as executor:
         for job in batch:
             executor.submit(compute_building_to_land_ration, job[0], job[1], queue, to4326)
         # executor.submit(compute_building_to_land_ration, job[0], job[1], queue, to4326) for job in batch
@@ -91,7 +91,7 @@ def producer(batch, queue):
 
 def consumer(queue, tqdm_size):
 
-    pabar2 = tqdm(total=tqdm_size, position=0, desc="Saving", leave=True)
+    pabar2 = tqdm(total=tqdm_size, position=0, desc="Check area's b2l ratio", leave=True)
     # file1 = open("res3_srv1_whole_us.txt", "a")
     res = []
     while True:
@@ -100,9 +100,14 @@ def consumer(queue, tqdm_size):
         item = queue.get(block=True)
 
 
-        # check for stop
-        if item is None:
-            break
+
+        if len(res) == 100 or item is None:
+            file1 = open(RES_FILE_PATH, "a")
+            file1.writelines(res)
+            res.clear()
+            file1.close()
+            if item is None:
+                break
         # report
         bbox = item[0]
         building_ratio = item[1]
@@ -110,11 +115,7 @@ def consumer(queue, tqdm_size):
         res += ['(%f,%f,%f,%f),%f,%s\n' % (item[0][0], item[0][1], item[0][2], item[0][3], item[1],str(uuid.uuid4()))]
 
         #res += '{},{}\n'.format(bbox, building_ratio)
-        if len(res) == 100:
-            file1 = open(RES_FILE_PATH, "a")
-            file1.writelines(res)
-            res.clear()
-            file1.close()
+
 
         pabar2.update(1)
     # file1.close()
@@ -125,13 +126,18 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process latitude and longitude ranges.')
 
     # Adding arguments
-    parser.add_argument('--minilat', default=35.54728625208108, type=float, help='Minimum latitude')
-    parser.add_argument('--maxlat', default=36.09139593781888, type=float, help='Maximum latitude')
-    parser.add_argument('--minilon', default=-79.04640192793481, type=float, help='Minimum longitude')
-    parser.add_argument('--maxlon', default=-78.42138748567791, type=float, help='Maximum longitude')
-    parser.add_argument('--serveraddr', type=str, default='https://overpass-api.de',
+    parser.add_argument('--minilat', default=35.99261919354309, type=float, help='Minimum latitude')
+    parser.add_argument('--maxlat', default=36.01906155959659, type=float, help='Maximum latitude')
+    parser.add_argument('--minilon', default=-78.95279702749642, type=float, help='Minimum longitude')
+    parser.add_argument('--maxlon', default=-78.92215724379454, type=float, help='Maximum longitude')
+    parser.add_argument('--server-addr', type=str, default='https://overpass-api.de',
                         help='OSM API Server URL Note:Default public OSM API Server have a limit for less than ten query per second.')
-    parser.add_argument('--basepath', type=str, default='res/tmp', help='Basepath')
+    parser.add_argument('--base-path', type=str, default='data/generated', help='Base path to store the generated data.')
+    parser.add_argument('--max-process', type=int, default=5, help='Maximum process used for generate data.')
+    parser.add_argument('--max-thread', type=int, default=5, help='Maximum thread used for generate data.')
+    
+    #TODO
+    #add a argument to specified the keep working dir 
 
     # Parse the arguments
     args = parser.parse_args()
@@ -141,18 +147,20 @@ if __name__ == '__main__':
     max_lat = args.maxlat
     min_lon = args.minilon
     max_lon = args.maxlon
-    OSM_SERVER_ADDRESS = args.serveraddr
-    BASE_PATH = args.basepath
-
+    OSM_SERVER_ADDRESS = args.server_addr
+    BASE_PATH = os.path.join(args.base_path, "{}_{}".format(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M"),uuid.uuid4().hex[:6]))
+    MAX_PROCESS = args.max_process
+    MAX_THREAD = args.max_thread
     print(f"Latitude range: {min_lat} to {max_lat}")
     print(f"Longitude range: {min_lon} to {max_lon}")
     print(f"OSM API Server URL: {OSM_SERVER_ADDRESS}")
+    print(f"Data Base Path: {BASE_PATH}")
+    print(f"# of Process: {MAX_PROCESS}, # of Thread: {MAX_THREAD}")
 
     #load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
     #BASE_PATH = os.environ.get('BASE_PATH')
-    RES_FILE_NAME = "res.txt"
     os.makedirs(BASE_PATH,exist_ok=True)
-    RES_FILE_PATH = os.path.join(BASE_PATH,RES_FILE_NAME)
+    RES_FILE_PATH = os.path.join(BASE_PATH,"Area_b2l_result.txt")
 
 
     # min_lat = 24.318717
@@ -181,16 +189,16 @@ if __name__ == '__main__':
 
     to4326 = Transformer.from_crs("EPSG:6933", "EPSG:4326")
     to6933 = Transformer.from_crs("EPSG:4326", "EPSG:6933")
-    print("res")
-    print(to6933.transform(min_lat, min_lon))
-    print(to6933.transform(max_lat, max_lon))
+    # print("res")
+    # print(to6933.transform(min_lat, min_lon))
+    # print(to6933.transform(max_lat, max_lon))
 
     min_lat_6933 = to6933.transform(min_lat, min_lon)[1]
     max_lat_6933 = to6933.transform(max_lat, max_lon)[1]
     min_lon_6933 = to6933.transform(min_lat, min_lon)[0]
     max_lon_6933 = to6933.transform(max_lat, max_lon)[0]
-    print("min_lat:%f, max_lat:%f, min_lon:%f, max_lon:%f" % (min_lat_6933, max_lat_6933, min_lon_6933, max_lon_6933))
-    print(to4326.transform(-7789228.857589593 + 1000, 4188062.1742998925 + 1000))
+    # print("min_lat:%f, max_lat:%f, min_lon:%f, max_lon:%f" % (min_lat_6933, max_lat_6933, min_lon_6933, max_lon_6933))
+    # print(to4326.transform(-7789228.857589593 + 1000, 4188062.1742998925 + 1000))
 
     #ox.settings.overpass_endpoint = "http://10.237.197.245/api/interpreter"
 
@@ -208,8 +216,8 @@ if __name__ == '__main__':
     consumer_process = Thread(target=consumer, args=(queue, len(job_queue)))
     consumer_process.start()
     try:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
-            batch_size = 10000
+        with concurrent.futures.ProcessPoolExecutor(max_workers=MAX_PROCESS) as executor:
+            batch_size = int(len(job_queue) / MAX_PROCESS)
             for i in range(0, len(job_queue), batch_size):
                 batch = job_queue[i:i + batch_size]  # the result might be shorter than batchsize at the end
 
@@ -225,5 +233,6 @@ if __name__ == '__main__':
             job.cancel()
     finally:
         queue.put(None)
+        wait(futures)
         consumer_process.join()
 

@@ -113,7 +113,7 @@ Please follow [Sionna's official document](https://nvlabs.github.io/sionna/insta
 Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
 
 ## Example Usage
->Note: The public OSM sever have a query limitation around 2-20 query/second, so if you want to achieve a faster process speed, consider deploy a self-host OSM server following the OSM official document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
+>Note: The public OSM sever have a query limitation around 2-20 query/second. To achieve higher speed, consider deploy a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
 
 The following command use the region of Research Triangle Park, NC as an example. 
 For a custom settings, please check the detail option by the `-h` arguments for each python script.

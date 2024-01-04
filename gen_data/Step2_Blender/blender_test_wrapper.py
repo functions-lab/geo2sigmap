@@ -4,7 +4,23 @@ from concurrent.futures import wait
 import os
 from os.path import join, dirname
 # import uuid
-from dotenv import load_dotenv
+import argparse
+import logging
+# from dotenv import load_dotenv
+
+# Create a logger
+logger = logging.getLogger('')
+logger.setLevel(logging.DEBUG)  # Set the logging level
+
+console_handler = logging.StreamHandler()  # By default, this directs logs to stdout
+console_handler.setLevel(logging.INFO)  # Set the handler's logging level
+
+# Create a formatter and set it on the handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# # Add the file handler to the logger
+logger.addHandler(console_handler)
 
 
 parser = argparse.ArgumentParser(description='Process latitude and longitude ranges.')
@@ -19,16 +35,18 @@ parser.add_argument('--end-idx', type=int, default=80,help='The index of area wh
 parser.add_argument('--max-process', type=int, default=5, help='Maximum process used for generate data.')
 # parser.add_argument('--max-thread', type=int, default=5, help='Maximum thread used for generate data.')
 parser.add_argument('--land-type', choices=['terrain', 'plane'], default='plane', help='The type of land when rendering the 3D meshs. Note this is a experimental feature, Sionna still not supprt dynamical altitude level ray tracing.')
-parser.add_argument('--', type=int, default=0.2, help='Area dimension.')
+parser.add_argument('--res-file', type=str, default="Filtered_Area_b2l_result.txt", help='Area dimension.')
 
 # Parse the arguments
 args = parser.parse_args()
+logger.info("All settings used:")
+for k,v in sorted(vars(args).items()):
+    logger.info("{0}: {1}".format(k,v))
 
 
 
 
-
-load_dotenv(join(dirname(__file__), '../.env'))
+# load_dotenv(join(dirname(__file__), '../.env'))
 
 PROJECT_BASE_PATH = os.environ.get('PROJECT_BASE_PATH')
 
@@ -45,7 +63,9 @@ STOP_AT_IDX = args.end_idx
 NUM_OF_PROCESS = args.max_process
 DECIMATE_FACTOR = 1
 TERRAIN_OR_PLANE = args.land_type
-RES_FILE_NAME = os.environ.get('RES_FILE_NAME')
+RES_FILE_NAME = args.res_file_name
+
+
 MITSUBA_EXPORT_BUILDINGS = 'y'  # controls whether mitsuba will export the XML file
 XML_TO_BUILDING_MAP = 'n'  # controls whether to use existing XML to produce building map
 

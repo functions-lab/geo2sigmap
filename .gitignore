@@ -4,3 +4,4 @@ lib/
 build_linux_release/
 pyvenv.cfg
 res3_srv1_33.txt
+gen_data/blosm.zip

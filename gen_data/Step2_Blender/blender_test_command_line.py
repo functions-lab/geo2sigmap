@@ -12,67 +12,55 @@ import numpy as np
 import traceback
 
 
-
-
-if '--' in sys.argv:
-    argv = sys.argv[sys.argv.index('--') + 1:]
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--idx', type=int, required=True)
-parser.add_argument('-l', '--minLon', type=float, required=True)
-parser.add_argument('-t', '--maxLat', type=float, required=True)
-parser.add_argument('-r', '--maxLon', type=float, required=True)
-parser.add_argument('-b', '--minLat', type=float, required=True)
-parser.add_argument('-d', '--decimate_factor', type=int, required=False, default=1)
-parser.add_argument('-p', '--BASE_PATH', type=str, required=True)
-parser.add_argument('-u', '--BLENDER_OSM_DOWNLOAD_PATH', type=str, required=True)
-parser.add_argument('-n', '--idx_uuid', type=str, required=True)
-parser.add_argument('--terrain_or_plane', type=str, required=True)
-parser.add_argument('--export_buildings', type=str, required=True)
-parser.add_argument('--xml_to_building_map', type=str, required=True)  # =='y' when using existing xml to produce building map
-
-parser.add_argument('-o', '--building_to_area_ratio', type=float, required=True)
-parser.add_argument('--peoject_base_path', type=str, required=True)
-
-args = parser.parse_known_args(argv)[0]
-
-# this is the path where the results are stored (terrain_npy, building_npy, height files, Mitsuba_export)
-BASE_PATH = args.BASE_PATH  # '/Users/zeyuli/Desktop/Duke/0. Su23_Research/Blender_stuff/res/'
-CAMERA_ORTHO_SCALE = 1920
-
-
-
 def install_Blender_add_on():
+
+    #TODO: Check for blosm or mitsuba exist, if exist, then just ignore 
     bpy.ops.preferences.addon_install(filepath=os.path.join(args.peoject_base_path,'blosm.zip'))
     bpy.ops.preferences.addon_enable(module='blosm')
     bpy.ops.preferences.addon_install(filepath=os.path.join(args.peoject_base_path,'mitsuba-blender.zip'))
     bpy.ops.preferences.addon_enable(module='mitsuba-blender')
     bpy.context.preferences.addons['blosm'].preferences.dataDir = "/tmp"
     print(bpy.context.preferences.addons['blosm'].preferences.dataDir)
-    # bpy.ops.wm.save_userpref()
-# def install_package(package_name):
-#     print("Start pip install process")
-#     try:
-#         # path to python.exe
-#         python_exe = os.path.join(sys.prefix, 'bin', 'python3.10')
-#         print(python_exe)
-#         # upgrade pip
-#         #subprocess.call([python_exe, "-m", "ensurepip"])
-#         subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
 
-#         # install required packages
-#         subprocess.call([python_exe, "-m", "pip", "install", package_name])
+if '--' in sys.argv:
+    argv = sys.argv[sys.argv.index('--') + 1:]
+parser = argparse.ArgumentParser()
+parser.add_argument('-i', '--idx', type=int, required=False)
+parser.add_argument('-l', '--minLon', type=float, required=False)
+parser.add_argument('-t', '--maxLat', type=float, required=False)
+parser.add_argument('-r', '--maxLon', type=float, required=False)
+parser.add_argument('-b', '--minLat', type=float, required=False)
+parser.add_argument('-d', '--decimate_factor', type=int, required=False, default=1)
+parser.add_argument('-p', '--BASE_PATH', type=str, required=False)
+parser.add_argument('-u', '--BLENDER_OSM_DOWNLOAD_PATH', type=str, required=False)
+parser.add_argument('-n', '--idx_uuid', type=str, required=False)
+parser.add_argument('--terrain_or_plane', type=str, required=False)
+parser.add_argument('--export_buildings', type=str, required=False)
+parser.add_argument('--xml_to_building_map', type=str, required=False)  # =='y' when using existing xml to produce building map
 
-#         print("DONE")
-#         return
-#     except Exception as e:
-#         print("got error in install pip")
-#         raise e
+parser.add_argument('-o', '--building_to_area_ratio', type=float, required=False)
+parser.add_argument('--peoject_base_path', type=str, required=False)
+parser.add_argument('--precheck', action='store_true')
+
+args = parser.parse_known_args(argv)[0]
 
 
+if args.precheck:
+    try:
+        install_Blender_add_on()
+    except Exception as e:
+        exit(-1)
+    exit()
 
-# install_package("pillow")
-# install_package("mitsuba==3.0.1")
-install_Blender_add_on()
+
+# this is the path where the results are stored (terrain_npy, building_npy, height files, Mitsuba_export)
+BASE_PATH = args.BASE_PATH  # '/Users/zeyuli/Desktop/Duke/0. Su23_Research/Blender_stuff/res/'
+CAMERA_ORTHO_SCALE = 1920
+bpy.ops.preferences.addon_enable(module='blosm')
+bpy.ops.preferences.addon_enable(module='mitsuba-blender')
+bpy.context.preferences.addons['blosm'].preferences.dataDir = "/tmp"
+
+
 # from PIL import Image
 def delete_terrain_and_osm_files(PATH_download=BASE_PATH + 'Blender_download_files'):
     try:

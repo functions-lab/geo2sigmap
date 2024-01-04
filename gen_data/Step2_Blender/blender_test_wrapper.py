@@ -139,6 +139,26 @@ def splitting_a_line(lll, uuid_incl='n'):
 
 if __name__ == '__main__':
     install_package("mitsuba==3.0.1")
+    precheck_result = subprocess.run([
+                                        BLENDER_PATH,
+                                        "--background",
+                                        "--python",
+                                        BLENDER_COMMAND_LINE_PATH, "--",
+                                        "--precheck",
+                                        '--peoject_base_path', str(PROJECT_BASE_PATH) ], 
+                                    capture_output=True, text=True)
+    output = precheck_result.stdout
+    error = precheck_result.stderr
+
+    # Print output and error messages
+    print("Output:", output)
+    print("Error:", error)
+    print(precheck_result.returncode)
+    if precheck_result.returncode != 0:
+        # Get the output and error messages (if needed)
+        logger.error("Fatal error when installing the Blender addons!")
+        exit(-1)
+
     print(BASE_PATH)
     print("start")
     os.makedirs(os.path.join(BASE_PATH , 'height_at_origin/'), exist_ok=True)
@@ -198,7 +218,8 @@ if __name__ == '__main__':
                      '--terrain_or_plane', TERRAIN_OR_PLANE,
                      '--export_buildings', MITSUBA_EXPORT_BUILDINGS,
                      '--xml_to_building_map', XML_TO_BUILDING_MAP,
-                     '--peoject_base_path', str(PROJECT_BASE_PATH)
+                     '--peoject_base_path', str(PROJECT_BASE_PATH),
+                     "--addons blosm"
                  ]
             if check_display:
                 command_list = ["xvfb-run","-a"] + command_list

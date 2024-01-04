@@ -115,7 +115,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 ## Example Usage
 >Note: The public OSM sever have a query limitation around 2-20 query/second, so if you want to achieve a faster process speed, consider deploy a self-host OSM server following the OSM official document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
 
-The following command use NC RTP region as an example. 
+The following command use the region of Research Triangle Park, NC as an example. 
 For a custom settings, please check the detail option by the `-h` arguments for each python script.
 ### Pre-Check the building to land ratio and download the OSM XML file for target area
 ```console

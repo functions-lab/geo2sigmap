@@ -318,7 +318,9 @@ if __name__ == '__main__':
             job.cancel()
     finally:
         queue.put(None)
+        print("put")
         wait(futures)
+        print("wait")
         consumer_process.join()
 
     
@@ -368,3 +370,4 @@ if __name__ == '__main__':
         print("# of areas with b2l ratio > {} and successfully download: {}".format(b2l_threshold, len(download_areas)))
         print("Generated data stores in: {}".format(BASE_PATH))
 
+    #TODO: Seems like a consumer process is not terminating!

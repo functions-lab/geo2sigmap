@@ -13,6 +13,7 @@ from tqdm.auto import tqdm
 import datetime
 
 import argparse
+import requests
 # 36.460291, -80.728875
 #
 #
@@ -42,9 +43,21 @@ import argparse
 # step_size_lat = 0.01 * 0.657657
 # print(step_size_lon)
 
-N_Size = 512
+
 
 from pyproj import Transformer
+
+
+
+def splitting_a_line(lll):
+    lll = lll.replace('(', '')
+    lll = lll.replace(')', '')
+    lll = lll.replace('\n', '')
+    lll = lll.split(',')
+    # file format: (minLon,maxLat,maxLon,minLat),percent,idx_uuid
+
+    minLon, maxLat, maxLon, minLat, perc, idx_uuid = [k for k in lll]
+    return [float(minLon), float(maxLat), float(maxLon), float(minLat), float(perc), idx_uuid]
 
 
 def compute_building_to_land_ration(tmp_top_left_lat, tmp_top_left_lon, queue,to4326):
@@ -120,6 +133,44 @@ def consumer(queue, tqdm_size):
         pabar2.update(1)
     # file1.close()
 
+def consumer_download_osm(queue, tqdm_size, filtted_res_file_path):
+
+    while True:
+        # get a unit of work
+        item = queue.get(block=True)
+
+        # check for stop
+        if item is None:
+            break
+
+        file1 = open(filtted_res_file_path, 'a')
+        file1.writelines(','.join(str(i) for i in item) + "\n")
+        file1.close()
+
+def producer_download_osm(queue, BLENDER_OSM_DOWNLOAD_PATH, line, idx):
+    minLon, maxLat, maxLon, minLat, perc, idx_uuid = line
+    url = '{:s}/api/map?bbox={:f},{:f},{:f},{:f}'.format(OSM_SERVER_ADDRESS, minLon, minLat, maxLon, maxLat)
+    #print(url)
+    #url = 'http://10.237.197.245/api/map?bbox={:f},{:f},{:f},{:f}'.format(minLon, minLat, maxLon, maxLat)
+    #print(url)
+    #url = 'http://tc319-srv1.egr.duke.edu:23412/api/interpreter?data=[bbox];way[building],node[building],relation[building];out;&bbox={:f},{:f},{:f},{:f}'.format(minLon, minLat, maxLon, maxLat)
+    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36'
+   
+    headers = {'User-Agent': user_agent}
+    response = requests.get(url)
+    osm_text = response.text
+    #idx_uuid = str(idx) + '_' + str(uuid.uuid4())
+
+    # save osm:
+    f_ptr_osm = open(os.path.join(BLENDER_OSM_DOWNLOAD_PATH,idx_uuid + '.osm'), 'w')
+    f_ptr_osm.writelines(osm_text)
+    f_ptr_osm.close()
+    # temp_arr = [minLon, maxLat, maxLon, minLat, perc, idx_uuid]
+    # temp_arr = [str(t) for t in temp_arr]
+    # # save line in res:
+    # res = '(' + ','.join(temp_arr[0:4]) + '),' + ','.join(temp_arr[-2:]) + '\n'
+    queue.put(line)
+
 
 if __name__ == '__main__':
 
@@ -135,6 +186,8 @@ if __name__ == '__main__':
     parser.add_argument('--base-path', type=str, default='data/generated', help='Base path to store the generated data.')
     parser.add_argument('--max-process', type=int, default=5, help='Maximum process used for generate data.')
     parser.add_argument('--max-thread', type=int, default=5, help='Maximum thread used for generate data.')
+    parser.add_argument('--area-size', type=int, default=512, help='Area dimension.')
+    parser.add_argument('--b2l-threshold', type=int, default=0.2, help='Area dimension.')
     
     #TODO
     #add a argument to specified the keep working dir 
@@ -151,16 +204,22 @@ if __name__ == '__main__':
     BASE_PATH = os.path.join(args.base_path, "{}_{}".format(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M"),uuid.uuid4().hex[:6]))
     MAX_PROCESS = args.max_process
     MAX_THREAD = args.max_thread
+    N_Size = args.area_size
+    b2l_threshold = args.b2l_threshold
+
     print(f"Latitude range: {min_lat} to {max_lat}")
     print(f"Longitude range: {min_lon} to {max_lon}")
     print(f"OSM API Server URL: {OSM_SERVER_ADDRESS}")
     print(f"Data Base Path: {BASE_PATH}")
     print(f"# of Process: {MAX_PROCESS}, # of Thread: {MAX_THREAD}")
+    print(f"Area dimension: {N_Size}m")
 
     #load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
     #BASE_PATH = os.environ.get('BASE_PATH')
     os.makedirs(BASE_PATH,exist_ok=True)
     RES_FILE_PATH = os.path.join(BASE_PATH,"Area_b2l_result.txt")
+    FILTERED_RES_FILE_PATH = os.path.join(BASE_PATH,"Filtered_Area_b2l_result.txt")
+    
 
 
     # min_lat = 24.318717
@@ -235,4 +294,50 @@ if __name__ == '__main__':
         queue.put(None)
         wait(futures)
         consumer_process.join()
+
+    
+    osm_download_dir = os.path.join(BASE_PATH,"OSM_download")
+    os.makedirs(osm_download_dir, exist_ok=True)
+
+    f_ptr_res = open(RES_FILE_PATH, 'r')
+    total_areas = f_ptr_res.readlines()
+    f_ptr_res.close()
+
+    qualified_lines = []
+    for line in total_areas:
+        #minLon, maxLat, maxLon, minLat, perc, idx_uuid
+        tmp_res = splitting_a_line(line)
+        if tmp_res[4] > b2l_threshold:
+            qualified_lines.append(tmp_res)
+
+    m = multiprocessing.Manager()
+    queue = m.Queue()
+    futures = []
+    # lines = [1,2,3,4]
+    pabar2 = tqdm(total=len(qualified_lines), position=0, desc="Download OSM XML", leave=True)
+    try:
+
+        consumer_process = Thread(target=consumer_download_osm, args=(queue, len(total_areas),FILTERED_RES_FILE_PATH))
+        consumer_process.start()
+        with concurrent.futures.ProcessPoolExecutor(max_workers=MAX_PROCESS) as executor:
+            for idx, line in enumerate(qualified_lines):
+                futures.append(executor.submit(producer_download_osm, queue, osm_download_dir, line, idx))
+            for future in concurrent.futures.as_completed(futures):
+                pabar2.update(1)
+                data = future.result()
+                #print('\n\n\n\n\n' + str(idx) + '\n' +str(data).replace("\\n","\n") + '\n\n\n\n\n')
+    except KeyboardInterrupt:
+        for job in futures:
+            job.cancel()
+    finally:
+        queue.put(None)
+        wait(futures)
+        consumer_process.join()
+        pabar2.close()
+        f_ptr_res = open(FILTERED_RES_FILE_PATH, 'r')
+        download_areas = f_ptr_res.readlines()
+        f_ptr_res.close()
+        print("# of areas checked:                                       {}".format(len(total_areas)))
+        print("# of areas with b2l ratio > {}:                           {}".format(b2l_threshold, len(qualified_lines)))
+        print("# of areas with b2l ratio > {} and successfully download: {}".format(b2l_threshold, len(download_areas)))
 

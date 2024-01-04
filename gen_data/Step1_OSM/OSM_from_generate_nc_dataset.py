@@ -14,6 +14,12 @@ import datetime
 
 import argparse
 import requests
+
+import logging
+
+
+
+
 # 36.460291, -80.728875
 #
 #
@@ -174,6 +180,22 @@ def producer_download_osm(queue, BLENDER_OSM_DOWNLOAD_PATH, line, idx):
 
 if __name__ == '__main__':
 
+
+
+    # Create a logger
+    logger = logging.getLogger('')
+    logger.setLevel(logging.DEBUG)  # Set the logging level
+
+    console_handler = logging.StreamHandler()  # By default, this directs logs to stdout
+    console_handler.setLevel(logging.INFO)  # Set the handler's logging level
+
+    # Create a formatter and set it on the handler
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+
+    # # Add the file handler to the logger
+    logger.addHandler(console_handler)
+
     parser = argparse.ArgumentParser(description='Process latitude and longitude ranges.')
 
     # Adding arguments
@@ -207,12 +229,16 @@ if __name__ == '__main__':
     N_Size = args.area_size
     b2l_threshold = args.b2l_threshold
 
-    print(f"Latitude range: {min_lat} to {max_lat}")
-    print(f"Longitude range: {min_lon} to {max_lon}")
-    print(f"OSM API Server URL: {OSM_SERVER_ADDRESS}")
-    print(f"Data Base Path: {BASE_PATH}")
-    print(f"# of Process: {MAX_PROCESS}, # of Thread: {MAX_THREAD}")
-    print(f"Area dimension: {N_Size}m")
+    # print(f"Latitude range: {min_lat} to {max_lat}")
+    # print(f"Longitude range: {min_lon} to {max_lon}")
+    # print(f"OSM API Server URL: {OSM_SERVER_ADDRESS}")
+    # print(f"Data Base Path: {BASE_PATH}")
+    # print(f"# of Process: {MAX_PROCESS}, # of Thread: {MAX_THREAD}")
+    # print(f"Area dimension: {N_Size}m")
+
+    logger.info("All settings used:")
+    for k,v in sorted(vars(args).items()):
+        logger.info("{0}: {1}".format(k,v))
 
     #load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
     #BASE_PATH = os.environ.get('BASE_PATH')

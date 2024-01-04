@@ -92,7 +92,7 @@ Or in all your build directories:
 ```
 Copy the first section and add an "release" between "make" and "-j" like the following ones and then execute it.
 
-```
+```console 
 make update
 make release -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
 ```

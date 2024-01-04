@@ -98,12 +98,12 @@ make release -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
 ```
 
 #### Download Blender Add-on & Apply Changes
-There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and [mitsuba-blender](https://github.com/mitsuba-renderer/mitsuba-blender/releases/). Download the zip file and place them in the root of this project `*/geo2sigmap/`.
-```console 
+There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and mitsuba-blender( Already included in this project ). Download the zip file and place them in the folder `*/geo2sigmap/gen_data`.
+<!-- ```console 
 unzip mitsuba-blender.zip
 perl -i -pe 's/  result = subprocess\.run\(\[sys\.executable, '-m', 'ensurepip'\], capture_output=True\)\n\s+return result\.returncode == 0/return True/' mitsuba-blender/__init__.py
 zip -r -0 mitsuba-blender.zip mitsuba-blender
-```
+``` -->
 
 #### Install Sionna
 Please follow [Sionna's official document](https://nvlabs.github.io/sionna/installation.html) to install Sionna.

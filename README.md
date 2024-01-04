@@ -115,12 +115,14 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 ## Example Usage
 
 ### Generate 3D Building Meshs & 2D Building Height Map
-We start with select a top left GPS coordinate and a bottom right coordinate. Simply put these two number into the `.env` file, and also defined the lang-to-building threshold to filter out the open space area. 
-
-Then run:
+Simply run:
 ```console
 python3 gen_data/Step1_OSM/OSM_from_generate_nc_dataset.py
 ```
+The above command will download the Duke Campus srounding region's OSM XML file with the setting of 512m area dimension, 0.2 building to landing threshold.
+
+You can check the arguments by the `-h` arguments.
+
 
 Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
 

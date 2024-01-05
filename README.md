@@ -38,6 +38,34 @@ This is an active project, if you are interested to have a community discussion,
 |  `data/`    |  This folder contains the sample data generate by our pipeline.                                                 |
 |  `ml/`       |  This folder contains the code of cascade machine learning models.                                                           |
 
+
+
+    .
+    ├── gen_data
+    │   ├── OSM_PreCheck_and_Download.py
+    │   ├── blender_wrapper.py
+    │   ├── blender_command_line.py
+    │   ├── sionna_wrapper.py
+    │   └── sionna_command_line.py
+    ├── data
+    │   ├── Jan05_1837_01b9be
+    │   │   ├── Bl_building_npy
+    │   │   ├── Bl_xml_files
+    │   │   ├── OSM_download
+    │   │   ├── Jan05_1837_RXcross_TXtr38901-cross_SampleNum7e6_cmres4
+    │   │   │   ├── 77ecdcb3-f018-4606-81f9-5694be5ec41d_-244_-244_21_82.npy
+    │   │   │   └── ...
+    │   │   ├── Area_b2l_result.txt
+    │   │   └── Filtered_Area_b2l_result.txt
+    │   └── ...
+    ├── ml                      # Documentation files (alternatively `doc`)
+    │   ├── TOC.md              # Table of contents
+    │   ├── faq.md              # Frequently asked questions
+    │   ├── misc.md             # Miscellaneous information
+    │   ├── usage.md            # Getting started guide
+    │   └── ...                 # etc.
+    └── ...
+
 ## Installation
 
 We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
@@ -122,10 +150,13 @@ The following command uses an 8km^2 sub-region in Durham, NC, as an example.
 ![image](https://github.com/functions-lab/geo2sigmap/assets/24806755/02315890-e317-4232-b98f-015e84a16118)
 
 For custom settings, please check the detail option by the `-h` arguments for each Python script.
+
 ### Pre-check the building-to-land ratio and download the OSM XML file for the target area
 ```console
 python3 gen_data/Step1_OSM/OSM_PreCheck_and_Download.py
 ```
+
+The output will be stored in the 'data/generated/MMDD_HHMM_uuid'. 
 The above command has a default setting of 512m area dimension and 0.2 building to landing threshold.
 
 ### Generate 3D Building Meshs & 2D Building Height Map

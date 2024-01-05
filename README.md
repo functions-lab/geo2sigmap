@@ -118,7 +118,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 ## Example Usage
 >Note: The public OSM sever have a query limitation around 2-20 query/second. To achieve higher speed, consider deploy a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
 
-The following command uses a sub-region in Durham, NC, as an example. 
+The following command uses an 8km^2 sub-region in Durham, NC, as an example. 
 ![image](https://github.com/functions-lab/geo2sigmap/assets/24806755/02315890-e317-4232-b98f-015e84a16118)
 
 For custom settings, please check the detail option by the `-h` arguments for each Python script.

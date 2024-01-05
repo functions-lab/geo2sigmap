@@ -148,7 +148,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 ## Example Usage
 >Note: The public OSM sever have a query limitation around 2-20 query/second. To achieve higher speed, consider deploy a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
 
-The following command uses an 8km^2 sub-region in Durham, NC, as an example. For custom settings, please check the detail option by the `-h` arguments for each Python script.
+The following command uses an 8km^2 sub-region in Durham, NC, 512m area dimension and 0.2 building to landing threshold, as an example. For custom settings, please check the detail option by the `-h` arguments for each Python script.
 ![image](https://github.com/functions-lab/geo2sigmap/assets/24806755/02315890-e317-4232-b98f-015e84a16118)
 
 ### data folder structure
@@ -174,7 +174,6 @@ The following command uses an 8km^2 sub-region in Durham, NC, as an example. For
 ```console
 python3 gen_data/Step1_OSM/OSM_PreCheck_and_Download.py
 ```
-The above command has a default setting of 512m area dimension and 0.2 building to landing threshold.
 
 The output of this step should look like this(min_lon, max_lat, max_lon, min_lat, b2l_ratio, uuid ):
 > -78.931571,36.017079,-78.921207,36.007433,0.767999,12862155-54ef-44ac-95cf-7aa7d0a862d4

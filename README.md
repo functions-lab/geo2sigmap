@@ -48,16 +48,18 @@ This is an active project, if you are interested to have a community discussion,
     │   ├── sionna_wrapper.py
     │   └── sionna_command_line.py
     ├── data
-    │   ├── Jan05_1837_01b9be
-    │   │   ├── Bl_building_npy
-    │   │   ├── Bl_xml_files
-    │   │   ├── OSM_download
-    │   │   ├── Jan05_1837_RXcross_TXtr38901-cross_SampleNum7e6_cmres4
-    │   │   │   ├── 77ecdcb3-f018-4606-81f9-5694be5ec41d_-244_-244_21_82.npy
-    │   │   │   └── ...
-    │   │   ├── Area_b2l_result.txt
-    │   │   └── Filtered_Area_b2l_result.txt
-    │   └── ...
+    │   ├── measurement
+    │   ├── generated
+    │   │   ├── Jan05_1837_01b9be
+    │   │   │   ├── Bl_building_npy
+    │   │   │   ├── Bl_xml_files
+    │   │   │   ├── OSM_download
+    │   │   │   ├── Jan05_1837_RXcross_TXtr38901-cross_SampleNum7e6_cmres4
+    │   │   │   │   ├── 77ecdcb3-f018-4606-81f9-5694be5ec41d_-244_-244_21_82.npy
+    │   │   │   │   └── ...
+    │   │   │   ├── Area_b2l_result.txt
+    │   │   │   └── Filtered_Area_b2l_result.txt
+    │   │   └── ...
     ├── ml                      # Documentation files (alternatively `doc`)
     │   ├── TOC.md              # Table of contents
     │   ├── faq.md              # Frequently asked questions

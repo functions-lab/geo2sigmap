@@ -40,8 +40,9 @@ This is an active project, if you are interested to have a community discussion,
 
 
 ## Installation
+For detailed documents, please check ["gen-data" folder](https://github.com/functions-lab/geo2sigmap/tree/dev/gen_data) for our automated framework and ["ml" folder](https://github.com/functions-lab/geo2sigmap/tree/main/ml) for our cascade U-Net architecture.
 
-We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
+<!---We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
 
 Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
 
@@ -107,7 +108,7 @@ There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) 
 unzip mitsuba-blender.zip
 perl -i -pe 's/  result = subprocess\.run\(\[sys\.executable, '-m', 'ensurepip'\], capture_output=True\)\n\s+return result\.returncode == 0/return True/' mitsuba-blender/__init__.py
 zip -r -0 mitsuba-blender.zip mitsuba-blender
-``` -->
+```
 
 #### Install Sionna
 Please follow [Sionna's official document](https://nvlabs.github.io/sionna/installation.html) to install Sionna.
@@ -115,8 +116,10 @@ Please follow [Sionna's official document](https://nvlabs.github.io/sionna/insta
 #### Install Pytorch
 
 Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
-
+-->
 ## Example Usage
+
+<!--- 
 >Note: The public OSM sever has a query limitation of around 2-20 queries/second. To achieve higher speed, consider deploying a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of a self-hosted server would be above 200 queries/second.
 
 The following command uses an 8km^2 region in Durham, NC, 512m area dimension and 0.2 building to landing threshold as an example. For custom settings, please check the detail option by the `-h` arguments for each Python script.

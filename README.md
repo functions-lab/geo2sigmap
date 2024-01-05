@@ -10,8 +10,7 @@ Welcome to the Geo2SigMap, this is the first work that:
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
 2. [Repo Structure](#repo-structure)
-3. [Installation](#installation)
-4. [Example Usage](#example-usage)
+3. [Installation & Example Useage](#installation--example-usage)
 5. [License](#license)
 
 ## Overview
@@ -39,8 +38,8 @@ This is an active project, if you are interested to have a community discussion,
 |  `ml/`       |  This folder contains the code of cascade machine learning models.                                                           |
 
 
-## Installation
-For detailed documents, please check ["gen-data" folder](https://github.com/functions-lab/geo2sigmap/tree/dev/gen_data) for our automated framework and ["ml" folder](https://github.com/functions-lab/geo2sigmap/tree/main/ml) for our cascade U-Net architecture.
+## Installation & Example Usage
+For detailed documents, please check ["gen-data"](https://github.com/functions-lab/geo2sigmap/tree/dev/gen_data) folder for our automated framework and ["ml"](https://github.com/functions-lab/geo2sigmap/tree/main/ml) folder for our cascade U-Net architecture.
 
 <!---We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
 
@@ -117,7 +116,7 @@ Please follow [Sionna's official document](https://nvlabs.github.io/sionna/insta
 
 Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
 -->
-## Example Usage
+
 
 <!--- 
 >Note: The public OSM sever has a query limitation of around 2-20 queries/second. To achieve higher speed, consider deploying a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of a self-hosted server would be above 200 queries/second.

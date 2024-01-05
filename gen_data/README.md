@@ -25,7 +25,7 @@ We provide detailed guidelines for installation including a docker image (for qu
 
 
 ### Docker
->Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
+>Note: Docker may suffer from performance loss due to xvfb virtual framebuffer.
 
 Run the following command to use our pre-compiled docker image:
 ```console

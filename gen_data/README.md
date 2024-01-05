@@ -22,9 +22,10 @@ Welcome to the Geo2SigMap. Here are the documents for our automated framework.
 
 We provide detailed guidelines for installation including a docker image (for quick try) and a clean install.
 
-Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
+
 
 ### Docker
+>Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
 
 Run the following command to use our pre-compiled docker image:
 ```console
@@ -90,6 +91,8 @@ zip -r -0 mitsuba-blender.zip mitsuba-blender
 
 #### Install Sionna
 Please follow [Sionna's official document](https://nvlabs.github.io/sionna/installation.html) to install Sionna.
+
+>Note: Our code is tested on Sionna v0.15.0
 
 ## Example Usage
 >Note: The public OSM sever has a query limitation of around 2-20 queries/second. To achieve higher speed, consider deploying a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of a self-hosted server would be above 200 queries/second.

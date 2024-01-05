@@ -122,7 +122,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 The following command uses an 8km^2 region in Durham, NC, 512m area dimension and 0.2 building to landing threshold as an example. For custom settings, please check the detail option by the `-h` arguments for each Python script.
 ![image](https://github.com/functions-lab/geo2sigmap/assets/24806755/02315890-e317-4232-b98f-015e84a16118)
 
-### data folder structure
+### Example structure of result data folder
     .
     ├── data
     │   ├── measurement

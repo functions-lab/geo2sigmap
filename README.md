@@ -117,9 +117,9 @@ Please follow [Sionna's official document](https://nvlabs.github.io/sionna/insta
 Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch.
 
 ## Example Usage
->Note: The public OSM sever have a query limitation around 2-20 query/second. To achieve higher speed, consider deploy a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
+>Note: The public OSM sever has a query limitation of around 2-20 queries/second. To achieve higher speed, consider deploying a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of a self-hosted server would be above 200 queries/second.
 
-The following command uses an 8km^2 sub-region in Durham, NC, 512m area dimension and 0.2 building to landing threshold, as an example. For custom settings, please check the detail option by the `-h` arguments for each Python script.
+The following command uses an 8km^2 region in Durham, NC, 512m area dimension and 0.2 building to landing threshold as an example. For custom settings, please check the detail option by the `-h` arguments for each Python script.
 ![image](https://github.com/functions-lab/geo2sigmap/assets/24806755/02315890-e317-4232-b98f-015e84a16118)
 
 ### data folder structure

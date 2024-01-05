@@ -1,6 +1,26 @@
+# Geo2SigMap: High-Fidelity RF Signal Mapping Using Geographic Databases
+[![arXiv](https://img.shields.io/badge/arXiv-2312.14303-green?color=FF8000?color=009922)](https://arxiv.org/abs/2312.14303)
+[![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-yellow.svg)](https://github.com/dvlab-research/LongLoRA/blob/main/LICENSE)
+
+
+Welcome to the Geo2SigMap. Here are the documents for our automated framework. 
+
+## TABLE OF CONTENTS
+1. [Overview](#overview)
+2. [Folder Structure](#folder-structure)
+3. [Installation](#installation)
+4. [Example Usage](#example-usage)
+5. [License](#license)
+
+## Overview
+
+* **We Designs an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;**
+
+## Folder Structure
+   
 ## Installation
 
-We provide detailed guidelines for installation including a docker image (for quick try) and a clean install and.
+We provide detailed guidelines for installation including a docker image (for quick try) and a clean install.
 
 Note: the docker way may suffer from performance loss due to xvfb virtual framebuffer.
 
@@ -138,11 +158,6 @@ An example of Step 3 output:
 
 ![An demo of Step 3](https://github.com/functions-lab/geo2sigmap/assets/24806755/e74edf95-1299-428c-bdad-d86244f1a90c)
 
-
-### Train cascade U-Net Model
-
-#### Train the first cascade U-Net Model with ISO antenna dataset
-#### Train the second cascade U-Net Model with directional antenna dataset
 
 
 

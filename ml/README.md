@@ -3,7 +3,7 @@
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-yellow.svg)](https://github.com/dvlab-research/LongLoRA/blob/main/LICENSE)
 
 
-Welcome to the Geo2SigMap. Here are the documents for our automated framework. 
+Welcome to the Geo2SigMap. Here are the documents for our cascade U-Net architecture. 
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)

@@ -118,13 +118,15 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 ## Example Usage
 >Note: The public OSM sever have a query limitation around 2-20 query/second. To achieve higher speed, consider deploy a self-host OSM server following the [OSM official document](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self-hosted server would be above 200 query/second.
 
-The following command use the region of Research Triangle Park, NC as an example. 
-For a custom settings, please check the detail option by the `-h` arguments for each python script.
-### Pre-Check the building to land ratio and download the OSM XML file for target area
+The following command uses a sub-region in Durham, NC, as an example. 
+![image](https://github.com/functions-lab/geo2sigmap/assets/24806755/02315890-e317-4232-b98f-015e84a16118)
+
+For custom settings, please check the detail option by the `-h` arguments for each Python script.
+### Pre-check the building-to-land ratio and download the OSM XML file for the target area
 ```console
 python3 gen_data/Step1_OSM/OSM_PreCheck_and_Download.py
 ```
-The above command have a default setting of 512m area dimension, 0.2 building to landing threshold.
+The above command has a default setting of 512m area dimension and 0.2 building to landing threshold.
 
 ### Generate 3D Building Meshs & 2D Building Height Map
 
@@ -135,12 +137,12 @@ python3 gen_data/Step2_Blender/blender_wrapper.py --data-dir=[Data dir generated
 ```console
 python3 gen_data/Step2_Blender/xml_to_heatmap_wrapper512_tr38901_randAngle.py
 ```
-The above command have a default setting of ISO antenna.
+The above command has a default setting of ISO antenna.
 ```console
 python3 gen_data/Step2_Blender/xml_to_heatmap_wrapper512_tr38901_randAngle.py
 ```
 
-The above command have a default setting of TR38901 directional antenna with four random select angle for each area.
+The above command has a default setting of TR38901 directional antenna with four random select angles for each area.
 ### Train cascade U-Net Model
 
 #### Train the first cascade U-Net Model with ISO antenna dataset

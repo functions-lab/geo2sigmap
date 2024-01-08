@@ -36,7 +36,15 @@ Welcome to the Geo2SigMap. Here are the documents for our cascade U-Net architec
 
 ### Train the First U-Net
 
+```console
+python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 --sparse-point 200
+```
+
 ### Train the Second U-Net
+
+```console
+python train_transfomer_learning.py --learning-rate 1e-3  --median-filter-size 1 --loss-alpha 0 --sparse-point 200
+```
 
 ### Prediction
 

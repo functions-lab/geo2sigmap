@@ -57,3 +57,6 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+ml/logs/
+ml/checkpoints/
+ml/wandb/

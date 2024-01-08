@@ -1,0 +1,7 @@
+tqdm
+wandb
+pymap3d
+scipy
+scikit-learn
+matplotlib
+tensorboard

@@ -7,16 +7,14 @@ Welcome to the Geo2SigMap. Here are the documents for our cascade U-Net architec
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
-2. [Folder Structure](#folder-structure)
-3. [Installation](#installation)
-4. [Example Usage](#example-usage)
-5. [License](#license)
+2. [Installation](#installation)
+3. [Example Usage](#example-usage)
+4. [License](#license)
 
 ## Overview
 
 * **We Develops a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.**
 
-## Folder Structure
    
 ## Installation
 
@@ -37,13 +35,13 @@ Welcome to the Geo2SigMap. Here are the documents for our cascade U-Net architec
 ### Train the First U-Net
 
 ```console
-python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 --sparse-point 200
+python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 --building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy --ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct10_1523_RXcross_TXiso-cross_SampleNum7e6_cmres4/
 ```
 
 ### Train the Second U-Net
 
 ```console
-python train_transfomer_learning.py --learning-rate 1e-3  --median-filter-size 1 --loss-alpha 0 --sparse-point 200
+python train_transfomer_learning.py --learning-rate 1e-3  --median-filter-size 1 --loss-alpha 0 --sparse-point 200 --building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy --ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct12_2003_RXcross_TXtr38901-cross_SampleNum7e6_cmres4/ --transfer-learning-map-dir=data/synthetic/Oct05_1034_a747d4/prediction_result_121
 ```
 
 ### Prediction

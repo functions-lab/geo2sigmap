@@ -35,7 +35,7 @@ pip install -r requirements.txt
 ### Train the First U-Net
 
 ```console
-python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 \
+python ml/train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 \
 --building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy \
 --ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct10_1523_RXcross_TXiso-cross_SampleNum7e6_cmres4/
 ```
@@ -43,7 +43,10 @@ python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filte
 ### Train the Second U-Net
 
 ```console
-python train_transfomer_learning.py --learning-rate 1e-3  --median-filter-size 1 --loss-alpha 0 --sparse-point 200 --building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy --ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct12_2003_RXcross_TXtr38901-cross_SampleNum7e6_cmres4/ --transfer-learning-map-dir=data/synthetic/Oct05_1034_a747d4/prediction_result_121
+python ml/train_transfomer_learning.py --learning-rate 1e-3  --median-filter-size 1 --loss-alpha 0 \
+--sparse-point 200 --building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy \
+--ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct12_2003_RXcross_TXtr38901-cross_SampleNum7e6_cmres4/ \
+--transfer-learning-map-dir=data/synthetic/Oct05_1034_a747d4/prediction_result_121
 ```
 
 ### Prediction

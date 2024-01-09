@@ -52,6 +52,16 @@ python ml/train_transfomer_learning.py --learning-rate 1e-3  --median-filter-siz
 ### Prediction
 
 
+### Pretrained model
+
+
+### Visualization
+
+Track your training progress in real-time with [wandb](https://wandb.ai/site). It records loss curves, validation data, weights, gradients, and predicted results. 
+
+Upon starting, a console link leads to your dashboard. Connect your existing W&B account via WANDB_API_KEY or run anonymously. For anonymous users, the logs are automatically deleted after 7 days.
+
+
 
     
 

@@ -15,6 +15,7 @@ Welcome to the Geo2SigMap. Here are the documents for our cascade U-Net architec
 
 * **We develop a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.**
 
+![CascadeUNet](https://github.com/functions-lab/geo2sigmap/assets/24806755/f7daa234-5f01-4bf5-895a-f5b10410a806)
    
 ## Installation
 
@@ -31,6 +32,11 @@ pip install -r requirements.txt
 
 ### Download Data
 
+Our dataset is available on the [Google Drive](https://drive.google.com/drive/folders/1x3lM8a2jTl197D0C10eFCBiUgEtFmZwq?usp=sharing).
+
+Unzip the "Oct05_1034_a747d4.zip" file and place it under the "data/synthetic" folder.
+
+For detailed dataset structure or generating your dataset, please refer to the "gen_data" folder.
 
 ### Train the First U-Net
 
@@ -52,7 +58,10 @@ python ml/train_transfomer_learning.py --learning-rate 1e-3  --median-filter-siz
 ### Prediction
 
 
-### Pretrained model
+### Pre-trained model
+
+A pre-trained model is available for the above public dataset. Check the [Google Drive](https://drive.google.com/drive/folders/1x3lM8a2jTl197D0C10eFCBiUgEtFmZwq?usp=sharing).
+
 
 
 ### Visualization

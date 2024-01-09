@@ -35,7 +35,9 @@ pip install -r requirements.txt
 ### Train the First U-Net
 
 ```console
-python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 --building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy --ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct10_1523_RXcross_TXiso-cross_SampleNum7e6_cmres4/
+python train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-filter-size 3 --loss-alpha 0 \
+--building-height-map-dir=data/synthetic/Oct05_1034_a747d4/Bl_building_npy \
+--ground-truth-dir=data/synthetic/Oct05_1034_a747d4/Oct10_1523_RXcross_TXiso-cross_SampleNum7e6_cmres4/
 ```
 
 ### Train the Second U-Net

@@ -44,8 +44,7 @@ terrain_height_map_dir = os.path.abspath('/dev/shm/res_plane/Bl_terrain_npy')
 #ground_truth_signal_strength_map_dir = os.path.abspath('/dev/shm/coverage_maps_data_aug_Jul18/')
 sparse_ss_dir = Path('/home/yl826/3DPathLoss/nc_raytracing/cm_512_Aug10_7e6_isoTx_PointCloud')
 
-building_height_map_dir = os.path.abspath('/home/yl826/res_plane/Bl_building_npy')
-ground_truth_signal_strength_map_dir = os.path.abspath('/home/yl826/3DPathLoss/nc_raytracing/cm_512_Aug10_7e6_isoTx/')
+
 def linear2dB(x):
     
     res = 10 * np.log10(x)
@@ -481,12 +480,20 @@ def get_args():
                         help='Loss = (1 - loss_alpha) * cm_loss + loss_alpha * sparse_loss', dest='loss_alpha')
     parser.add_argument('--sparse-point', type=int, default=0,
                         help='Using sparse point data to refine the result (PointNet). ', dest='ss_num')
+    parser.add_argument('--building-height-map-dir', type=str, required=True,help="The 2D builing maps dir.")
+
+    parser.add_argument('--ground-truth-dir', type=str, required=True,help="The ground truth signal coverage map dir.")
 
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = get_args()
+
+    building_height_map_dir = args.building_height_map_dir
+    #os.path.abspath('/home/yl826/geo2sigmap/data/synthetic/Oct05_1034_a747d4/Bl_building_npy')
+    ground_truth_signal_strength_map_dir = args.ground_truth_dir
+    #os.path.abspath('/home/yl826/geo2sigmap/data/synthetic/Oct05_1034_a747d4/Oct10_1523_RXcross_TXiso-cross_SampleNum7e6_cmres4/')
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

@@ -21,9 +21,9 @@ Welcome to the Geo2SigMap. Here are the documents for our cascade U-Net architec
 1. Install [CUDA](https://developer.nvidia.com/cuda-downloads)
 2. Install [Pytorch](https://pytorch.org/get-started/locally/)
 3. Install dependencies
-   ```console
-   pip install -r requirements.txt
-   ```
+```console
+pip install -r requirements.txt
+```
 
 
 

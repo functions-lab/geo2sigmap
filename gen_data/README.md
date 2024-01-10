@@ -7,20 +7,19 @@ Welcome to the Geo2SigMap. Here are the documents for our automated framework.
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
-2. [Folder Structure](#folder-structure)
-3. [Installation](#installation)
-4. [Example Usage](#example-usage)
-5. [License](#license)
+2. [Installation](#installation)
+3. [Example Usage](#example-usage)
+4. [License](#license)
 
 ## Overview
 
-* **We Designs an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;**
+* **We design an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;**
 
-## Folder Structure
+
    
 ## Installation
 
-We provide detailed guidelines for installation including a docker image (for quick try) and a clean install.
+We provide detailed guidelines for installation, including a docker image (for a quick try) and a clean install.
 
 
 
@@ -32,13 +31,13 @@ Run the following command to use our pre-compiled docker image:
 docker run --name g2s -it ffkshakf/geo2sigmap:latest bash
 ```
 
-We only provide an amd64 arch docker image. If you run on a Apple Silicon or ARM64, you can add `--platform linux/amd64` to run it under emulation.
+We only provide an amd64 arch docker image. If you run on an Apple Silicon or ARM64, you can add `--platform linux/amd64` to run it under emulation.
 ```console
 docker run --name g2s --platform linux/amd64 -it ffkshakf/geo2sigmap:latest bash
 ```
 
 ### Install from Scratch
-Note: The following commands have been tested on a clean install Ubuntu:22.04, you can follow the Blender offcial document about compiling Blender [here](https://wiki.blender.org/wiki/Building_Blender) if you would like to run on other OS/ARCH.
+Note: The following commands have been tested on a clean install Ubuntu:22.04, you can follow the Blender official document about compiling Blender [here](https://wiki.blender.org/wiki/Building_Blender) if you would like to run on other OS/ARCH.
 
 #### Install Initial Packages
 ```console
@@ -65,7 +64,7 @@ perl -i -pe 'BEGIN{undef $/;} s/(patch -d \$_src -p1 < \$SCRIPT_DIR\/patches\/us
 bash ./build_files/build_environment/install_deps.sh --with-embree --with-oidn
 ```
 
-When the script complete you will see some thing like the follow:
+When the script is complete you will see something like the following:
 ```
 Or even simpler, just run (in your blender-source dir):
   make -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
@@ -163,12 +162,6 @@ An example of Step 3 output:
 
 
 
-
-<!--- #### Generate signal coverage map using Sionna
-To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defined in xxxx.
-
-#### Train the model
-To train our model, run xxxxx. ---> 
 
 ## License
 

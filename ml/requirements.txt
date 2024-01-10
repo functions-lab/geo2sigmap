@@ -5,3 +5,5 @@ scipy
 scikit-learn
 matplotlib
 tensorboard
+jupyterlab
+pandas

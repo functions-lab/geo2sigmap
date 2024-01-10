@@ -47,6 +47,10 @@ python ml/train_RT.py --learning-rate 1e-3 --pathloss_multi_modality --median-fi
 ```
 ### Generate the prediction result using the first U-Net
 
+```console
+python ml/generate_prediction.py
+```
+
 ### Train the Second U-Net with the first U-net's output
 
 ```console

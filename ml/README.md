@@ -58,6 +58,7 @@ python ml/train_transfomer_learning.py --learning-rate 1e-3  --median-filter-siz
 
 ### Prediction
 
+Please check our notebook `DukePred_transfer_recover.ipynb`. 
 
 ### Pre-trained model
 

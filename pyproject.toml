@@ -1,0 +1,18 @@
+[project]
+name = "scenegenerationpipe"
+version = "0.0.1"
+dependencies = [
+    "osmnx >= 2.0.0",
+    "numpy",
+    "pyproj",
+    "shapely",
+    "rasterio",
+    "tqdm",
+    "pillow",
+    "open3d",
+    "triangle",
+]
+
+
+[project.scripts]
+scenegenerationpipe = "scene_generation_pipe.cli:main"

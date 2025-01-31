@@ -1,0 +1,8 @@
+osmnx >= 2.0.0
+numpy
+pyproj
+shapely
+rasterio
+tqdm
+pillow
+open3d

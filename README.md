@@ -136,7 +136,27 @@ Parsing buildings: 100%|██████████████████�
 The above command will generate the 3D Scene for Davasion Hall in Duke Camups. You can check the area location by the above link.
 
 You can check the detail option by the `-h` arguments.
+```bash
+$ scenegenerationpipe -h
+usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-lidar-calibration]
+                           [--enable-building-map] [--debug]
 
+Scenen Generation Pipe.
+
+options:
+  -h, --help            show this help message and exit
+  --version             Show version and exit.
+  --bbox MIN_LON MIN_LAT MAX_LON MAX_LAT
+                        Four GPS coordinates defining the bounding box, in the order: min_lon, min_lat, max_lon, max_lat.
+  --data-dir DATA_DIR   Directory where data is stored or will be saved.
+  --osm-server-addr OSM_SERVER_ADDR
+                        OSM server address (optional).
+  --enable-lidar-calibration
+                        Enable lidar calibration (default is disabled).
+  --enable-building-map
+                        Enable building map output (default is disabled).
+  --debug               If passed, set console logging to DEBUG (file is always at DEBUG). This overrides the default console level of INFO.
+```
 
 Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
 

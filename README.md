@@ -122,9 +122,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 ### Generate 3D Scene
 
 ```console
-$ scenegenerationpipe \
-    --data-dir Boston \
-    --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
+$ scenegenerationpipe --data-dir Boston --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
 
 2025-02-10 13:29:46,052 - scene_generation_pipe.cli - [INFO] - Check the bbox at http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806
 2025-02-10 13:29:46,110 - scene_generation_pipe.core - [INFO] - For the given bbox, using UTM area: EPSG:32619
@@ -161,7 +159,7 @@ Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for 
 
 ### Advanced Useage
 You can check the detail option by the `-h` arguments.
-```shell-session
+```console
 $ scenegenerationpipe -h
 usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-lidar-calibration]
                            [--enable-building-map] [--debug]

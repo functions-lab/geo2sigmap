@@ -39,7 +39,7 @@ If you find Geo2SigMap useful for your research, please consider citing:
 ## Installation
 
 ```bash
-git clone -b https://github.com/functions-lab/geo2sigmap
+git clone -b new_pipe https://github.com/functions-lab/geo2sigmap
 cd geo2sigmap
 pip install .
 ```

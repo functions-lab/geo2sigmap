@@ -23,6 +23,7 @@ If you find Geo2SigMap useful for your research, please consider citing:
   journal={arXiv:2312.14303},
   year={2023}
 }
+
 ```
 
 <!-- This is an active project, if you are interested to have a community discussion, please start a new discussion thread in the discussion tab and we will get back to you as soon as possible. -->
@@ -116,11 +117,13 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 
 ## Example Usage
 
+
+
 ### Generate 3D Scene
-Simply run:
+
 ```console
 $ scenegenerationpipe \
-    --data-dir BostonDownTown \
+    --data-dir Boston \
     --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
 
 2025-02-10 13:29:46,052 - scene_generation_pipe.cli - [INFO] - Check the bbox at http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806
@@ -128,9 +131,35 @@ $ scenegenerationpipe \
 2025-02-10 13:29:46,111 - scene_generation_pipe.core - [INFO] - Estimated ground coverage: width=997m, height=901m
 Parsing buildings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
-The above command will generate the 3D Scene for down town area of Boston. You can check the area location by the above [link](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
-The 3D scene file will locate in the `BostonDownTown` folder, which can be directly used by Sionna. Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for details.
 
+The above command will generate the 3D Scene for down town area of Boston. You can check the area location by the above [link](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
+
+
+### Preview 3D Scene in Sionna
+
+The 3D scene file will locate in the `Boston` folder, which can be directly used by Sionna. 
+
+  1. Install Sionna and JupyterLab
+      ```console
+      pip install sionna jupyterlab
+      jupyter lab --ip=0.0.0.0  
+      ```
+  2. Create a new jupyter notebook and copy-paste the following code.
+      ```python
+      from sionna.rt import load_scene
+
+      scene = load_scene("Boston/scene.xml")
+      scene.preview()
+      ```
+  3. Now you can preview the 3D Scene.
+
+      ![alt text](img/Sionna_Preview.png)
+
+
+
+Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for details.
+
+### Advanced Useage
 You can check the detail option by the `-h` arguments.
 ```shell-session
 $ scenegenerationpipe -h

@@ -189,8 +189,16 @@ class Scene:
         ground_polygon = shapely.geometry.Polygon(coords)
         ground_polygon_bbox = ground_polygon.bounds
 
-        center_x = ground_polygon.centroid.x
-        center_y = ground_polygon.centroid.y
+        center_x_polygon = ground_polygon.centroid.x
+        center_y_polygon = ground_polygon.centroid.y
+
+        center_x = ground_polygon.envelope.centroid.x
+        center_y = ground_polygon.envelope.centroid.y
+        
+        print("center_x_polygon,center_y_polygon",center_x_polygon,center_y_polygon )
+        print("center_x, center_y",center_x, center_y)
+
+        print("ground_polygon_bbox",ground_polygon_bbox)
 
         #######Open3D#######
         outer_xy = unique_coords(reorder_localize_coords(ground_polygon.exterior, center_x, center_y))
@@ -234,7 +242,7 @@ class Scene:
         mesh_o3d.vertex.positions = o3d.core.Tensor(points)
         mesh_o3d.triangle.indices = o3d.core.Tensor(f)
         
-        logger.debug(f"mesh_o3d.get_center():{mesh_o3d.scale(1.2, mesh_o3d.get_center())}" )
+        #logger.debug(f"mesh_o3d.get_center():{mesh_o3d.scale(1.2, mesh_o3d.get_center())}" )
 
         o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"ground.ply"), mesh_o3d)
 
@@ -280,8 +288,8 @@ class Scene:
         img = Image.new('L', (width, height), 0)
 
         tmpres = to_projection.transform(top_left[0], top_left[1])
-
-
+        tmpres = (ground_polygon_bbox[0], ground_polygon_bbox[3])
+        print("tmpres",tmpres)
         # ---------------------------------------------------------------------
         # 7) Init the building height handler. (osm or lidar)
         # ---------------------------------------------------------------------
@@ -396,19 +404,23 @@ class Scene:
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:
-                local_coor_building_polygon = affinity.translate(building_polygon, xoff=-1 * tmpres[0], yoff=-1 * tmpres[1])
-                # print("local_coor_building_polygon:",local_coor_building_polygon,'\n\n\n\n')
 
-                local_coor_building_polygon = round_polygon_coordinates(local_coor_building_polygon)
-
-                ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(local_coor_building_polygon.exterior.coords)],
+                local_exterior = reorder_localize_coords(building_polygon.exterior, tmpres[0], tmpres[1])
+                ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(local_exterior)],
                                             outline=int(building_height), fill=int(building_height))
+                # local_coor_building_polygon = affinity.translate(building_polygon, xoff=-1 * tmpres[0], yoff=-1 * tmpres[1])
+                # # print("local_coor_building_polygon:",local_coor_building_polygon,'\n\n\n\n')
 
-                # Handle the "holes" inside the polygon
-                if len(list(local_coor_building_polygon.interiors)) != 0:
-                    for inner_hole in list(local_coor_building_polygon.interiors):
-                        ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(inner_hole.coords)], outline=int(0),
-                                                    fill=int(0))
+                # local_coor_building_polygon = round_polygon_coordinates(local_coor_building_polygon)
+
+                # ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(local_coor_building_polygon.exterior.coords)],
+                #                             outline=int(building_height), fill=int(building_height))
+
+                # # Handle the "holes" inside the polygon
+                # if len(list(local_coor_building_polygon.interiors)) != 0:
+                #     for inner_hole in list(local_coor_building_polygon.interiors):
+                #         ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(inner_hole.coords)], outline=int(0),
+                #                                     fill=int(0))
             # Create and write the XML file
         del hag_handler
         xml_string = ET.tostring(scene, encoding="utf-8")

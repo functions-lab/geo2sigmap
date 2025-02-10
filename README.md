@@ -117,7 +117,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 
 ## Example Usage
 
-### Generate 3D Building Meshs & 2D Building Height Map
+### Generate 3D Scene
 Simply run:
 ```bash
 $ scenegenerationpipe \

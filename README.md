@@ -126,11 +126,7 @@ $ scenegenerationpipe \
 
 2025-02-10 13:29:46,052 - scene_generation_pipe.cli - [INFO] - Check the bbox at http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806
 2025-02-10 13:29:46,110 - scene_generation_pipe.core - [INFO] - For the given bbox, using UTM area: EPSG:32619
-center_x_polygon,center_y_polygon 330811.0120150992 4691262.171513598
-center_x, center_y 330810.9819912539 4691262.180812276
-ground_polygon_bbox (330312.62209543784, 4690811.958469893, 331309.3418870699, 4691712.403154659)
 2025-02-10 13:29:46,111 - scene_generation_pipe.core - [INFO] - Estimated ground coverage: width=997m, height=901m
-tmpres (330312.62209543784, 4691712.403154659)
 Parsing buildings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
 The above command will generate the 3D Scene for Davasion Hall in Duke Camups. You can check the area location by the above link.

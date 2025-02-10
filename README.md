@@ -121,7 +121,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 Simply run:
 ```shell
 $ scenegenerationpipe \
-    --data-dir DavisonHall \
+    --data-dir BostonDownTown \
     --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
 
 2025-02-10 13:29:46,052 - scene_generation_pipe.cli - [INFO] - Check the bbox at http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806
@@ -129,10 +129,11 @@ $ scenegenerationpipe \
 2025-02-10 13:29:46,111 - scene_generation_pipe.core - [INFO] - Estimated ground coverage: width=997m, height=901m
 Parsing buildings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
-The above command will generate the 3D Scene for Davasion Hall in Duke Camups. You can check the area location by the above link.
+The above command will generate the 3D Scene for down town area of Boston. You can check the area location by the above [link](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
+The 3D scene file will locate in the `BostonDownTown` folder, which can be directly used by Sionna. Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for details.
 
 You can check the detail option by the `-h` arguments.
-```shell
+```bash
 $ scenegenerationpipe -h
 usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-lidar-calibration]
                            [--enable-building-map] [--debug]

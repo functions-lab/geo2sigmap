@@ -7,7 +7,6 @@ Welcome to the Geo2SigMap, this is the first work that:
 ## Note: Current branch is under code refactoring. Only the 3D scene generation pipeline is available. ML part will be published later.
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
-<!-- 2. [Repo Structure](#repo-structure) -->
 2. [Installation](#installation)
 3. [Example Usage](#example-usage)
 4. [License](#license)

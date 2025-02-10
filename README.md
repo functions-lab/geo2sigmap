@@ -118,8 +118,8 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 
 ### Generate 3D Scene
 Simply run:
-```shell-session
-$ scenegenerationpipe \
+```console
+foo@bar:~$ scenegenerationpipe \
     --data-dir BostonDownTown \
     --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
 

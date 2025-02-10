@@ -118,7 +118,7 @@ Please follow [Pytorch's official document](https://pytorch.org/get-started/loca
 
 ### Generate 3D Scene
 Simply run:
-```shell
+```shell-session
 $ scenegenerationpipe \
     --data-dir BostonDownTown \
     --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
@@ -132,7 +132,7 @@ The above command will generate the 3D Scene for down town area of Boston. You c
 The 3D scene file will locate in the `BostonDownTown` folder, which can be directly used by Sionna. Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for details.
 
 You can check the detail option by the `-h` arguments.
-```bash
+```shell-session
 $ scenegenerationpipe -h
 usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-lidar-calibration]
                            [--enable-building-map] [--debug]

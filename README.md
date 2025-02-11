@@ -38,6 +38,9 @@ If you find Geo2SigMap useful for your research, please consider citing:
 
 ## Installation
 
+#### Dependency
+* Python >= 3.9
+  
 ```bash
 git clone -b new_pipe https://github.com/functions-lab/geo2sigmap
 cd geo2sigmap

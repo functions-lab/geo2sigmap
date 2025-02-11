@@ -79,11 +79,6 @@ def main():
         help="OSM server address (optional)."
     )
 
-    parser.add_argument(
-        "--enable-lidar-calibration",
-        action="store_true",
-        help="Enable lidar calibration (default is disabled)."
-    )
 
     parser.add_argument(
         "--enable-building-map",
@@ -139,7 +134,7 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info(f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}")
     scene_instance = Scene()
-    scene_instance([[min_lon, min_lat], [min_lon, max_lat], [max_lon, max_lat], [max_lon, min_lat], [min_lon, min_lat]], args.data_dir, None , osm_server_addr = args.osm_server_addr, lidar_calibration = args.enable_lidar_calibration, generate_building_map=args.enable_building_map)    
+    scene_instance([[min_lon, min_lat], [min_lon, max_lat], [max_lon, max_lat], [max_lon, min_lat], [min_lon, min_lat]], args.data_dir, None , osm_server_addr = args.osm_server_addr, lidar_calibration = False, generate_building_map=args.enable_building_map)    
     
 
 

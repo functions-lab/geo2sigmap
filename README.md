@@ -26,16 +26,6 @@ If you find Geo2SigMap useful for your research, please consider citing:
 
 ```
 
-<!-- This is an active project, if you are interested to have a community discussion, please start a new discussion thread in the discussion tab and we will get back to you as soon as possible. -->
-
-<!-- ## Repo Structure
-
-|  Source Files      |  Description                                                                                                             |
-|  -----             |  -----                                                                                                                   |
-|  `gen_data/`   |  This folder contains the code of our pipeline to generate signal coverage map based on realworld building infos. |
-|  `data/`    |  This folder contains the sample data generate by our pipeline.                                                 |
-|  `ml/`       |  This folder contains the code of cascade machine learning models.                                                           | -->
-
 ## Installation
 
 #### Dependency
@@ -47,76 +37,6 @@ cd geo2sigmap
 python3 -m pip install .
 ```
 
-<!-- ### Docker
-
-Run the following command to use our pre-compiled docker image:
-```console
-docker run --name g2s -it ffkshakf/geo2sigmap:latest bash
-```
-
-We only provide an amd64 arch docker image. If you run on a Apple Silicon or ARM64, you can add `--platform linux/amd64` to run it under emulation.
-```console
-docker run --name g2s --platform linux/amd64 -it ffkshakf/geo2sigmap:latest bash
-``` -->
-<!-- 
-### Install from Scratch
-Note: The following commands have been tested on a clean install Ubuntu:22.04, you can follow the Blender offcial document about compiling Blender [here](https://wiki.blender.org/wiki/Building_Blender) if you would like to run on other OS/ARCH. -->
-
-<!-- #### Install Initial Packages
-```console
-sudo apt update
-sudo apt install python3 python3-pip git
-pip install --target=/usr/lib/python3/dist-packages Cython
-``` -->
-<!-- 
-#### Clone the Blender Source Code and Apply Changes
-```console
-mkdir ~/blender-git
-cd ~/blender-git
-git clone --depth 1 --branch v3.3.1 https://projects.blender.org/blender/blender.git
-cd blender
-git switch -c v3.3.1_geo2sigmap
-perl -i -pe 'BEGIN{undef $/;} s/  bool is_output_operation\(bool \/\*rendering\*\/\) const override\n  \{\n    if \(G.background\) \{\n      return false;\n    \}\n    return is_active_viewer_output\(\);\n  \}/  bool is_output_operation\(bool \/\*rendering\*\/\) const override\n  \{\n    return is_active_viewer_output\(\);\n  \}/sm' source/blender/compositor/operations/COM_ViewerOperation.h
-perl -i -pe 'BEGIN{undef $/;} s/  bool is_output_operation\(bool \/\*rendering\*\/\) const override\n  \{\n    return !G.background;\n  \}/  bool is_output_operation\(bool \/\*rendering\*\/\) const override\n  \{\n    return true;\n  \}/sm' source/blender/compositor/operations/COM_PreviewOperation.h
-perl -i -pe 's/(_src=\$SRC\/)USD-\$USD_VERSION/$1OpenUSD-\$USD_VERSION/' ./build_files/build_environment/install_deps.sh
-perl -i -pe 'BEGIN{undef $/;} s/(patch -d \$_src -p1 < \$SCRIPT_DIR\/patches\/usd\.diff\n\s+fi\n\n\s+cd \$_src)/$1\n\n    sed -i.bak  -e '\''s\/\.if !defined\.ARCH_OS_WINDOWS\.\/#if 0\/'\'' -e '\''s\/\.if defined\.ARCH_COMPILER_GCC\..*\/#if 0\/'\'' -e '\''s\/defined\.ARCH_COMPILER_CLANG\.\/\/'\'' -e '\''s\/\.if defined\.ARCH_OS_LINUX\.\/#if 0\/'\'' -e '\''s\/\.if !defined\.ARCH_OS_LINUX\.\/#if 1\/'\'' pxr\/base\/arch\/mallocHook.cpp/' ./build_files/build_environment/install_deps.sh
-``` -->
-<!-- 
-#### Install Blender Libraries & Compile Blender
-```console 
-bash ./build_files/build_environment/install_deps.sh --with-embree --with-oidn
-```
-
-When the script complete you will see some thing like the follow:
-```
-Or even simpler, just run (in your blender-source dir):
-  make -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
-
-Or in all your build directories:
-  cmake -U *SNDFILE* -U PYTHON* -U XXXXXXXXXXXXXXXX
-
-```
-Copy the first section and add an "release" between "make" and "-j" like the following ones and then execute it.
-
-```console 
-make update
-make release -j20 BUILD_CMAKE_ARGS="-U XXXXXXXXXXXXXXXX
-``` -->
-
-<!-- #### Download Blender Add-on & Apply Changes
-There are two add-ons, [Blosm](https://prochitecture.gumroad.com/l/blender-osm) and [mitsuba-blender](https://github.com/mitsuba-renderer/mitsuba-blender/releases/). Download the zip file and place them in the root of this project `*/geo2sigmap/`.
-```console 
-unzip mitsuba-blender.zip
-perl -i -pe 's/  result = subprocess\.run\(\[sys\.executable, '-m', 'ensurepip'\], capture_output=True\)\n\s+return result\.returncode == 0/return True/' mitsuba-blender/__init__.py
-zip -r -0 mitsuba-blender.zip mitsuba-blender
-```
-
-#### Install Sionna
-Please follow [Sionna's official document](https://nvlabs.github.io/sionna/installation.html) to install Sionna.
-
-#### Install Pytorch
-
-Please follow [Pytorch's official document](https://pytorch.org/get-started/locally/) to install PyTorch. -->
 
 ## Example Usage
 
@@ -164,8 +84,7 @@ Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for 
 You can check the detail option by the `-h` arguments.
 ```console
 $ scenegenerationpipe -h
-usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-lidar-calibration]
-                           [--enable-building-map] [--debug]
+usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-building-map] [--debug]
 
 Scenen Generation Pipe.
 
@@ -177,8 +96,6 @@ options:
   --data-dir DATA_DIR   Directory where data is stored or will be saved.
   --osm-server-addr OSM_SERVER_ADDR
                         OSM server address (optional).
-  --enable-lidar-calibration
-                        Enable lidar calibration (default is disabled).
   --enable-building-map
                         Enable building map output (default is disabled).
   --debug               If passed, set console logging to DEBUG (file is always at DEBUG). This overrides the default console level of INFO.
@@ -186,11 +103,7 @@ options:
 
 Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
 
-<!--- #### Generate signal coverage map using Sionna
-To use sionna generate signal coverage map, run xxxx. The sionna cofigue is defined in xxxx.
 
-#### Train the model
-To train our model, run xxxxx. ---> 
 
 ## License
 

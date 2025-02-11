@@ -4,3 +4,7 @@ lib/
 build_linux_release/
 pyvenv.cfg
 res3_srv1_33.txt
+__pycache__/
+.ipynb_checkpoints/
+debug.log
+cache/

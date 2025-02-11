@@ -74,7 +74,7 @@ The 3D scene file will locate in the `Boston` folder, which can be directly used
       ```
   3. Now you can preview the 3D Scene.
 
-      ![alt text](img/Sionna_Preview.png)
+      ![alt text](docs/img/Sionna_Preview.png)
 
 
 

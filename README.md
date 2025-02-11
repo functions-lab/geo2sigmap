@@ -44,7 +44,7 @@ If you find Geo2SigMap useful for your research, please consider citing:
 ```bash
 git clone -b new_pipe https://github.com/functions-lab/geo2sigmap
 cd geo2sigmap
-pip install .
+python3 -m pip install .
 ```
 
 <!-- ### Docker

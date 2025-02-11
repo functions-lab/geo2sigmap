@@ -12,6 +12,7 @@ dependencies = [
     "open3d",
     "triangle",
 ]
+requires-python = ">=3.9"
 
 
 [project.scripts]

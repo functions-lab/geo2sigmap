@@ -9,4 +9,4 @@ __pycache__/
 debug.log
 cache/
 src/scenegenerationpipe.egg-info/
-*.ipynb
+/*.ipynb

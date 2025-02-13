@@ -60,7 +60,7 @@ Parsing buildings: 100%|██████████████████�
 
 #### 2) Generate 3D Scene via One Point + Rectangle Dimensions
 ```console
-scenegenerationpipe point -71.0550 42.3566 top-left 997 901 --data-dir Boston_center --enable-building-map
+$ scenegenerationpipe point -71.0550 42.3566 top-left 997 901 --data-dir Boston_center 
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.34849072135817,-71.05473573275874,42.356816293828466,-71.04290140697601
 [INFO] Using UTM Zone: EPSG:32619

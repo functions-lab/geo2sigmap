@@ -8,5 +8,5 @@ __pycache__/
 .ipynb_checkpoints/
 debug.log
 cache/
-src/scenegenerationpipe.egg-info/
+src/scene_generation.egg-info/
 /*.ipynb

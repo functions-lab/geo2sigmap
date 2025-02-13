@@ -1,5 +1,5 @@
 [project]
-name = "scenegenerationpipe"
+name = "scene_generation"
 version = "0.0.1"
 dependencies = [
     "osmnx >= 2.0.0",
@@ -16,4 +16,4 @@ requires-python = ">=3.9"
 
 
 [project.scripts]
-scenegenerationpipe = "scene_generation_pipe.cli:main"
+scene_generation = "scene_generation.cli:main"

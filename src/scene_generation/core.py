@@ -50,7 +50,9 @@ class Scene:
         hag_tiff_path,
         osm_server_addr=None,
         lidar_calibration: bool = True,
-        generate_building_map: bool = True
+        generate_building_map: bool = True,
+        write_ply_ascii: bool = False
+
     ):
         """
         Generate a ground mesh from the given polygon (defined by `points`),
@@ -69,6 +71,8 @@ class Scene:
             If True, attempt to derive building heights from the HAG file; else use random fallback.
         generate_building_map : bool, optional
             If True, generate a 2D building map image (and save as a NumPy file).
+        write_ply_ascii : bool, optional
+            If True, write the ply file in ascii format, otherwise binary format will be used.
 
         Returns
         -------
@@ -245,7 +249,7 @@ class Scene:
         
         #logger.debug(f"mesh_o3d.get_center():{mesh_o3d.scale(1.2, mesh_o3d.get_center())}" )
 
-        o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"ground.ply"), mesh_o3d)
+        o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"ground.ply"), mesh_o3d, write_ascii = write_ply_ascii)
 
         material_type = "mat-itu_wet_ground"
         sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-ground")
@@ -396,7 +400,7 @@ class Scene:
             mesh_o3d.triangle.indices = o3d.core.Tensor(f)
 
             wedge = mesh_o3d.extrude_linear([0, 0, building_height])
-            o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge)
+            o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
 
             material_type = "mat-itu_marble"
             # Add shape elements for PLY files in the folder

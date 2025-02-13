@@ -193,13 +193,12 @@ class Scene:
 
         self._ground_polygon_envelope_UTM = ground_polygon.envelope
 
-        center_x_polygon = ground_polygon.centroid.x
-        center_y_polygon = ground_polygon.centroid.y
+ 
 
         center_x = ground_polygon.envelope.centroid.x
         center_y = ground_polygon.envelope.centroid.y
         
-        print("center_x_polygon,center_y_polygon",center_x_polygon,center_y_polygon )
+ 
         print("center_x, center_y",center_x, center_y)
 
         print("ground_polygon_bbox",ground_polygon_bbox)
@@ -269,6 +268,10 @@ class Scene:
         width = math.ceil(ground_polygon_bbox[2] - ground_polygon_bbox[0])
         height = math.ceil(ground_polygon_bbox[3] - ground_polygon_bbox[1])
         logger.info(f"Estimated ground coverage: width={width}m, height={height}m")
+
+        if width > 5000 or height > 5000:
+            logger.info(f"Too large!")
+            exit(-1)
 
 
         # OSMnx features API uses bounding box in the form (north, south, east, west)

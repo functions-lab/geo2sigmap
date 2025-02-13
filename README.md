@@ -72,28 +72,11 @@ The above commands generate a 3D scene for an area in downtown Boston. You can p
 
 ### Preview 3D Scene in Sionna
 
-The 3D scene file will locate in the `Boston` folder, which can be directly used by Sionna. 
 
-  1. Install Sionna and JupyterLab
-      ```console
-      pip install sionna jupyterlab
-      jupyter lab --ip=0.0.0.0  
-      ```
-  2. Create a new jupyter notebook and copy-paste the following code.
-      ```python
-      from sionna.rt import load_scene
-
-      scene = load_scene("Boston/scene.xml")
-      scene.preview()
-      ```
-  3. Now you can preview the 3D Scene.
-
-      ![alt text](assets/img/Sionna_Preview.png)
+After above example command, the 3D scene file is located in the `Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/SionnaRayTracing.ipynb) notebook.
 
 
-
-
-For more details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).
+For additional details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).
 
 ### Advanced Useage
 To see all available options for scene generation, use `-h`:

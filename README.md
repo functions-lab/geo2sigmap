@@ -47,6 +47,26 @@ Below are examples showing how to generate a 3D scene for your chosen location. 
 1. Directly specify four GPS corners.
 2. Provide one GPS point, indicate its position in the rectangle (top-left, bottom-right, etc.), and supply width and height in meters.
 
+To see all available options for scene generation, use `-h`:
+```console
+$ scenegen -h
+usage: scenegenerationpipe [-h] [--version] {bbox,point} ...
+
+Scene Generation CLI.
+
+You can define the scene location (a rectangle) in two ways:
+  1) 'bbox' subcommand: specify four GPS corners (min_lon, min_lat, max_lon, max_lat).
+  2) 'point' subcommand: specify one GPS point, indicate its corner/center position, and give width/height in meters.
+
+options:
+  -h, --help     show this help message and exit
+  --version, -v  Show version information and exit.
+
+Subcommands:
+  {bbox,point}   Available subcommands.
+    bbox         Define a bounding box using four GPS coordinates in the order: min_lon, min_lat, max_lon, max_lat.
+    point        Work with a single point and a rectangle size.
+```
 
 #### 1) Generate 3D Scene via Four Corner Points
 ```console
@@ -78,27 +98,8 @@ After above example command, the 3D scene file is located in the `Boston` folder
 
 For additional details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).
 
-### Advanced Useage
-To see all available options for scene generation, use `-h`:
-```console
-$ scenegen -h
-usage: scenegenerationpipe [-h] [--version] {bbox,point} ...
 
-Scene Generation CLI.
 
-You can define the scene location (a rectangle) in two ways:
-  1) 'bbox' subcommand: specify four GPS corners (min_lon, min_lat, max_lon, max_lat).
-  2) 'point' subcommand: specify one GPS point, indicate its corner/center position, and give width/height in meters.
-
-options:
-  -h, --help     show this help message and exit
-  --version, -v  Show version information and exit.
-
-Subcommands:
-  {bbox,point}   Available subcommands.
-    bbox         Define a bounding box using four GPS coordinates in the order: min_lon, min_lat, max_lon, max_lat.
-    point        Work with a single point and a rectangle size.
-```
 
 Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation).
 

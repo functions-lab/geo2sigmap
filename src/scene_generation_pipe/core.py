@@ -87,7 +87,7 @@ class Scene:
 
         # Determine the UTM projection from the first point
         projection_UTM_EPSG_code = get_utm_epsg_code_from_gps(points[0][0], points[0][1])
-        logger.info(f"For the given bbox, using UTM area: {projection_UTM_EPSG_code}")
+        logger.info(f"Using UTM Zone: {projection_UTM_EPSG_code}")
 
         # Create transformations between WGS84 (EPSG:4326) and UTM
         to_projection = Transformer.from_crs("EPSG:4326", projection_UTM_EPSG_code, always_xy=True)
@@ -199,9 +199,7 @@ class Scene:
         center_y = ground_polygon.envelope.centroid.y
         
  
-        print("center_x, center_y",center_x, center_y)
 
-        print("ground_polygon_bbox",ground_polygon_bbox)
 
         #######Open3D#######
         outer_xy = unique_coords(reorder_localize_coords(ground_polygon.exterior, center_x, center_y))
@@ -306,6 +304,8 @@ class Scene:
         # ---------------------------------------------------------------------
         # 8) Process each building to create a 3D mesh (extrude by building height)
         # ---------------------------------------------------------------------
+        
+
         for idx, building in tqdm(enumerate(buildings_list), total=len(buildings_list),desc="Parsing buildings"):
 
             # Debug the inner hole buildings

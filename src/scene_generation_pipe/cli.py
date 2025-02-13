@@ -14,7 +14,26 @@ import logging
 
 from argparse import ArgumentParser
 from .core import Scene
-from . import __version__
+
+try:
+    from importlib.metadata import version as pkg_version, PackageNotFoundError
+except ImportError:
+    # For Python < 3.8, use importlib_metadata backport
+    from importlib_metadata import version as pkg_version, PackageNotFoundError
+
+PACKAGE_NAME = "scenegenerationpipe"  # <-- Replace with your actual package name in pyproject.toml
+
+def get_package_version() -> str:
+    """
+    Attempt to retrieve the installed package version from metadata.
+    Falls back to a default if the package isn't found (not installed).
+    """
+    try:
+        return pkg_version(PACKAGE_NAME)
+    except PackageNotFoundError:
+        return "0.0.0.dev (uninstalled)"
+
+        
 
 
 def setup_logging(log_file="debug.log"):
@@ -266,6 +285,11 @@ def main():
 
     # Parse the full command line
     args = parser.parse_args()
+    
+    # Handle --version or no subcommand
+    if args.version:
+        print(f"{PACKAGE_NAME} version {get_package_version()}")
+        sys.exit(0)
 
     if not args.command:
         # No subcommand provided: show help and exit
@@ -286,10 +310,7 @@ def main():
             if isinstance(handler, logging.StreamHandler):
                 handler.setLevel(logging.DEBUG)
 
-    # Handle --version or no subcommand
-    if args.version:
-        print("Scene Generation Pipeline version 1.0.0")
-        sys.exit(0)
+
 
     #     # Dispatch subcommands
     # if args.command == "bbox":

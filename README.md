@@ -41,19 +41,33 @@ python3 -m pip install .
 ## Example Usage
 
 
-
 ### Generate 3D Scene
+Below are examples showing how to generate a 3D scene for your chosen location. There are two ways to define the bounding box (scene area):
 
+1. Directly specify four GPS corners.
+2. Provide one GPS point, indicate its position in the rectangle (top-left, bottom-right, etc.), and supply width and height in meters.
+
+
+#### 1) Generate 3D Scene via Four Corner Points
 ```console
-$ scenegenerationpipe --data-dir Boston --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
+$ scenegenerationpipe bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir Boston
 
-2025-02-10 13:29:46,052 - scene_generation_pipe.cli - [INFO] - Check the bbox at http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806
-2025-02-10 13:29:46,110 - scene_generation_pipe.core - [INFO] - For the given bbox, using UTM area: EPSG:32619
-2025-02-10 13:29:46,111 - scene_generation_pipe.core - [INFO] - Estimated ground coverage: width=997m, height=901m
-Parsing buildings: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
+[INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
+[INFO] Using UTM Zone: EPSG:32619
+[INFO] Estimated ground coverage: width=994m, height=901m
+Parsing buildings: 100%|█████████████████████████████████████████████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
 
-The above command will generate the 3D Scene for down town area of Boston. You can check the area location by the above [link](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
+#### 2) Generate 3D Scene via One Point + Rectangle Dimensions
+```console
+scenegenerationpipe point -71.0550 42.3566 top-left 997 901 --data-dir Boston_center --enable-building-map
+
+[INFO] Check the bbox at http://bboxfinder.com/#42.34849072135817,-71.05473573275874,42.356816293828466,-71.04290140697601
+[INFO] Using UTM Zone: EPSG:32619
+[INFO] Estimated ground coverage: width=997m, height=902m
+Parsing buildings: 100%|██████████████████████████████████████████████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
+```
+The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
 
 
 ### Preview 3D Scene in Sionna
@@ -78,33 +92,37 @@ The 3D scene file will locate in the `Boston` folder, which can be directly used
 
 
 
-Check the Sionna RT [document](https://nvlabs.github.io/sionna/api/rt.html) for details.
+
+For more details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).
 
 ### Advanced Useage
-You can check the detail option by the `-h` arguments.
+To see all available options for scene generation, use `-h`:
 ```console
 $ scenegenerationpipe -h
-usage: scenegenerationpipe [-h] [--version] [--bbox MIN_LON MIN_LAT MAX_LON MAX_LAT] [--data-dir DATA_DIR] [--osm-server-addr OSM_SERVER_ADDR] [--enable-building-map] [--debug]
+usage: scenegenerationpipe [-h] [--version] {bbox,point} ...
 
-Scenen Generation Pipe.
+Scene Generation CLI.
+
+You can define the scene location (a rectangle) in two ways:
+  1) 'bbox' subcommand: specify four GPS corners (min_lon, min_lat, max_lon, max_lat).
+  2) 'point' subcommand: specify one GPS point, indicate its corner/center position, and give width/height in meters.
 
 options:
-  -h, --help            show this help message and exit
-  --version             Show version and exit.
-  --bbox MIN_LON MIN_LAT MAX_LON MAX_LAT
-                        Four GPS coordinates defining the bounding box, in the order: min_lon, min_lat, max_lon, max_lat.
-  --data-dir DATA_DIR   Directory where data is stored or will be saved.
-  --osm-server-addr OSM_SERVER_ADDR
-                        OSM server address (optional).
-  --enable-building-map
-                        Enable building map output (default is disabled).
-  --debug               If passed, set console logging to DEBUG (file is always at DEBUG). This overrides the default console level of INFO.
+  -h, --help     show this help message and exit
+  --version, -v  Show version information and exit.
+
+Subcommands:
+  {bbox,point}   Available subcommands.
+    bbox         Define a bounding box using four GPS coordinates in the order: min_lon, min_lat, max_lon, max_lat.
+    point        Work with a single point and a rectangle size.
 ```
 
-Note: The public OSM sever have a query limitation around 2-10 query/second, so if you want to achieve a faster process speed, consider deploy a self host OSM server following the OSM offcial document [here](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). A reasonable speed of self hosted server would be around 100-200 query/second on a SSD computer.
+Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation).
 
 
 
 ## License
 
 Distributed under the APACHE LICENSE, VERSION 2.0
+
+Thank you for using Geo2SigMap! If you have any questions or suggestions, feel free to open an issue on GitHub. We hope this framework accelerates your research or application in RF signal mapping.

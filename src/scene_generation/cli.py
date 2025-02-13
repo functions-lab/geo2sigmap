@@ -327,7 +327,7 @@ def main():
         max_lat = args.max_lat
 
         logger.info(
-            f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
+            f"Check the bbox at http://bboxfinder.com/#{min_lat:.{4}f},{min_lon:.{4}f},{max_lat:.{4}f},{max_lon:.{4}f}"
         )
         scene_instance = Scene()
         scene_instance(
@@ -351,7 +351,7 @@ def main():
         min_lon, min_lat = polygon_points_gps[0]
         max_lon, max_lat = polygon_points_gps[2]
         logger.info(
-            f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
+            f"Check the bbox at http://bboxfinder.com/#{min_lat:.{4}f},{min_lon:.{4}f},{max_lat:.{4}f},{max_lon:.{4}f}"
         )
         scene_instance = Scene()
         scene_instance(

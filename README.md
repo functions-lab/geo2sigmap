@@ -75,25 +75,25 @@ $ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir Boston
 [INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
 [INFO] Using UTM Zone: EPSG:32619
 [INFO] Estimated ground coverage: width=994m, height=901m
-Parsing buildings: 100%|█████████████████████████████████████████████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
+Parsing buildings: 100%|█████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
 
 #### 2) Generate 3D Scene via One Point + Rectangle Dimensions
 ```console
 $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir Boston_top-left
 
-[INFO] Check the bbox at http://bboxfinder.com/#42.34849072135817,-71.05473573275874,42.356816293828466,-71.04290140697601
+[INFO] Check the bbox at http://bboxfinder.com/#42.3485,-71.0547,42.3568,-71.0429
 [INFO] Using UTM Zone: EPSG:32619
-[INFO] Estimated ground coverage: width=997m, height=902m
-Parsing buildings: 100%|█████████████████████████████████████████████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
+[INFO] Estimated ground polygon size: width=997m, height=902m
+Parsing buildings: 100%|█████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
 ```
-The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
+The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484).
 
 
 ### Preview 3D Scene in Sionna
 
 
-After above example command, the 3D scene file is located in the `Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/SionnaRayTracing.ipynb) notebook.
+After above example command, the 3D scene file is located in the `Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb) notebook.
 
 
 For additional details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).

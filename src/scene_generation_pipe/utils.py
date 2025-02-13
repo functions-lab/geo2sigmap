@@ -17,7 +17,8 @@ import math
 from rasterio.enums import Resampling
 from rasterio.warp import transform_bounds, transform
 import rasterio
-import geopandas as gpd
+
+from typing import List, Tuple
 
 
 # -------------------------------------------------------------------
@@ -91,17 +92,47 @@ def gps_to_utm_xy(lon: float, lat: float, utm_epsg):
     return (utm_x, utm_y, utm_epsg)
 
 
-def rect_from_point_and_height_width(lon, lat, position, width, height):
+def rect_from_point_and_size(
+    lon: float,
+    lat: float,
+    position: str,
+    width: float,
+    height: float
+) -> List[Tuple[float, float]]:
+    """
+    Create a rectangular polygon (as a list of coordinates) given a GPS point and
+    desired rectangle size in a UTM projection.
+
+    :param lon: Longitude of the reference point (in EPSG:4326).
+    :param lat: Latitude of the reference point (in EPSG:4326).
+    :param position: One of the following strings:
+                     ["top-left", "top-right", "bottom-left", "bottom-right", "center"]
+                     indicating how (lon, lat) is interpreted relative to the rectangle.
+    :param width:  The width of the rectangle in UTM projection units (e.g., meters).
+    :param height: The height of the rectangle in UTM projection units (e.g., meters).
+    :return:       A list of (longitude, latitude) coordinates (EPSG:4326)
+                   forming the rectangle boundary. The last point is repeated
+                   to close the polygon.
+
+    .. note::
+       This function currently does NOT handle edge cases such as crossing
+       the International Date Line or spanning multiple UTM zones. Those must
+       be addressed separately.
+    """
 
     # TODO: Check for the coner case such as rossing the International Date Line at ±180°, crossing multiple UTM zones
 
 
-
+    # Get the UTM EPSG code based on the given longitude/latitude.
     utm_epsg = get_utm_epsg_code_from_gps(lon, lat)
+
+    # Convert the reference GPS point to UTM (x, y).
     point_utm = gps_to_utm_xy(lon, lat, utm_epsg)
 
+
+    # Prepare a transformer to go from UTM back to EPSG:4326.
     transformer = Transformer.from_crs(utm_epsg, "EPSG:4326", always_xy=True)
-    points_utm = []
+
 
     if position == "top-left":
         min_lon_left = point_utm[0]
@@ -145,7 +176,9 @@ def rect_from_point_and_height_width(lon, lat, position, width, height):
 
 
     else:
-        raise ValueError("Unknown point position: {}".format(position))
+        raise ValueError(f"Unknown position: {position}. "
+                         "Must be one of [top-left, top-right, bottom-left, bottom-right, center].")
+    
         
 
 
@@ -156,10 +189,9 @@ def rect_from_point_and_height_width(lon, lat, position, width, height):
             [max_lon_right, min_lat_bottom],
             [min_lon_left, min_lat_bottom]
         ]
-    print("points_utm", points_utm)
+
 
     points_gps = [transformer.transform(x, y) for x, y in points_utm]
-    print(points_gps)
     return points_gps
 
 # -------------------------------------------------------------------

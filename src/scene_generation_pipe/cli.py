@@ -14,7 +14,7 @@ import logging
 
 from argparse import ArgumentParser
 from .core import Scene
-from .utils import rect_from_point_and_height_width
+from .utils import rect_from_point_and_size
 
 try:
     from importlib.metadata import version as pkg_version, PackageNotFoundError
@@ -339,7 +339,7 @@ def main():
             generate_building_map=args.enable_building_map,
         )
     elif args.command == "point":
-        polygon_points_gps = rect_from_point_and_height_width(
+        polygon_points_gps = rect_from_point_and_size(
             args.lon, args.lat, args.position, args.width, args.height
         )
 

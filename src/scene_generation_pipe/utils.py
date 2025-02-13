@@ -17,6 +17,7 @@ import math
 from rasterio.enums import Resampling
 from rasterio.warp import transform_bounds, transform
 import rasterio
+import geopandas as gpd
 
 
 # -------------------------------------------------------------------
@@ -59,7 +60,7 @@ def get_utm_epsg_code_from_gps(lon: float, lat: float) -> CRS:
     return utm_crs
 
 
-def gps_to_utm_xy(lon: float, lat: float, utm_epsg: int):
+def gps_to_utm_xy(lon: float, lat: float, utm_epsg):
     """
     Convert GPS coordinates (longitude, latitude) in WGS84 to UTM coordinates.
 
@@ -89,6 +90,77 @@ def gps_to_utm_xy(lon: float, lat: float, utm_epsg: int):
     # Return the results, including the EPSG code for clarity
     return (utm_x, utm_y, utm_epsg)
 
+
+def rect_from_point_and_height_width(lon, lat, position, width, height):
+
+    # TODO: Check for the coner case such as rossing the International Date Line at ±180°, crossing multiple UTM zones
+
+
+
+    utm_epsg = get_utm_epsg_code_from_gps(lon, lat)
+    point_utm = gps_to_utm_xy(lon, lat, utm_epsg)
+
+    transformer = Transformer.from_crs(utm_epsg, "EPSG:4326", always_xy=True)
+    points_utm = []
+
+    if position == "top-left":
+        min_lon_left = point_utm[0]
+        max_lon_right = point_utm[0] + width
+        max_lat_top = point_utm[1]
+        min_lat_bottom = point_utm[1] - height
+
+
+
+        
+    elif position == "top-right":
+
+        min_lon_left = point_utm[0] - width
+        max_lon_right = point_utm[0] 
+        max_lat_top = point_utm[1]
+        min_lat_bottom = point_utm[1] - height
+
+
+    
+    elif position == "bottom-right":
+
+        min_lon_left = point_utm[0] - width
+        max_lon_right = point_utm[0] 
+        max_lat_top = point_utm[1] + height
+        min_lat_bottom = point_utm[1]
+
+
+    elif position == "bottom-left":
+
+        min_lon_left = point_utm[0]
+        max_lon_right = point_utm[0] + width
+        max_lat_top = point_utm[1] + height
+        min_lat_bottom = point_utm[1] 
+
+
+    elif position == "center":
+        min_lon_left = point_utm[0] - width/2
+        max_lon_right = point_utm[0] + width/2
+        max_lat_top = point_utm[1] + height/2
+        min_lat_bottom = point_utm[1] - height
+
+
+    else:
+        raise ValueError("Unknown point position: {}".format(position))
+        
+
+
+    points_utm = [
+            [min_lon_left, min_lat_bottom], 
+            [min_lon_left, max_lat_top],
+            [max_lon_right, max_lat_top],
+            [max_lon_right, min_lat_bottom],
+            [min_lon_left, min_lat_bottom]
+        ]
+    print("points_utm", points_utm)
+
+    points_gps = [transformer.transform(x, y) for x, y in points_utm]
+    print(points_gps)
+    return points_gps
 
 # -------------------------------------------------------------------
 # 2) Polygon/Coordinates Related

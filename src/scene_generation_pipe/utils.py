@@ -141,7 +141,7 @@ def rect_from_point_and_height_width(lon, lat, position, width, height):
         min_lon_left = point_utm[0] - width/2
         max_lon_right = point_utm[0] + width/2
         max_lat_top = point_utm[1] + height/2
-        min_lat_bottom = point_utm[1] - height
+        min_lat_bottom = point_utm[1] - height/2
 
 
     else:

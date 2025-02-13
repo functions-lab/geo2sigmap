@@ -98,7 +98,7 @@ For more details, refer to the [Sionna RT documentation](https://nvlabs.github.i
 ### Advanced Useage
 To see all available options for scene generation, use `-h`:
 ```console
-$ scenegenerationpipe -h
+$ scenegen -h
 usage: scenegenerationpipe [-h] [--version] {bbox,point} ...
 
 Scene Generation CLI.

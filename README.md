@@ -65,7 +65,7 @@ $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir Boston_top-left
 [INFO] Check the bbox at http://bboxfinder.com/#42.34849072135817,-71.05473573275874,42.356816293828466,-71.04290140697601
 [INFO] Using UTM Zone: EPSG:32619
 [INFO] Estimated ground coverage: width=997m, height=902m
-Parsing buildings: 100%|██████████████████████████████████████████████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
+Parsing buildings: 100%|█████████████████████████████████████████████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
 ```
 The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.35128145107633,-71.06025695800783,42.35917815419112,-71.04841232299806).
 

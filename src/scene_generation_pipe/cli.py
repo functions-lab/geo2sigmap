@@ -14,6 +14,7 @@ import logging
 
 from argparse import ArgumentParser
 from .core import Scene
+from .utils import rect_from_point_and_height_width
 
 try:
     from importlib.metadata import version as pkg_version, PackageNotFoundError
@@ -21,7 +22,7 @@ except ImportError:
     # For Python < 3.8, use importlib_metadata backport
     from importlib_metadata import version as pkg_version, PackageNotFoundError
 
-PACKAGE_NAME = "scenegenerationpipe" 
+PACKAGE_NAME = "scenegenerationpipe"
 
 
 def get_package_version() -> str:
@@ -33,8 +34,6 @@ def get_package_version() -> str:
         return pkg_version(PACKAGE_NAME)
     except PackageNotFoundError:
         return "0.0.0.dev (uninstalled)"
-
-        
 
 
 def setup_logging(log_file="debug.log"):
@@ -161,7 +160,7 @@ def main():
     """
     Main function to parse arguments and dispatch subcommands.
     """
-    
+
     parser = ArgumentParser(
         description="Scene Generation CLI.\n\n"
         "You can define the scene location (a rectangle) in two ways:\n"
@@ -239,8 +238,8 @@ def main():
         parents=[common_parser],
         help="Work with a single point and a rectangle size.",
     )
-    parser_point.add_argument("lat", type=float, help="Latitude.")
-    parser_point.add_argument("lon", type=float, help="Longitude.")
+    parser_point.add_argument("lon", type=float, help="Latitude.")
+    parser_point.add_argument("lat", type=float, help="Longitude.")
     parser_point.add_argument(
         "position",
         choices=["top-left", "top-right", "bottom-left", "bottom-right", "center"],
@@ -287,7 +286,7 @@ def main():
 
     # Parse the full command line
     args = parser.parse_args()
-    
+
     # Handle --version or no subcommand
     if args.version:
         print(f"{PACKAGE_NAME} version {get_package_version()}")
@@ -312,44 +311,54 @@ def main():
             if isinstance(handler, logging.StreamHandler):
                 handler.setLevel(logging.DEBUG)
 
-
     logger = logging.getLogger(__name__)
 
-    #     # Dispatch subcommands
+    # Dispatch subcommands
     if args.command == "bbox":
-            min_lon = args.min_lon
-            min_lat = args.min_lat
-            max_lon = args.max_lon
-            max_lat = args.max_lat
+        min_lon = args.min_lon
+        min_lat = args.min_lat
+        max_lon = args.max_lon
+        max_lat = args.max_lat
 
-            logger.info(
-                f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
-            )
-            scene_instance = Scene()
-            scene_instance(
-                [
-                    [min_lon, min_lat],
-                    [min_lon, max_lat],
-                    [max_lon, max_lat],
-                    [max_lon, min_lat],
-                    [min_lon, min_lat],
-                ],
-                args.data_dir,
-                None,
-                osm_server_addr=args.osm_server_addr,
-                lidar_calibration=False,
-                generate_building_map=args.enable_building_map,
-            )
-    # elif args.command == "point":
-    #     handle_point(args)
-    # else:
-    #     # Should never happen if we covered all subcommands
-    #     parser.print_help()
-    #     sys.exit(1)
+        logger.info(
+            f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
+        )
+        scene_instance = Scene()
+        scene_instance(
+            [
+                [min_lon, min_lat],
+                [min_lon, max_lat],
+                [max_lon, max_lat],
+                [max_lon, min_lat],
+                [min_lon, min_lat],
+            ],
+            args.data_dir,
+            None,
+            osm_server_addr=args.osm_server_addr,
+            lidar_calibration=False,
+            generate_building_map=args.enable_building_map,
+        )
+    elif args.command == "point":
+        polygon_points_gps = rect_from_point_and_height_width(
+            args.lon, args.lat, args.position, args.width, args.height
+        )
 
-
-
-
+        # logger.info(
+        #     f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
+        # )
+        scene_instance = Scene()
+        scene_instance(
+            polygon_points_gps,
+            args.data_dir,
+            None,
+            osm_server_addr=args.osm_server_addr,
+            lidar_calibration=False,
+            generate_building_map=args.enable_building_map,
+        )
+    else:
+        # Should never happen if we covered all subcommands
+        parser.print_help()
+        sys.exit(1)
 
 
 if __name__ == "__main__":

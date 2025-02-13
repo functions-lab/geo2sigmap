@@ -415,11 +415,9 @@ class Scene:
 
         if generate_building_map:
             np.save(os.path.join(data_dir, '2D_Building_Height_Map.npy'), np.array(self._building_map))
-        # plt.figure(figsize=(width / 96, height / 96), dpi=96)
-        # plt.imshow(img, interpolation='none', interpolation_stage="rgba")
-        # plt.colorbar()
+
         return np.array(self._building_map)
-        # plt.show()
+
     def _draw_building(self, building_polygon, building_height):
         local_exterior = reorder_localize_coords(building_polygon.exterior, self._ground_polygon_envelope_UTM.bounds[0], self._ground_polygon_envelope_UTM.bounds[3])
         ImageDraw.Draw(self._building_map).polygon([(x, -y) for x, y in list(local_exterior)],

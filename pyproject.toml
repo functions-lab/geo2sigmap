@@ -16,4 +16,4 @@ requires-python = ">=3.9"
 
 
 [project.scripts]
-scene_generation = "scene_generation.cli:main"
+scenegen = "scene_generation.cli:main"

@@ -50,7 +50,7 @@ Below are examples showing how to generate a 3D scene for your chosen location. 
 
 #### 1) Generate 3D Scene via Four Corner Points
 ```console
-$ scenegenerationpipe bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir Boston
+$ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir Boston
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
 [INFO] Using UTM Zone: EPSG:32619
@@ -60,7 +60,7 @@ Parsing buildings: 100%|██████████████████�
 
 #### 2) Generate 3D Scene via One Point + Rectangle Dimensions
 ```console
-$ scenegenerationpipe point -71.0550 42.3566 top-left 997 901 --data-dir Boston_top-left
+$ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir Boston_top-left
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.34849072135817,-71.05473573275874,42.356816293828466,-71.04290140697601
 [INFO] Using UTM Zone: EPSG:32619

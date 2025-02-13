@@ -51,7 +51,9 @@ class Scene:
         osm_server_addr=None,
         lidar_calibration: bool = True,
         generate_building_map: bool = True,
-        write_ply_ascii: bool = False
+        write_ply_ascii: bool = False,
+        ground_scale: float = 1.5
+
 
     ):
         """
@@ -65,7 +67,7 @@ class Scene:
             Coordinates defining the polygon (in WGS84 lon/lat).
         data_dir : str
             Directory where output files (XML, meshes, etc.) will be saved.
-        osm_server_addr : str, optional
+        osm_server_addr : str, optieonal
             Custom Overpass API endpoint. If None, osmnx's default is used.
         lidar_calibration : bool, optional
             If True, attempt to derive building heights from the HAG file; else use random fallback.
@@ -73,6 +75,8 @@ class Scene:
             If True, generate a 2D building map image (and save as a NumPy file).
         write_ply_ascii : bool, optional
             If True, write the ply file in ascii format, otherwise binary format will be used.
+        ground_scale : float, optional
+            The ratio to scale the ground polygon. TODO:Add examples to show why need scale. OSMNX query intersection.
 
         Returns
         -------
@@ -248,7 +252,8 @@ class Scene:
         mesh_o3d.triangle.indices = o3d.core.Tensor(f)
         
         #logger.debug(f"mesh_o3d.get_center():{mesh_o3d.scale(1.2, mesh_o3d.get_center())}" )
-
+        
+        mesh_o3d.scale(ground_scale, mesh_o3d.get_center())
         o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"ground.ply"), mesh_o3d, write_ascii = write_ply_ascii)
 
         material_type = "mat-itu_wet_ground"
@@ -269,10 +274,10 @@ class Scene:
         # Calculate width/height in UTM
         width = math.ceil(ground_polygon_bbox[2] - ground_polygon_bbox[0])
         height = math.ceil(ground_polygon_bbox[3] - ground_polygon_bbox[1])
-        logger.info(f"Estimated ground coverage: width={width}m, height={height}m")
+        logger.info(f"Estimated ground polygon size: width={width}m, height={height}m")
 
         if width > 5000 or height > 5000:
-            logger.info(f"Too large!")
+            logger.warning(f"Too large!")
             exit(-1)
 
 

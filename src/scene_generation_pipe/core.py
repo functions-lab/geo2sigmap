@@ -183,11 +183,15 @@ class Scene:
         ground_polygon_4326 = shapely.geometry.Polygon(points)
         ground_polygon_4326_bbox = ground_polygon_4326.bounds
 
+        
+
 
         # Transform each WGS84 coordinate into UTM
         coords = [to_projection.transform(x, y) for x, y in points]
         ground_polygon = shapely.geometry.Polygon(coords)
         ground_polygon_bbox = ground_polygon.bounds
+
+        self._ground_polygon_envelope_UTM = ground_polygon.envelope
 
         center_x_polygon = ground_polygon.centroid.x
         center_y_polygon = ground_polygon.centroid.y
@@ -266,7 +270,6 @@ class Scene:
         height = math.ceil(ground_polygon_bbox[3] - ground_polygon_bbox[1])
         logger.info(f"Estimated ground coverage: width={width}m, height={height}m")
 
-        top_left = (west, north)
 
         # OSMnx features API uses bounding box in the form (north, south, east, west)
         logger.debug(f"OSM bounding box: (north={north}, south={south}, east={east}, west={west})")
@@ -283,13 +286,9 @@ class Scene:
         # ---------------------------------------------------------------------
         # 6) If generating building map, prepare an empty grayscale image
         # ---------------------------------------------------------------------
-
         # Create a new empty Image, mode 'L' means 8bit grayscale image.
-        img = Image.new('L', (width, height), 0)
+        self._building_map = Image.new('L', (width, height), 0)
 
-        tmpres = to_projection.transform(top_left[0], top_left[1])
-        tmpres = (ground_polygon_bbox[0], ground_polygon_bbox[3])
-        print("tmpres",tmpres)
         # ---------------------------------------------------------------------
         # 7) Init the building height handler. (osm or lidar)
         # ---------------------------------------------------------------------
@@ -404,9 +403,26 @@ class Scene:
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:
+                self._draw_building(building_polygon, building_height)
 
-                local_exterior = reorder_localize_coords(building_polygon.exterior, tmpres[0], tmpres[1])
-                ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(local_exterior)],
+                
+        del hag_handler
+        xml_string = ET.tostring(scene, encoding="utf-8")
+        xml_pretty = minidom.parseString(xml_string).toprettyxml(indent="    ")  # Adjust the indent as needed
+
+        with open(os.path.join(data_dir, "scene.xml"), "w", encoding="utf-8") as xml_file:
+            xml_file.write(xml_pretty)
+
+        if generate_building_map:
+            np.save(os.path.join(data_dir, '2D_Building_Height_Map.npy'), np.array(self._building_map))
+        # plt.figure(figsize=(width / 96, height / 96), dpi=96)
+        # plt.imshow(img, interpolation='none', interpolation_stage="rgba")
+        # plt.colorbar()
+        return np.array(self._building_map)
+        # plt.show()
+    def _draw_building(self, building_polygon, building_height):
+        local_exterior = reorder_localize_coords(building_polygon.exterior, self._ground_polygon_envelope_UTM.bounds[0], self._ground_polygon_envelope_UTM.bounds[3])
+        ImageDraw.Draw(self._building_map).polygon([(x, -y) for x, y in list(local_exterior)],
                                             outline=int(building_height), fill=int(building_height))
                 # local_coor_building_polygon = affinity.translate(building_polygon, xoff=-1 * tmpres[0], yoff=-1 * tmpres[1])
                 # # print("local_coor_building_polygon:",local_coor_building_polygon,'\n\n\n\n')
@@ -422,17 +438,3 @@ class Scene:
                 #         ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(inner_hole.coords)], outline=int(0),
                 #                                     fill=int(0))
             # Create and write the XML file
-        del hag_handler
-        xml_string = ET.tostring(scene, encoding="utf-8")
-        xml_pretty = minidom.parseString(xml_string).toprettyxml(indent="    ")  # Adjust the indent as needed
-
-        with open(os.path.join(data_dir, "scene.xml"), "w", encoding="utf-8") as xml_file:
-            xml_file.write(xml_pretty)
-
-        if generate_building_map:
-            np.save(os.path.join(data_dir, '2D_Building_Height_Map.npy'), np.array(img))
-        # plt.figure(figsize=(width / 96, height / 96), dpi=96)
-        # plt.imshow(img, interpolation='none', interpolation_stage="rgba")
-        # plt.colorbar()
-        return np.array(img)
-        # plt.show()

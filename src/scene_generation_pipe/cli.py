@@ -51,11 +51,15 @@ def setup_logging(log_file="debug.log"):
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - [%(levelname)s] - %(message)s"
     )
+    # For console output, a simpler format:
+    # e.g. "[INFO] Checking bounding box: http://bboxfinder.com/..."
+    console_formatter = logging.Formatter("[%(levelname)s] %(message)s")
+ 
 
     # 1) Console handler at INFO level
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
+    console_handler.setFormatter(console_formatter)
 
     # 2) File handler at DEBUG level
     file_handler = logging.FileHandler(log_file, mode="w")  # Overwrite each run
@@ -65,6 +69,8 @@ def setup_logging(log_file="debug.log"):
     # Clear any existing handlers to avoid duplicate logs (if needed)
     if logger.hasHandlers():
         logger.handlers.clear()
+
+
 
     # Add the two handlers
     logger.addHandler(console_handler)
@@ -342,10 +348,11 @@ def main():
         polygon_points_gps = rect_from_point_and_size(
             args.lon, args.lat, args.position, args.width, args.height
         )
-
-        # logger.info(
-        #     f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
-        # )
+        min_lon, min_lat = polygon_points_gps[0]
+        max_lon, max_lat = polygon_points_gps[2]
+        logger.info(
+            f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
+        )
         scene_instance = Scene()
         scene_instance(
             polygon_points_gps,

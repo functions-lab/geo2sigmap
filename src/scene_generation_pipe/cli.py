@@ -21,7 +21,8 @@ except ImportError:
     # For Python < 3.8, use importlib_metadata backport
     from importlib_metadata import version as pkg_version, PackageNotFoundError
 
-PACKAGE_NAME = "scenegenerationpipe"  # <-- Replace with your actual package name in pyproject.toml
+PACKAGE_NAME = "scenegenerationpipe" 
+
 
 def get_package_version() -> str:
     """
@@ -160,6 +161,7 @@ def main():
     """
     Main function to parse arguments and dispatch subcommands.
     """
+    
     parser = ArgumentParser(
         description="Scene Generation CLI.\n\n"
         "You can define the scene location (a rectangle) in two ways:\n"
@@ -190,7 +192,7 @@ def main():
     )
     common_parser.add_argument(
         "--data-dir",
-        required=False,
+        required=True,
         help="Directory where scene file will be saved.",
     )
     common_parser.add_argument(
@@ -311,10 +313,33 @@ def main():
                 handler.setLevel(logging.DEBUG)
 
 
+    logger = logging.getLogger(__name__)
 
     #     # Dispatch subcommands
-    # if args.command == "bbox":
-    #     handle_bbox(args)
+    if args.command == "bbox":
+            min_lon = args.min_lon
+            min_lat = args.min_lat
+            max_lon = args.max_lon
+            max_lat = args.max_lat
+
+            logger.info(
+                f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
+            )
+            scene_instance = Scene()
+            scene_instance(
+                [
+                    [min_lon, min_lat],
+                    [min_lon, max_lat],
+                    [max_lon, max_lat],
+                    [max_lon, min_lat],
+                    [min_lon, min_lat],
+                ],
+                args.data_dir,
+                None,
+                osm_server_addr=args.osm_server_addr,
+                lidar_calibration=False,
+                generate_building_map=args.enable_building_map,
+            )
     # elif args.command == "point":
     #     handle_point(args)
     # else:
@@ -322,37 +347,9 @@ def main():
     #     parser.print_help()
     #     sys.exit(1)
 
-    # -------------------------------------------------------------------------
-    # 3) Validate mandatory arguments if not in --version mode
-    # -------------------------------------------------------------------------
-    if not args.bbox or not args.data_dir:
-        parser.error(
-            "You must specify --bbox and --data-dir (unless you are using --version)."
-        )
 
-    # -------------------------------------------------------------------------
-    # 4) Extract parameters
-    # -------------------------------------------------------------------------
-    min_lon, min_lat, max_lon, max_lat = args.bbox
-    logger = logging.getLogger(__name__)
-    logger.info(
-        f"Check the bbox at http://bboxfinder.com/#{min_lat},{min_lon},{max_lat},{max_lon}"
-    )
-    scene_instance = Scene()
-    scene_instance(
-        [
-            [min_lon, min_lat],
-            [min_lon, max_lat],
-            [max_lon, max_lat],
-            [max_lon, min_lat],
-            [min_lon, min_lat],
-        ],
-        args.data_dir,
-        None,
-        osm_server_addr=args.osm_server_addr,
-        lidar_calibration=False,
-        generate_building_map=args.enable_building_map,
-    )
+
+
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 [project]
 name = "scene_generation"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
     "osmnx >= 2.0.0",
     "numpy",

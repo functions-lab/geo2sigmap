@@ -70,7 +70,7 @@ Subcommands:
 
 #### 1) Generate 3D Scene via Four Corner Points
 ```console
-$ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir Boston
+$ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
 [INFO] Using UTM Zone: EPSG:32619
@@ -80,7 +80,7 @@ Parsing buildings: 100%|██████████████████�
 
 #### 2) Generate 3D Scene via One Point + Rectangle Dimensions
 ```console
-$ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir Boston_top-left
+$ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir scenes/Boston_top-left
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.3485,-71.0547,42.3568,-71.0429
 [INFO] Using UTM Zone: EPSG:32619
@@ -93,7 +93,7 @@ The above commands generate a 3D scene for an area in downtown Boston. You can p
 ### Preview 3D Scene in Sionna
 
 
-After above example command, the 3D scene file is located in the `Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb) notebook.
+After above example command, the 3D scene file is located in the `scenes/Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb) notebook.
 
 
 For additional details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).

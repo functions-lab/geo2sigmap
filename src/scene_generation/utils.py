@@ -367,6 +367,32 @@ def random_building_height(building: dict, building_polygon: Polygon) -> float:
     return building_height
 
 
+
+def get_center_subarray(arr, x, y):
+    """
+    Extracts the center subarray of size (x, y) from a 2D NumPy array.
+    
+    Parameters:
+    - arr: 2D NumPy array
+    - x: Number of rows in the subarray
+    - y: Number of columns in the subarray
+    
+    Returns:
+    - Center subarray of shape (x, y)
+    """
+    H, W = arr.shape  # Get original array size
+    
+    # Compute starting indices
+    start_x = (H - x) // 2
+    start_y = (W - y) // 2
+    
+    # Extract the subarray
+    return arr[start_x : start_x + x, start_y : start_y + y]
+
+
+
+
+
 def is_float(element) -> bool:
     """
     Check if `element` can be safely cast to a float and is not NaN or inf.

@@ -20,11 +20,13 @@ Geo2SigMap is an efficient framework for high-fidelity RF signal mapping leverag
 
 If you find Geo2SigMap useful for your research, please consider citing:
 ```
-@article{li2023geo2sigmap,
-  title = {{Geo2SigMap}: High-Fidelity {RF} Signal Mapping Using Geographic Databases},
-  author = {Li, Yiming and Li, Zeyu and Gao, Zhihui and Chen, Tingjun},
-  journal={arXiv:2312.14303},
-  year={2023}
+@inproceedings{li2024geo2sigmap,
+  title={Geo2SigMap: High-fidelity RF signal mapping using geographic databases},
+  author={Li, Yiming and Li, Zeyu and Gao, Zhihui and Chen, Tingjun},
+  booktitle={2024 IEEE International Symposium on Dynamic Spectrum Access Networks (DySPAN)},
+  pages={277--285},
+  year={2024},
+  organization={IEEE}
 }
 
 ```

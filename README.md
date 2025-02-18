@@ -10,7 +10,7 @@
 
 Welcome to the Geo2SigMap, the **Current codebase** consists of two main components: 
 - **Scene Generation**: A pure python pipeline for scene generation. This new Python pipeline is complete replacement for the old Blender pipeline used in our paper. It is more powerful and easier to install and use.
-- **ML-based Propagation Model** (Inferencing ony for now)
+- **ML-based Propagation Model** : Inferencing ony for now.
 
 
 ## TABLE OF CONTENTS

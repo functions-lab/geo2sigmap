@@ -15,9 +15,9 @@ Welcome to the Geo2SigMap, the **current version (v1.0.0)** consists of two main
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
-3. [Installation](#installation)
-4. [Examples](#examples)
-5. [License](#license)
+2. [Installation](#installation)
+3. [Examples](#examples)
+4. [License](#license)
 
 ## Overview
 
@@ -44,7 +44,7 @@ geo2sigmap/
 │   ├── model_unet         # pre-trained ML model
 │   └── ...                
 ├── examples               # example tutorials and notebooks
-│   ├── *.ipynb            # tutorial in Julypter notebooks
+│   ├── *.ipynb            # tutorial in Juypter notebooks
 │   └── ...                
 ├── src/                   
 │   ├── scene_generation   # 3D scene generation pipeline
@@ -64,7 +64,7 @@ geo2sigmap/
 * Python >= 3.9
   
 ```bash
-git clone -b new_pipe https://github.com/functions-lab/geo2sigmap
+git clone https://github.com/functions-lab/geo2sigmap
 cd geo2sigmap
 python3 -m pip install .
 ```

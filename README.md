@@ -16,7 +16,7 @@ Welcome to the Geo2SigMap, **The Current codebase** consists of two main compone
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
 2. [Installation](#installation)
-3. [Example Usage](#example-usage)
+3. [Examples](#examples)
 4. [License](#license)
 
 ## Overview
@@ -48,9 +48,9 @@ python3 -m pip install .
 ```
 
 
+## Examples
 
-
-## Example Notebooks
+### Example Notebooks
 
 The repository includes Jupyter notebooks demonstrating various aspects of Geo2SigMap:
 
@@ -60,9 +60,8 @@ The repository includes Jupyter notebooks demonstrating various aspects of Geo2S
 - [examples/ml_coverage_map.ipynb](examples/ml_coverage_map.ipynb): Complete workflow including scene generation, ML model inference, and evaluation using measurement data.
 
 
-## CLI Tool Example Usage
+### CLI Tool Example Usage
 
-### Generate 3D Scene Using CLI Tool
 Below are examples showing how to generate a 3D scene for your chosen location. There are two ways to define the bounding box (scene area):
 
 1. Directly specify four GPS corners.

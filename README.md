@@ -3,11 +3,16 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2312.14303-green?color=FF8000?color=009922)](https://arxiv.org/abs/2312.14303)
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-yellow.svg)](https://github.com/functions-lab/geo2sigmap/blob/main/LICENSE)
 
-Welcome to the Geo2SigMap, this is the first work that: 
+<!-- Welcome to the Geo2SigMap, this is the first work that: 
 * Designs an automated framework that integrates open-source tools, including geographic databases (OSM), computer graphics (Blender), and ray tracing (Sionna), and supports scalable ray tracing and RF signal mapping at-scale using real-world building information;
 * Develops a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.
+ -->
 
-## Note: Current branch is under code refactoring. Only the 3D scene generation pipeline is available. ML part will be published later.
+Welcome to the Geo2SigMap, **The Current codebase** consists of two main components: 
+- Scene Generation: A pure python pipeline for scene generation. This new Python pipeline is complete replacement for the old Blender pipeline used in our paper. It is more powerful and easier to install and use.
+- ML-based Propagation Model (Inferencing Only)
+
+
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
 2. [Installation](#installation)
@@ -43,17 +48,28 @@ python3 -m pip install .
 ```
 
 
-## Example Usage
 
 
-### Generate 3D Scene
+## Example Notebooks
+
+The repository includes Jupyter notebooks demonstrating various aspects of Geo2SigMap:
+
+- [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb): Using `Sionna` to load and visualize 3D scenes generate by our tool, generate coverage maps.
+- [examples/sionna_rt_rays_analyze.ipynb](examples/sionna_rt_rays_analyze.ipynb): Randomly generate outdoor RX locations and perform point-to-point ray tracing to analyze detailed ray properties.
+- [examples/visualize_measurements.ipynb](examples/visualize_measurements.ipynb): Using `Bokeh` to visulized the CBRS LTE measurements on Duke campus.
+- [examples/ml_coverage_map.ipynb](examples/ml_coverage_map.ipynb): Complete workflow including scene generation, ML model inference, and evaluation using measurement data.
+
+
+## CLI Tool Example Usage
+
+### Generate 3D Scene Using CLI Tool
 Below are examples showing how to generate a 3D scene for your chosen location. There are two ways to define the bounding box (scene area):
 
 1. Directly specify four GPS corners.
 2. Provide one GPS point, indicate its position in the rectangle (top-left, bottom-right, etc.), and supply width and height in meters.
 
 To see all available options for scene generation, use `-h`:
-```console
+<!-- ```console
 $ scenegen -h
 usage: scenegenerationpipe [-h] [--version] {bbox,point} ...
 
@@ -72,7 +88,7 @@ Subcommands:
     bbox         Define a bounding box using four GPS coordinates in the order: min_lon, min_lat, max_lon, max_lat.
     point        Work with a single point and a rectangle size.
 ```
-
+ -->
 #### 1) Generate 3D Scene via Four Corner Points
 ```console
 $ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
@@ -92,21 +108,17 @@ $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir scenes/Boston_top-
 [INFO] Estimated ground polygon size: width=997m, height=902m
 Parsing buildings: 100%|█████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
 ```
-The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484).
+<!-- The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484). -->
 
 
-### Preview 3D Scene in Sionna
+<!-- ### Preview 3D Scene in Sionna
 
-
-After above example command, the 3D scene file is located in the `scenes/Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb) notebook.
-
-
-For additional details, refer to the [Sionna RT documentation](https://nvlabs.github.io/sionna/api/rt.html).
+After above example command, the 3D scene file is located in the `scenes/Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb) notebook. -->
 
 
 
 
-Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation).
+<!-- Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). -->
 
 
 

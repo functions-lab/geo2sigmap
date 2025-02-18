@@ -8,22 +8,24 @@
 * Develops a novel cascaded U-Net architecture that achieves significantly improved signal strength (SS) map prediction accuracy compared to existing baseline methods based on channel models and ML.
  -->
 
-Welcome to the Geo2SigMap, the **current codebase** consists of two main components: 
-- **Scene Generation**: A pure python pipeline for scene generation. This new Python pipeline is complete replacement for the old Blender pipeline used in our paper. It is more powerful and easier to install and use.
-- **ML-based Propagation Model** : Inferencing ony for now.
+Welcome to the Geo2SigMap, the **current version (v1.0.0)** consists of two main components: 
+- **Scene Generation**: A pure Python-based pipeline for generating 3D scenes for arbitrary areas of interest. This new Python-based pipeline replaces the scene generation pipeline used in our [DySPAN'24 paper](https://ieeexplore.ieee.org/document/10632773), and is more scalable, efficient, and user-friendly.
+- **ML-based Propagation Model**: ML-based signal coverage prediction using the pre-train model based on the cascaded U-Net architecture, also described in our DySPAN'24 paper.
 
 
 ## TABLE OF CONTENTS
 1. [Overview](#overview)
-2. [Installation](#installation)
-3. [Examples](#examples)
-4. [License](#license)
+3. [Installation](#installation)
+4. [Examples](#examples)
+5. [License](#license)
 
 ## Overview
 
-Geo2SigMap is an efficient framework for high-fidelity RF signal mapping leveraging geographic databases, ray tracing, and a novel cascaded U-Net model. Geo2SigMap features an automated pipeline that efficiently generates 3D building and path gain (PG) maps via the integration of a suite of open-sourced tools, including OpenStreetMap (OSM), Blender, and Sionna. Geo2SigMap also features a cascaded U-Net model, which is pre-trained on pure synthetic datasets leveraging the building map and sparse SS map as input to predict the full SS map for the target (unseen) area. The performance of Geo2SigMap has been evaluated using large-scale field measurements collected using three types of user equipment (UE) across six LTE cells operating in the citizens broadband radio service (CBRS) band deployed on the Duke University West Campus. Our results show that Geo2SigMap achieves significantly improved root-mean-square error (RMSE) in terms of of the SS map prediction accuracy compared to existing baseline methods based on channel models and ML.
+Geo2SigMap is an efficient framework for high-fidelity RF signal mapping leveraging geographic databases, ray tracing, and a novel cascaded U-Net model. Geo2SigMap features a scalable, automated pipeline that efficiently generates 3D building and path gain (PG) maps via the integration of a suite of open-sourced tools, including OpenStreetMap (OSM), ~~Blender~~, and Sionna. Geo2SigMap also features a cascaded U-Net model, which is pre-trained on pure synthetic datasets leveraging the building map and sparse signal strength (SS) map as input to predict the full SS map for the target (unseen) area. The performance of Geo2SigMap has been evaluated using large-scale field measurements collected using three types of user equipment (UE) across six LTE cells operating in the citizens broadband radio service (CBRS) band deployed on the Duke University West Campus. Our results show that Geo2SigMap achieves significantly improved root-mean-square error (RMSE) in terms of the SS map prediction accuracy compared to existing baseline methods based on channel models and ML.
 
-If you find Geo2SigMap useful for your research, please consider citing:
+### Citation
+
+If you find Geo2SigMap useful for your research, please consider citing this paper:
 ```
 @inproceedings{li2024geo2sigmap,
   title={Geo2SigMap: High-fidelity RF signal mapping using geographic databases},
@@ -31,6 +33,29 @@ If you find Geo2SigMap useful for your research, please consider citing:
   booktitle={Proc. IEEE International Symposium on Dynamic Spectrum Access Networks (DySPAN)},
   year={2024}
 }
+```
+
+### Project Structure
+
+```sh
+geo2sigmap/
+├── data/                  
+│   ├── measurements       # measurement data
+│   ├── model_unet         # pre-trained ML model
+│   └── ...                
+├── examples               # example tutorials and notebooks
+│   ├── *.ipynb            # tutorial in Julypter notebooks
+│   └── ...                
+├── src/                   
+│   ├── scene_generation   # 3D scene generation pipeline
+│   └── ...                
+├── tools/                 # Tools to create datasets and more   
+│   └── meshrir_split.py   # Create meshrir dataset split
+├── .gitignore
+├── LICENSE                
+├── README.md              
+├── pyproject.toml         
+└── requirements.txt             
 ```
 
 ## Installation
@@ -44,16 +69,18 @@ cd geo2sigmap
 python3 -m pip install .
 ```
 
+If you plan to use the generated 3D scenes with Sionna RT, please refer to [Sionna RT Installation](https://nvlabs.github.io/sionna/installation.html) for the required Python versions (3.8-3.11) and the use of [virtual environment](https://docs.python.org/3/tutorial/venv.html). 
+
 ## Examples
 
 ### Example Notebooks
 
 The repository includes Jupyter notebooks demonstrating various aspects of Geo2SigMap:
 
-- [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb): Using `Sionna` to load and visualize arbitrary 3D scenes generated by our tool, with the corresponding coverage map obtained using [Sionna RT](https://nvlabs.github.io/sionna/examples/Sionna_Ray_Tracing_Introduction.html).
-- [examples/sionna_rt_rays_analyze.ipynb](examples/sionna_rt_rays_analyze.ipynb): Randomly generate outdoor RX locations and perform point-to-point ray tracing to analyze detailed ray properties.
-- [examples/visualize_measurements.ipynb](examples/visualize_measurements.ipynb): Using `Bokeh` to visualize the CBRS LTE measurements collected on the Duke campus.
-- [examples/ml_coverage_map.ipynb](examples/ml_coverage_map.ipynb): Complete workflow including scene generation, ML model inference, and evaluation using measurement data.
+- [Tutorial #1](examples/sionna_rt_coverage_map.ipynb): Using `Sionna` to load and visualize arbitrary 3D scenes generated by our tool, with the corresponding coverage map obtained using [Sionna RT](https://nvlabs.github.io/sionna/examples/Sionna_Ray_Tracing_Introduction.html).
+- [Tutorial #2](examples/sionna_rt_rays_analyze.ipynb): Randomly generate outdoor RX locations and perform point-to-point ray tracing to analyze detailed ray properties.
+- [Tutorial #3](examples/visualize_measurements.ipynb): Using `Bokeh` to visualize the CBRS LTE measurements collected on the Duke campus.
+- [Tutorial #4](examples/ml_coverage_map.ipynb): Complete workflow including scene generation, ML model inference, and evaluation using measurement data.
 
 
 ### CLI Tool Example Usage
@@ -84,7 +111,8 @@ Subcommands:
     point        Work with a single point and a rectangle size.
 ```
  -->
-#### 1) Generate 3D Scene via Four Corner Points
+
+#### 1) Generate 3D Scene using Four Corner Points
 ```console
 $ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
 
@@ -93,8 +121,9 @@ $ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
 [INFO] Estimated ground coverage: width=994m, height=901m
 Parsing buildings: 100%|█████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
+The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484).
 
-#### 2) Generate 3D Scene via One Point + Rectangle Dimensions
+#### 2) Generate 3D Scene using One Point + Rectangle Dimension
 ```console
 $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir scenes/Boston_top-left
 
@@ -103,15 +132,13 @@ $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir scenes/Boston_top-
 [INFO] Estimated ground polygon size: width=997m, height=902m
 Parsing buildings: 100%|█████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
 ```
-<!-- The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484). -->
+
+Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation).
 
 
-<!-- ### Preview 3D Scene in Sionna
+#### 3) Preview 3D Scene in Sionna
 
-After above example command, the 3D scene file is located in the `scenes/Boston` folder. You can load it directly in Sionna to explore or run ray tracing simulations. For a working example, see the [examples/sionna_rt_coverage_map.ipynb](examples/sionna_rt_coverage_map.ipynb) notebook. -->
-
-
-<!-- Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation). -->
+After the above example command, the 3D scene file is saved to the corresponding folder under `./scenes/`. You can load it directly in Sionna to explore or run ray tracing simulations. Please refer to [Tutorial #1](examples/sionna_rt_coverage_map.ipynb) and [Tutorial #2](examples/sionna_rt_rays_analyze.ipynb) for two example notebooks.
 
 
 ## License

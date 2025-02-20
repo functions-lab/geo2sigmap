@@ -391,6 +391,53 @@ def get_center_subarray(arr, x, y):
 
 
 
+def error_tolerance_rate(y_true, y_pred, threshold, relative=False):
+    """
+    Computes the percentage of predictions that fall within a specified error threshold.
+
+    This function calculates the proportion of predictions that have errors within the given threshold,
+    supporting both absolute and relative error calculations.
+
+    Parameters:
+    ----------
+    y_true : np.ndarray
+        Array of actual (ground truth) values.
+    y_pred : np.ndarray
+        Array of predicted values.
+    threshold : float
+        The maximum allowed error for a prediction to be considered within tolerance.
+    relative : bool, optional (default=False)
+        If True, computes relative errors (normalized by `y_true`). If False, uses absolute errors.
+
+    Returns:
+    -------
+    float
+        The percentage of predictions within the specified error tolerance.
+    
+    Notes:
+    ------
+    - If `relative=True`, zero values in `y_true` are ignored to avoid division by zero.
+    - The function returns a percentage (0 to 100) rather than a fraction.
+    """
+    
+    if relative:
+        # Mask to exclude zero values in `y_true` to prevent division by zero
+        valid_mask = (y_true != 0)
+        y_true = y_true[valid_mask]
+        y_pred = y_pred[valid_mask]
+
+        # Compute relative errors
+        errors = np.abs((y_true - y_pred) / y_true)
+    else:
+        # Compute absolute errors
+        errors = np.abs(y_true - y_pred)
+
+    # Count predictions within the specified error threshold
+    within_tolerance = np.sum(errors <= threshold)
+
+    # Return the percentage of values within tolerance
+    return (within_tolerance / len(y_true)) * 100 if len(y_true) > 0 else 0.0
+
 
 
 def is_float(element) -> bool:

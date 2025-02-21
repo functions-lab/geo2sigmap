@@ -124,9 +124,36 @@ class Scene:
         ground_material_type = "mat-itu_wet_ground"
         rooftop_material_type = "mat-itu_metal"
         wall_material_type = "mat-itu_concrete"
+        logger.info("")
 
-
-
+        logger.info("Ground Material Type:              {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
+            ITU_MATERIALS[ground_material_type]["name"],
+            int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9),
+            int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)))
+        logger.info("Building Rooftop Material Type:    {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
+            ITU_MATERIALS[rooftop_material_type]["name"],
+            int(ITU_MATERIALS[rooftop_material_type]["lower_freq_limit"]/1e9),
+            int(ITU_MATERIALS[rooftop_material_type]["upper_freq_limit"]/1e9)))
+        
+        logger.info("Building Wall Material Type:       {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
+            ITU_MATERIALS[wall_material_type]["name"],
+            int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
+            int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9)))
+        
+        logger.info("Overall Scene Frequency Range: {:^4} - {:^4} (GHz)".format(
+            max(
+                int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
+                int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
+                int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9)
+                ),
+            min(int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
+                int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
+                int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)
+                )
+            )
+        )
+        logger.info("")
+        
         # Default Mitsuba rendering parameters
         spp_default = 4096
         resx_default = 1024

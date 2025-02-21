@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw
 from pyproj import Transformer
 
 from .utils import *
+import open3d.core as o3c
 
 
 
@@ -404,14 +405,78 @@ class Scene:
             mesh_o3d.vertex.positions = o3d.core.Tensor(points)
             mesh_o3d.triangle.indices = o3d.core.Tensor(f)
 
-            wedge = mesh_o3d.extrude_linear([0, 0, building_height])
-            o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
+            wedge_t = mesh_o3d.extrude_linear([0, 0, building_height])
+            # Get vertices and faces
+            vertices_tensor = wedge_t.vertex["positions"]
+            faces_tensor = wedge_t.triangle["indices"]
+            
+            # Convert to NumPy for calculations
+            vertices_np = vertices_tensor.numpy()
+            faces_np = faces_tensor.numpy()
+            
+            # Compute face centroids
+            face_centroids = np.mean(vertices_np[faces_np], axis=1)
+            
+            # Identify top surface faces (highest Z-value)
+            top_faces_np = faces_np[face_centroids[:, 2] == building_height]
 
-            material_type = "mat-itu_marble"
+            z_values = vertices_np[:, 2]
+            top_vertex_indices = np.where(z_values == building_height)[0].tolist()  # Indices of top vertices
+
+            # Extract the top surface
+            top_surface = wedge_t.select_by_index(top_vertex_indices)
+
+
+            other_faces_np = faces_np[face_centroids[:, 2] < building_height]
+            # print("vertices_np",vertices_np)
+            # print("face_np", faces_np)
+            # print("top_faces_np" ,top_faces_np)
+            # print("other_faces_np", other_faces_np)
+            
+            # Convert to Open3D Tensor API
+            top_faces_o3c = o3c.Tensor(top_faces_np, dtype=o3c.int32)
+            other_faces_o3c = o3c.Tensor(other_faces_np, dtype=o3c.int32)
+            
+            # Create two separate tensor-based meshes
+            # rooftop_mesh = o3d.t.geometry.TriangleMesh()
+            # rooftop_mesh.vertex["positions"] = vertices_tensor  # Same vertices
+            # rooftop_mesh.triangle["indices"] = top_faces_o3c
+            
+            # # Create two separate meshes
+            # rooftop_mesh = o3d.geometry.TriangleMesh()
+            # rooftop_mesh.vertices = vertices  # Same vertices
+            # rooftop_mesh.triangles = o3d.utility.Vector3iVector(rooftop_faces)
+            
+            # wall_mesh = o3d.geometry.TriangleMesh()
+            # wall_mesh.vertices = vertices  # Same vertices
+            # wall_mesh.triangles = o3d.utility.Vector3iVector(wall_faces)
+            
+            wall_mesh = o3d.t.geometry.TriangleMesh()
+            wall_mesh.vertex["positions"] = vertices_tensor  # Same vertices
+            wall_mesh.triangle["indices"] = other_faces_o3c
+
+            wall_mesh.remove_unreferenced_vertices()
+            # rooftop_mesh.remove_unreferenced_vertices()
+
+            o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}_rooftop.ply"), top_surface, write_ascii=True)
+            o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}_wall.ply"), wall_mesh, write_ascii=True)
+
+            
+
+            # o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
+
+            rooftop_material_type = "mat-itu_metal"
+            wall_material_type = "mat-itu_concrete"
+
             # Add shape elements for PLY files in the folder
-            sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-building_{idx}")
-            ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/building_{idx}.ply")
-            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=material_type, name="bsdf")
+            sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-building_{idx}_rooftop")
+            ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/building_{idx}_rooftop.ply")
+            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=rooftop_material_type, name="asdf")
+            ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
+
+            sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-building_{idx}_wall")
+            ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/building_{idx}_wall.ply")
+            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=wall_material_type, name="asdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:

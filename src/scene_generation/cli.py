@@ -23,9 +23,8 @@ except ImportError:
     # For Python < 3.8, use importlib_metadata backport
     from importlib_metadata import version as pkg_version, PackageNotFoundError
 import math
+
 PACKAGE_NAME = "scenegenerationpipe"
-
-
 
 
 def get_package_version() -> str:
@@ -57,7 +56,6 @@ def setup_logging(log_file="debug.log"):
     # For console output, a simpler format:
     # e.g. "[INFO] Checking bounding box: http://bboxfinder.com/..."
     console_formatter = logging.Formatter("[%(levelname)s] %(message)s")
- 
 
     # 1) Console handler at INFO level
     console_handler = logging.StreamHandler()
@@ -72,8 +70,6 @@ def setup_logging(log_file="debug.log"):
     # Clear any existing handlers to avoid duplicate logs (if needed)
     if logger.hasHandlers():
         logger.handlers.clear()
-
-
 
     # Add the two handlers
     logger.addHandler(console_handler)
@@ -224,23 +220,22 @@ def main():
         "--ground-material",
         default=16,
         type=int,
-        help="ID of the material to use in the scene for ground. Default set to wet ground."
+        help="ID of the material to use in the scene for ground. Default set to wet ground.",
     )
 
     common_parser.add_argument(
-        "--rooftop-material", 
+        "--rooftop-material",
         default=13,
-         type=int,
-        help="ID of the material to use in the scene for rooftops. Default set to metal."
-    )   
+        type=int,
+        help="ID of the material to use in the scene for rooftops. Default set to metal.",
+    )
 
     common_parser.add_argument(
         "--wall-material",
-        default=1, 
-         type=int,
-        help="ID of the material to use in the scene for walls. Default set to concrete."
+        default=1,
+        type=int,
+        help="ID of the material to use in the scene for walls. Default set to concrete.",
     )
-
 
     common_parser.add_argument(
         "--debug",
@@ -335,11 +330,17 @@ def main():
         print("ID | {:^30} | Frequency Range (GHz)".format("Name", "lower", "upper"))
         for idx, item in enumerate(ITU_MATERIALS.items()):
             material, data = item
-            print("{:<2} | {:<30} | {:^5} - {:^5}".format(
-            idx,
-            data["name"],
-            print_if_int(data["lower_freq_limit"]/1e9),
-            print_if_int(data["upper_freq_limit"]/1e9)))
+            print(
+                "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                    idx,
+                    data["name"],
+                    print_if_int(data["lower_freq_limit"] / 1e9),
+                    print_if_int(data["upper_freq_limit"] / 1e9),
+                )
+            )
+        print(
+            'Material properties based on ITU-R Recommendation P.2040-2: \n\t"Effects of building materials and structures on radiowave propagation above about 100 MHz"'
+        )
         sys.exit(0)
 
     if not args.command:
@@ -363,24 +364,19 @@ def main():
 
     logger = logging.getLogger(__name__)
 
-
     # Handle the materials
 
     if args.ground_material not in range(len(ITU_MATERIALS.keys())):
-        logger.error(f"Invalid ground material: {args.ground_material}")    
+        logger.error(f"Invalid ground material: {args.ground_material}")
         sys.exit(1)
-
-        
 
     if args.rooftop_material not in range(len(ITU_MATERIALS)):
         logger.error(f"Invalid rooftop material: {args.rooftop_material}")
         sys.exit(1)
- 
 
     if args.wall_material not in range(len(ITU_MATERIALS)):
         logger.error(f"Invalid wall material: {args.wall_material}")
-        sys.exit(1) 
-
+        sys.exit(1)
 
     # Dispatch subcommands
     if args.command == "bbox":
@@ -406,9 +402,9 @@ def main():
             osm_server_addr=args.osm_server_addr,
             lidar_calibration=False,
             generate_building_map=args.enable_building_map,
-            ground_material_type= list(ITU_MATERIALS.items())[args.ground_material][0],
-            rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0], 
-            wall_material_type= list(ITU_MATERIALS.items())[args.wall_material][0]
+            ground_material_type=list(ITU_MATERIALS.items())[args.ground_material][0],
+            rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0],
+            wall_material_type=list(ITU_MATERIALS.items())[args.wall_material][0],
         )
     elif args.command == "point":
         polygon_points_gps = rect_from_point_and_size(
@@ -427,9 +423,9 @@ def main():
             osm_server_addr=args.osm_server_addr,
             lidar_calibration=False,
             generate_building_map=args.enable_building_map,
-            ground_material_type= list(ITU_MATERIALS.items())[args.ground_material][0],
-            rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0], 
-            wall_material_type= list(ITU_MATERIALS.items())[args.wall_material][0]
+            ground_material_type=list(ITU_MATERIALS.items())[args.ground_material][0],
+            rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0],
+            wall_material_type=list(ITU_MATERIALS.items())[args.wall_material][0],
         )
     else:
         # Should never happen if we covered all subcommands

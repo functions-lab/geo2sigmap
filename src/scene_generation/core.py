@@ -136,21 +136,21 @@ class Scene:
 
         logger.info("")
 
-        logger.info("Ground Material Type:              {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
+        logger.info("Ground Material Type:              {:<30} | Frequency Range: {:^5} - {:^5} (GHz)".format(
             ITU_MATERIALS[ground_material_type]["name"],
             print_if_int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9),
             print_if_int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)))
-        logger.info("Building Rooftop Material Type:    {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
+        logger.info("Building Rooftop Material Type:    {:<30} | Frequency Range: {:^5} - {:^5} (GHz)".format(
             ITU_MATERIALS[rooftop_material_type]["name"],
             print_if_int(ITU_MATERIALS[rooftop_material_type]["lower_freq_limit"]/1e9),
             print_if_int(ITU_MATERIALS[rooftop_material_type]["upper_freq_limit"]/1e9)))
         
-        logger.info("Building Wall Material Type:       {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
+        logger.info("Building Wall Material Type:       {:<30} | Frequency Range: {:^5} - {:^5} (GHz)".format(
             ITU_MATERIALS[wall_material_type]["name"],
             print_if_int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
             print_if_int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9)))
         
-        logger.info("Overall Scene Frequency Range: {:^4} - {:^4} (GHz)".format(
+        logger.info("Overall Scene Frequency Range: {:^5} - {:^5} (GHz)".format(
             print_if_int(max(
                 (ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
                 (ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),

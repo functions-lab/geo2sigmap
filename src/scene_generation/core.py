@@ -55,7 +55,10 @@ class Scene:
         lidar_calibration: bool = True,
         generate_building_map: bool = True,
         write_ply_ascii: bool = False,
-        ground_scale: float = 1.5
+        ground_scale: float = 1.5,
+        ground_material_type = "mat-itu_wet_ground",
+        rooftop_material_type = "mat-itu_metal",
+        wall_material_type = "mat-itu_concrete"
 
 
     ):
@@ -87,6 +90,13 @@ class Scene:
             If generate_building_map is True, returns a 2D NumPy array of building heights.
             Otherwise, returns None.
         """
+
+        if self.ground_material_type not in ITU_MATERIALS:
+            raise ValueError(f"Invalid ground material type: {self.ground_material_type}")
+        if self.rooftop_material_type not in ITU_MATERIALS:     
+            raise ValueError(f"Invalid rooftop material type: {self.rooftop_material_type}")
+        if self.wall_material_type not in ITU_MATERIALS:    
+            raise ValueError(f"Invalid wall material type: {self.wall_material_type}")
         
         # ---------------------------------------------------------------------
         # 1) Setup OSM server and transforms
@@ -121,34 +131,34 @@ class Scene:
         # top_right = (top_left[0], bottom_right[1])
         # bottom_left = (bottom_right[0], top_left[1])
 
-        ground_material_type = "mat-itu_wet_ground"
-        rooftop_material_type = "mat-itu_metal"
-        wall_material_type = "mat-itu_concrete"
+
+
+
         logger.info("")
 
         logger.info("Ground Material Type:              {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
-            ITU_MATERIALS[ground_material_type]["name"],
-            int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9),
-            int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)))
+            ITU_MATERIALS[self.ground_material_type]["name"],
+            int(ITU_MATERIALS[self.ground_material_type]["lower_freq_limit"]/1e9),
+            int(ITU_MATERIALS[self.ground_material_type]["upper_freq_limit"]/1e9)))
         logger.info("Building Rooftop Material Type:    {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
-            ITU_MATERIALS[rooftop_material_type]["name"],
-            int(ITU_MATERIALS[rooftop_material_type]["lower_freq_limit"]/1e9),
-            int(ITU_MATERIALS[rooftop_material_type]["upper_freq_limit"]/1e9)))
+            ITU_MATERIALS[self.rooftop_material_type]["name"],
+            int(ITU_MATERIALS[self.rooftop_material_type]["lower_freq_limit"]/1e9),
+            int(ITU_MATERIALS[self.rooftop_material_type]["upper_freq_limit"]/1e9)))
         
         logger.info("Building Wall Material Type:       {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
-            ITU_MATERIALS[wall_material_type]["name"],
-            int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
-            int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9)))
+            ITU_MATERIALS[self.wall_material_type]["name"],
+            int(ITU_MATERIALS[self.wall_material_type]["lower_freq_limit"]/1e9),
+            int(ITU_MATERIALS[self.wall_material_type]["upper_freq_limit"]/1e9)))
         
         logger.info("Overall Scene Frequency Range: {:^4} - {:^4} (GHz)".format(
             max(
-                int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
-                int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
-                int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9)
+                int(ITU_MATERIALS[self.wall_material_type]["lower_freq_limit"]/1e9),
+                int(ITU_MATERIALS[self.wall_material_type]["lower_freq_limit"]/1e9),
+                int(ITU_MATERIALS[self.ground_material_type]["lower_freq_limit"]/1e9)
                 ),
-            min(int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
-                int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
-                int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)
+            min(int(ITU_MATERIALS[self.wall_material_type]["upper_freq_limit"]/1e9),
+                int(ITU_MATERIALS[self.wall_material_type]["upper_freq_limit"]/1e9),
+                int(ITU_MATERIALS[self.ground_material_type]["upper_freq_limit"]/1e9)
                 )
             )
         )
@@ -297,7 +307,7 @@ class Scene:
         
         sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-ground")
         ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/ground.ply")
-        bsdf_ref = ET.SubElement(sionna_shape, "ref", id=ground_material_type, name="bsdf")
+        bsdf_ref = ET.SubElement(sionna_shape, "ref", id=self.ground_material_type, name="bsdf")
         ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
         # ---------------------------------------------------------------------
@@ -507,12 +517,12 @@ class Scene:
             # Add shape elements for PLY files in the folder
             sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-building_{idx}_rooftop")
             ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/building_{idx}_rooftop.ply")
-            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=rooftop_material_type, name="asdf")
+            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=self.rooftop_material_type, name="asdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-building_{idx}_wall")
             ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/building_{idx}_wall.ply")
-            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=wall_material_type, name="asdf")
+            bsdf_ref = ET.SubElement(sionna_shape, "ref", id=self.wall_material_type, name="asdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:

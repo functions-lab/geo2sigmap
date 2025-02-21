@@ -226,6 +226,29 @@ def main():
         action="store_true",
         help="Enable 2D building map output.",
     )
+
+    common_parser.add_argument(
+        "--ground-material",
+        default=16,
+        type=int,
+        help="ID of the material to use in the scene for ground. Default set to wet ground."
+    )
+
+    common_parser.add_argument(
+        "--rooftop-material", 
+        default=13,
+         type=int,
+        help="ID of the material to use in the scene for rooftops. Default set to metal."
+    )   
+
+    common_parser.add_argument(
+        "--wall-material",
+        default=1, 
+         type=int,
+        help="ID of the material to use in the scene for walls. Default set to concrete."
+    )
+
+
     common_parser.add_argument(
         "--debug",
         action="store_true",
@@ -347,6 +370,25 @@ def main():
 
     logger = logging.getLogger(__name__)
 
+
+    # Handle the materials
+
+    if args.ground_material not in range(len(ITU_MATERIALS.keys())):
+        logger.error(f"Invalid ground material: {args.ground_material}")    
+        sys.exit(1)
+
+        
+
+    if args.rooftop_material not in range(len(ITU_MATERIALS)):
+        logger.error(f"Invalid rooftop material: {args.rooftop_material}")
+        sys.exit(1)
+ 
+
+    if args.wall_material not in range(len(ITU_MATERIALS)):
+        logger.error(f"Invalid wall material: {args.wall_material}")
+        sys.exit(1) 
+
+
     # Dispatch subcommands
     if args.command == "bbox":
         min_lon = args.min_lon
@@ -371,6 +413,9 @@ def main():
             osm_server_addr=args.osm_server_addr,
             lidar_calibration=False,
             generate_building_map=args.enable_building_map,
+            ground_material_type= list(ITU_MATERIALS.items())[args.ground_material][0],
+            rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0], 
+            wall_material_type= list(ITU_MATERIALS.items())[args.wall_material][0]
         )
     elif args.command == "point":
         polygon_points_gps = rect_from_point_and_size(
@@ -389,6 +434,9 @@ def main():
             osm_server_addr=args.osm_server_addr,
             lidar_calibration=False,
             generate_building_map=args.enable_building_map,
+            ground_material_type= list(ITU_MATERIALS.items())[args.ground_material][0],
+            rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0], 
+            wall_material_type= list(ITU_MATERIALS.items())[args.wall_material][0]
         )
     else:
         # Should never happen if we covered all subcommands

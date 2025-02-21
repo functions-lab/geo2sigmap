@@ -19,7 +19,9 @@ from PIL import Image, ImageDraw
 from pyproj import Transformer
 
 from .utils import *
+from .itu_materials import ITU_MATERIALS
 import open3d.core as o3c
+
 
 
 
@@ -119,6 +121,12 @@ class Scene:
         # top_right = (top_left[0], bottom_right[1])
         # bottom_left = (bottom_right[0], top_left[1])
 
+        ground_material_type = "mat-itu_wet_ground"
+        rooftop_material_type = "mat-itu_metal"
+        wall_material_type = "mat-itu_concrete"
+
+
+
         # Default Mitsuba rendering parameters
         spp_default = 4096
         resx_default = 1024
@@ -130,13 +138,14 @@ class Scene:
         }
 
         # Define material colors. This is RGB 0-1 formar https://rgbcolorpicker.com/0-1
-        material_colors = {
-            "mat-itu_concrete": (0.539479, 0.539479, 0.539480),
-            "mat-itu_marble": (0.701101, 0.644479, 0.485150),
-            "mat-itu_metal": (0.219526, 0.219526, 0.254152),
-            "mat-itu_wood": (0.043, 0.58, 0.184),
-            "mat-itu_wet_ground": (0.91, 0.569, 0.055),
-        }
+        # material_colors = {
+        #     "mat-itu_concrete": (0.539479, 0.539479, 0.539480),
+        #     "mat-itu_marble": (0.701101, 0.644479, 0.485150),
+        #     "mat-itu_metal": (0.219526, 0.219526, 0.254152),
+        #     "mat-itu_wood": (0.043, 0.58, 0.184),
+        #     "mat-itu_wet_ground": (0.91, 0.569, 0.055),
+        # }
+    
 
         # ---------------------------------------------------------------------
         # 3) Build the XML scene root
@@ -152,9 +161,10 @@ class Scene:
         ET.SubElement(integrator, "integer", name="max_depth", value="12")
 
         # Define materials
-        for material_id, rgb in material_colors.items():
+        for material_id, material_content in ITU_MATERIALS.items():
             bsdf_twosided = ET.SubElement(scene, "bsdf", type="twosided", id=material_id)
             bsdf_diffuse = ET.SubElement(bsdf_twosided, "bsdf", type="diffuse")
+            rgb = material_content["mitsuba_color"]
             ET.SubElement(bsdf_diffuse, "rgb", value=f"{rgb[0]} {rgb[1]} {rgb[2]}", name="reflectance")
 
         # Add emitter (constant environment light)
@@ -257,10 +267,10 @@ class Scene:
         mesh_o3d.scale(ground_scale, mesh_o3d.get_center())
         o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"ground.ply"), mesh_o3d, write_ascii = write_ply_ascii)
 
-        material_type = "mat-itu_wet_ground"
+        
         sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-ground")
         ET.SubElement(sionna_shape, "string", name="filename", value=f"mesh/ground.ply")
-        bsdf_ref = ET.SubElement(sionna_shape, "ref", id=material_type, name="bsdf")
+        bsdf_ref = ET.SubElement(sionna_shape, "ref", id=ground_material_type, name="bsdf")
         ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
         # ---------------------------------------------------------------------
@@ -465,8 +475,7 @@ class Scene:
 
             # o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
 
-            rooftop_material_type = "mat-itu_metal"
-            wall_material_type = "mat-itu_concrete"
+
 
             # Add shape elements for PLY files in the folder
             sionna_shape = ET.SubElement(scene, "shape", type="ply", id=f"mesh-building_{idx}_rooftop")

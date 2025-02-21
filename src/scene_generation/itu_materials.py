@@ -88,25 +88,25 @@ ITU_MATERIALS = {
         "upper_freq_limit": 100e9,
         "mitsuba_color":(0.8902, 0.4667, 0.7608),
     },
-    "itu_wet_groundmetal": {
+    "mat-itu_metal": {
         "name": "Metal",
         "lower_freq_limit": 1e9,
         "upper_freq_limit": 100e9,
         "mitsuba_color": (0.219526, 0.219526, 0.254152)
     },
-    "itu_wet_groundvery_dry_ground": {
+    "mat-itu_very_dry_ground": {
         "name": "Very Dry Ground",
         "lower_freq_limit": 1e9,
         "upper_freq_limit": 10e9,
         "mitsuba_color": (0.4980, 0.4980, 0.4980),
     },
-    "itu_wet_groundmedium_dry_ground": {
+    "mat-itu_medium_dry_ground": {
         "name": "Medium Dry Ground",
         "lower_freq_limit": 1e9,
         "upper_freq_limit": 10e9,
         "mitsuba_color":(0.7804, 0.7804, 0.7804),
     },
-    "itu_wet_groundwet_ground": {
+    "mat-itu_wet_ground": {
         "name": "Wet Ground",
         "lower_freq_limit": 1e9,
         "upper_freq_limit": 10e9,

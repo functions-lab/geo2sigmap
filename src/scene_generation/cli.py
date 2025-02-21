@@ -15,14 +15,24 @@ import logging
 from argparse import ArgumentParser
 from .core import Scene
 from .utils import rect_from_point_and_size
+from .itu_materials import ITU_MATERIALS
 
 try:
     from importlib.metadata import version as pkg_version, PackageNotFoundError
 except ImportError:
     # For Python < 3.8, use importlib_metadata backport
     from importlib_metadata import version as pkg_version, PackageNotFoundError
-
+import math
 PACKAGE_NAME = "scenegenerationpipe"
+
+
+
+def print_if_int(num):
+  """Prints the number as an integer if it's an integer, otherwise prints the original number."""
+  if math.isclose(num, int(num)):
+    return  int(num)
+  else:
+    return num
 
 
 def get_package_version() -> str:
@@ -184,6 +194,12 @@ def main():
         help="Show version information and exit.",
     )
 
+    parser.add_argument(
+        "--list-materials",
+        action="store_true",
+        help="List the available ITU materials and their frequency ranges.",
+    )
+
     # Create a "parent" parser to hold common optional arguments.
     # Use add_help=False so we don’t duplicate the --help in child parsers.
     common_parser = ArgumentParser(add_help=False)
@@ -296,6 +312,18 @@ def main():
     # Handle --version or no subcommand
     if args.version:
         print(f"{PACKAGE_NAME} version {get_package_version()}")
+        sys.exit(0)
+
+    if args.list_materials:
+        print("Available ITU materials and their frequency ranges:")
+        print("ID | {:^30} | Frequency Range (GHz)".format("Name", "lower", "upper"))
+        for idx, item in enumerate(ITU_MATERIALS.items()):
+            material, data = item
+            print("{:<2} | {:<30} | {:^5} - {:^5}".format(
+            idx,
+            data["name"],
+            print_if_int(data["lower_freq_limit"]/1e9),
+            print_if_int(data["upper_freq_limit"]/1e9)))
         sys.exit(0)
 
     if not args.command:

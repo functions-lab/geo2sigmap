@@ -41,25 +41,25 @@ ITU_MATERIALS = {
         "mitsuba_color": (0.043, 0.58, 0.184)
     },
     "mat-itu_glass_low_freq": {
-        "name": "Glass(Low Frequency)",
+        "name": "Glass (Low Frequency)",
         "lower_freq_limit": 0.1e9,
         "upper_freq_limit": 100e9,
         "mitsuba_color":(0.5961, 0.8745, 0.5412),
     },
     "mat-itu_glass_high_freq": {
-        "name": "Glass(High Frequency)",
+        "name": "Glass (High Frequency)",
         "lower_freq_limit": 220e9,
         "upper_freq_limit": 450e9,
         "mitsuba_color":(0.8392, 0.1529, 0.1569),
     },
     "mat-itu_ceiling_board_low_freq": {
-        "name": "Ceiling Board(Low Frequency)",
+        "name": "Ceiling Board (Low Frequency)",
         "lower_freq_limit": 1e9,
         "upper_freq_limit": 100e9,
         "mitsuba_color":(1.0000, 0.5961, 0.5882),
     },
     "mat-itu_ceiling_board_high_freq": {
-        "name": "Ceiling Board(High Frequency)",
+        "name": "Ceiling Board (High Frequency)",
         "lower_freq_limit": 220e9,
         "upper_freq_limit": 450e9,
         "mitsuba_color": (0.5804, 0.4039, 0.7412),

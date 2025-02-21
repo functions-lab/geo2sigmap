@@ -463,6 +463,14 @@ def is_float(element) -> bool:
         return False
 
 
+def print_if_int(num):
+  """Prints the number as an integer if it's an integer, otherwise prints the original number."""
+  if math.isclose(num, int(num)):
+    return  int(num)
+  else:
+    return num
+  
+
 class GeoTIFFHandler:
     """
     Class for opening and querying a GeoTIFF file for height (HAG, DEM, etc.).

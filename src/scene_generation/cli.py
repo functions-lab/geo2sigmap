@@ -14,7 +14,7 @@ import logging
 
 from argparse import ArgumentParser
 from .core import Scene
-from .utils import rect_from_point_and_size
+from .utils import rect_from_point_and_size, print_if_int
 from .itu_materials import ITU_MATERIALS
 
 try:
@@ -26,13 +26,6 @@ import math
 PACKAGE_NAME = "scenegenerationpipe"
 
 
-
-def print_if_int(num):
-  """Prints the number as an integer if it's an integer, otherwise prints the original number."""
-  if math.isclose(num, int(num)):
-    return  int(num)
-  else:
-    return num
 
 
 def get_package_version() -> str:

@@ -138,28 +138,28 @@ class Scene:
 
         logger.info("Ground Material Type:              {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
             ITU_MATERIALS[ground_material_type]["name"],
-            int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9),
-            int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)))
+            print_if_int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9),
+            print_if_int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)))
         logger.info("Building Rooftop Material Type:    {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
             ITU_MATERIALS[rooftop_material_type]["name"],
-            int(ITU_MATERIALS[rooftop_material_type]["lower_freq_limit"]/1e9),
-            int(ITU_MATERIALS[rooftop_material_type]["upper_freq_limit"]/1e9)))
+            print_if_int(ITU_MATERIALS[rooftop_material_type]["lower_freq_limit"]/1e9),
+            print_if_int(ITU_MATERIALS[rooftop_material_type]["upper_freq_limit"]/1e9)))
         
         logger.info("Building Wall Material Type:       {:<10} | Frequency Range: {:^4} - {:^4} (GHz)".format(
             ITU_MATERIALS[wall_material_type]["name"],
-            int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
-            int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9)))
+            print_if_int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
+            print_if_int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9)))
         
         logger.info("Overall Scene Frequency Range: {:^4} - {:^4} (GHz)".format(
-            max(
-                int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
-                int(ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
-                int(ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9)
-                ),
-            min(int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
-                int(ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
-                int(ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)
-                )
+            print_if_int(max(
+                (ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
+                (ITU_MATERIALS[wall_material_type]["lower_freq_limit"]/1e9),
+                (ITU_MATERIALS[ground_material_type]["lower_freq_limit"]/1e9)
+                )),
+            print_if_int(min((ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
+                (ITU_MATERIALS[wall_material_type]["upper_freq_limit"]/1e9),
+                (ITU_MATERIALS[ground_material_type]["upper_freq_limit"]/1e9)
+                ))
             )
         )
         logger.info("")

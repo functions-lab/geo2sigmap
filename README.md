@@ -99,9 +99,9 @@ $ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
 [INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
 [INFO] Using UTM Zone: EPSG:32619
 [INFO] 
-[INFO] Ground Material Type:           Wet Ground         | Frequency Range:   1   -  10   (GHz)
-[INFO] Building Rooftop Material Type: Metal              | Frequency Range:   1   -  100  (GHz)
-[INFO] Building Wall Material Type:    Concrete           | Frequency Range:   1   -  100  (GHz)
+[INFO] Ground Material Type:           Wet Ground       | Frequency Range:   1   -  10   (GHz)
+[INFO] Building Rooftop Material Type: Metal            | Frequency Range:   1   -  100  (GHz)
+[INFO] Building Wall Material Type:    Concrete         | Frequency Range:   1   -  100  (GHz)
 [INFO] 
 [INFO] Estimated ground polygon size: width=994m, height=901m
 Parsing buildings: 100%|█████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
@@ -115,9 +115,9 @@ $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir scenes/Boston_top-
 [INFO] Check the bbox at http://bboxfinder.com/#42.3485,-71.0547,42.3568,-71.0429
 [INFO] Using UTM Zone: EPSG:32619
 [INFO] 
-[INFO] Ground Material Type:           Wet Ground         | Frequency Range:   1   -  10   (GHz)
-[INFO] Building Rooftop Material Type: Metal              | Frequency Range:   1   -  100  (GHz)
-[INFO] Building Wall Material Type:    Concrete           | Frequency Range:   1   -  100  (GHz)
+[INFO] Ground Material Type:           Wet Ground       | Frequency Range:   1   -  10   (GHz)
+[INFO] Building Rooftop Material Type: Metal            | Frequency Range:   1   -  100  (GHz)
+[INFO] Building Wall Material Type:    Concrete         | Frequency Range:   1   -  100  (GHz)
 [INFO] 
 [INFO] Estimated ground polygon size: width=997m, height=902m
 Parsing buildings: 100%|█████████████████████| 168/168 [00:00<00:00, 1383.61it/s]

@@ -547,8 +547,8 @@ class Scene:
                 name="filename",
                 value=f"mesh/building_{idx}_rooftop.ply",
             )
-            bsdf_ref = ET.SubElement(
-                sionna_shape, "ref", id=rooftop_material_type, name="asdf"
+            ET.SubElement(
+                sionna_shape, "ref", id=rooftop_material_type, name="bsdf"
             )
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
@@ -561,8 +561,8 @@ class Scene:
                 name="filename",
                 value=f"mesh/building_{idx}_wall.ply",
             )
-            bsdf_ref = ET.SubElement(
-                sionna_shape, "ref", id=wall_material_type, name="asdf"
+            ET.SubElement(
+                sionna_shape, "ref", id=wall_material_type, name="bsdf"
             )
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 

@@ -125,7 +125,7 @@ class Scene:
         def print_material_info(surface_name, material_type):
             if isinstance(ITU_MATERIALS[material_type]["lower_freq_limit"], list):
                 logger.info(
-                    "{:<35}{:<30} | Frequency Range: {:^5} - {:^5} (GHz) | {:^5} - {:^5} (GHz)".format(
+                    "{:<35}{:<20} | Frequency Range: {:^5} - {:^5} (GHz) | {:^5} - {:^5} (GHz)".format(
                         "{} Material Type:".format(surface_name),
                         ITU_MATERIALS[material_type]["name"],
                         print_if_int(
@@ -144,7 +144,7 @@ class Scene:
                 )
             else:
                 logger.info(
-                    "{:<35}{:<30} | Frequency Range: {:^5} - {:^5} (GHz)".format(
+                    "{:<35}{:<20} | Frequency Range: {:^5} - {:^5} (GHz)".format(
                         "{} Material Type:".format(surface_name),
                         ITU_MATERIALS[material_type]["name"],
                         print_if_int(

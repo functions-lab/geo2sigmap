@@ -226,7 +226,7 @@ def main():
                 ):
                     if inner_idx == 0:
                         print(
-                            "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                            "{:<2} | {:<20} | {:^5} - {:^5}".format(
                                 idx,
                                 data["name"],
                                 print_if_int(low / 1e9),
@@ -235,7 +235,7 @@ def main():
                         )
                     else:
                         print(
-                            "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                            "{:<2} | {:<20} | {:^5} - {:^5}".format(
                                 "",
                                 "",
                                 print_if_int(low / 1e9),
@@ -245,7 +245,7 @@ def main():
 
             else:
                 print(
-                    "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                    "{:<2} | {:<20} | {:^5} - {:^5}".format(
                         idx,
                         data["name"],
                         print_if_int(data["lower_freq_limit"] / 1e9),

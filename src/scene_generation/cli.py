@@ -76,82 +76,6 @@ def setup_logging(log_file="debug.log"):
     logger.addHandler(file_handler)
 
 
-# def main():
-#     parser = ArgumentParser(description="Scenen Generation Pipe.")
-
-
-#     parser.add_argument("- v, --version", action="store_true", help="Show version and exit.")
-
-#         # Create a "parent" parser for common optional arguments.
-#     # Use `add_help=False` so we don’t get a second --help in the child parser.
-#     common_parser = ArgumentParser(add_help=False)
-#     common_parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
-#     common_parser.add_argument("--dry-run", action="store_true", help="Simulate actions without executing")
-
-
-#     common_parser.add_argument(
-#         "--data-dir",
-#         required=False,
-#         help="Directory where data is stored or will be saved."
-#     )
-
-#     common_parser.add_argument(
-#         "--osm-server-addr",
-#         default="https://overpass-api.de/api/interpreter",
-#         help="OSM server address (optional)."
-#     )
-
-#     common_parser.add_argument(
-#         "--enable-building-map",
-#         action="store_true",
-#         help="Enable building map output (default is disabled)."
-#     )
-#     common_parser.add_argument(
-#         "--debug",
-#         action="store_true",
-#         help=(
-#             "If passed, set console logging to DEBUG (file is always at DEBUG). "
-#             "This overrides the default console level of INFO."
-#         ),
-#     )
-
-
-#     # Create subparsers
-#     subparsers = parser.add_subparsers(
-#         title="Subcommands",
-#         dest="command",
-#         help="Available subcommands"
-#     )
-
-#     # Subcommand 'A'
-#     parser_a = subparsers.add_parser(
-#         "bbox",
-#         parents=[common_parser],
-#         help="Four GPS coordinates defining the bounding box, in the order: "
-#              "min_lon, min_lat, max_lon, max_lat."
-#     )
-#     parser_a.add_argument("min_lon", type=float, help="min_lon")
-#     parser_a.add_argument("min_lat", type=float, help="min_lat")
-#     parser_a.add_argument("max_lon", type=float, help="max_lon")
-#     parser_a.add_argument("max_lat", type=float, help="max_lat")
-
-#     # Subcommand 'B'
-#     parser_b = subparsers.add_parser(
-#         "point",
-#         parents=[common_parser],
-#         help="Perform action B"
-#     )
-#     parser_b.add_argument("lat",  help="latitude")
-#     parser_b.add_argument("lon", help="longtitude")
-#     parser_b.add_argument(
-#         "position",
-#         choices=["top-left", "top-right", "bottom-left", "bottom-right", "center"],
-#         help="Position relative to a rectangle"
-#     )
-#     parser_b.add_argument("width",  help="Width in meters")
-#     parser_b.add_argument("height", help="Height in meters")
-
-
 #!/usr/bin/env python3
 """
 CLI entry point for Scene Generation Pipeline.
@@ -281,42 +205,6 @@ def main():
     parser_point.add_argument("width", type=float, help="Width in meters.")
     parser_point.add_argument("height", type=float, help="Height in meters.")
 
-    # def handle_bbox(args):
-    #     """
-    #     Handle the 'bbox' subcommand logic here.
-    #     """
-    #     # Example: just show the parsed values
-    #     if args.verbose:
-    #         print("[DEBUG] BBOX subcommand with verbose output.")
-    #     print(f"BBOX coordinates: min_lon={args.min_lon}, min_lat={args.min_lat}, "
-    #           f"max_lon={args.max_lon}, max_lat={args.max_lat}")
-    #     # ... do the actual bounding box tasks ...
-
-    # def handle_point(args):
-    #     """
-    #     Handle the 'point' subcommand logic here.
-    #     """
-    #     if args.verbose:
-    #         print("[DEBUG] POINT subcommand with verbose output.")
-    #     print(f"POINT command: lat={args.lat}, lon={args.lon}, position={args.position}, "
-    #           f"width={args.width}m, height={args.height}m")
-    #     # ... do the actual point tasks ...
-
-    # if __name__ == "__main__":
-    #     main()
-
-    # parser.add_argument(
-    #     "--bbox",
-    #     nargs=4,
-    #     type=float,
-    #     required=False,
-    #     metavar=("MIN_LON", "MIN_LAT", "MAX_LON", "MAX_LAT"),
-    #     help=(
-    #         "Four GPS coordinates defining the bounding box, in the order: "
-    #         "min_lon, min_lat, max_lon, max_lat."
-    #     ),
-    # )
-
     # Parse the full command line
     args = parser.parse_args()
 
@@ -352,7 +240,7 @@ def main():
                                 print_if_int(high / 1e9),
                             )
                         )
-           
+
             else:
                 print(
                     "{:<2} | {:<30} | {:^5} - {:^5}".format(
@@ -362,7 +250,7 @@ def main():
                         print_if_int(data["upper_freq_limit"] / 1e9),
                     )
                 )
-            print('-' * 51)
+            print("-" * 51)
 
         print(
             'Material properties based on ITU-R Recommendation P.2040-2: \n\t"Effects of building materials and structures on radiowave propagation above about 100 MHz"'

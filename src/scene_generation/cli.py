@@ -8,6 +8,8 @@ Users can define the scene location by a rectangle in two ways:
 scenegenerationpipe \
     --data-dir test123 \
     --bbox -71.06025695800783 42.35128145107633 -71.04841232299806 42.35917815419112
+
+TODO: Allow customized materials.
 """
 
 import logging
@@ -142,14 +144,14 @@ def main():
 
     common_parser.add_argument(
         "--ground-material",
-        default=16,
+        default=14,
         type=int,
         help="ID of the material to use in the scene for ground. Default set to wet ground.",
     )
 
     common_parser.add_argument(
         "--rooftop-material",
-        default=13,
+        default=11,
         type=int,
         help="ID of the material to use in the scene for rooftops. Default set to metal.",
     )

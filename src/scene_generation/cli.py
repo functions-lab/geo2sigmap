@@ -330,14 +330,40 @@ def main():
         print("ID | {:^30} | Frequency Range (GHz)".format("Name", "lower", "upper"))
         for idx, item in enumerate(ITU_MATERIALS.items()):
             material, data = item
-            print(
-                "{:<2} | {:<30} | {:^5} - {:^5}".format(
-                    idx,
-                    data["name"],
-                    print_if_int(data["lower_freq_limit"] / 1e9),
-                    print_if_int(data["upper_freq_limit"] / 1e9),
+            if isinstance(data["lower_freq_limit"], list):
+                for inner_idx, (low, high) in enumerate(
+                    zip(data["lower_freq_limit"], data["upper_freq_limit"])
+                ):
+                    if inner_idx == 0:
+                        print(
+                            "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                                idx,
+                                data["name"],
+                                print_if_int(low / 1e9),
+                                print_if_int(high / 1e9),
+                            )
+                        )
+                    else:
+                        print(
+                            "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                                "",
+                                "",
+                                print_if_int(low / 1e9),
+                                print_if_int(high / 1e9),
+                            )
+                        )
+           
+            else:
+                print(
+                    "{:<2} | {:<30} | {:^5} - {:^5}".format(
+                        idx,
+                        data["name"],
+                        print_if_int(data["lower_freq_limit"] / 1e9),
+                        print_if_int(data["upper_freq_limit"] / 1e9),
+                    )
                 )
-            )
+            print('-' * 51)
+
         print(
             'Material properties based on ITU-R Recommendation P.2040-2: \n\t"Effects of building materials and structures on radiowave propagation above about 100 MHz"'
         )

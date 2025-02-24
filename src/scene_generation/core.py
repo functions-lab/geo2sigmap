@@ -142,7 +142,7 @@ class Scene:
                         ),
                     )
                 )
-            else:  
+            else:
                 logger.info(
                     "{:<35}{:<30} | Frequency Range: {:^5} - {:^5} (GHz)".format(
                         "{} Material Type:".format(surface_name),
@@ -157,14 +157,9 @@ class Scene:
                 )
 
         logger.info("")
-
         print_material_info("Ground", ground_material_type)
         print_material_info("Building Rooftop", rooftop_material_type)
         print_material_info("Building Wall", wall_material_type)
-
-        
-
-        
         logger.info("")
 
         # Default Mitsuba rendering parameters

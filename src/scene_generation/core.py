@@ -120,16 +120,6 @@ class Scene:
         mesh_data_dir = os.path.join(data_dir, "mesh")
         os.makedirs(os.path.join(mesh_data_dir), exist_ok=True)
 
-        # top_left_6933 = to_projection.transform(top_left[1], top_left[0])
-
-        # bottom_right = to_4326.transform(top_left_6933[0] + width, top_left_6933[1] - height)
-
-        # bottom_right = bottom_right[1], bottom_right[0]
-
-        # print(bottom_right)
-        # Calculate the other two corners based on the provided corners
-        # top_right = (top_left[0], bottom_right[1])
-        # bottom_left = (bottom_right[0], top_left[1])
 
 
 
@@ -174,14 +164,6 @@ class Scene:
             "fov": 42.854885
         }
 
-        # Define material colors. This is RGB 0-1 formar https://rgbcolorpicker.com/0-1
-        # material_colors = {
-        #     "mat-itu_concrete": (0.539479, 0.539479, 0.539480),
-        #     "mat-itu_marble": (0.701101, 0.644479, 0.485150),
-        #     "mat-itu_metal": (0.219526, 0.219526, 0.254152),
-        #     "mat-itu_wood": (0.043, 0.58, 0.184),
-        #     "mat-itu_wet_ground": (0.91, 0.569, 0.055),
-        # }
     
 
         # ---------------------------------------------------------------------

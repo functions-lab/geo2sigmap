@@ -10,7 +10,7 @@ TODO: Check what is the exact colors using by Mitsuba/Sionna/Blender/Blosm for t
 """
 
 ITU_MATERIALS = {
-    "mat-itu_vacuum": {
+    "mat-vacuum": {
         "name": "Vacuum (\u2248Air)",
         "lower_freq_limit": 0.001e9,
         "upper_freq_limit": 100e9,

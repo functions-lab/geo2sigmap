@@ -91,26 +91,6 @@ Below are examples showing how to generate a 3D scene for your chosen location. 
 2. Provide one GPS point, indicate its position in the rectangle (top-left, bottom-right, etc.), and supply width and height in meters.
 
 To see all available options for scene generation, use `-h`:
-<!-- ```console
-$ scenegen -h
-usage: scenegenerationpipe [-h] [--version] {bbox,point} ...
-
-Scene Generation CLI.
-
-You can define the scene specified by a rectangle area in two ways:
-  1) 'bbox' subcommand: specify four GPS corners (min_lon, min_lat, max_lon, max_lat).
-  2) 'point' subcommand: specify one GPS point, indicate its corner/center position, and give width/height in meters.
-
-options:
-  -h, --help     show this help message and exit
-  --version, -v  Show version information and exit.
-
-Subcommands:
-  {bbox,point}   Available subcommands.
-    bbox         Define a bounding box using four GPS coordinates in the order: min_lon, min_lat, max_lon, max_lat.
-    point        Work with a single point and a rectangle size.
-```
- -->
 
 #### 1) Generate 3D Scene using Four Corner Points
 ```console
@@ -118,7 +98,10 @@ $ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
 [INFO] Using UTM Zone: EPSG:32619
-[INFO] Estimated ground coverage: width=994m, height=901m
+[INFO] 
+[INFO] Ground Material Type:              Wet Ground                     | Frequency Range:   1   -  10   (GHz)
+[INFO] Building Rooftop Material Type:    Metal                          | Frequency Range:   1   -  100  (GHz)
+[INFO] Building Wall Material Type:       Concrete                       | Frequency Range:   1   -  100  (GHz)
 Parsing buildings: 100%|█████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
 ```
 The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484).
@@ -129,14 +112,63 @@ $ scenegen point -71.0550 42.3566 top-left 997 901 --data-dir scenes/Boston_top-
 
 [INFO] Check the bbox at http://bboxfinder.com/#42.3485,-71.0547,42.3568,-71.0429
 [INFO] Using UTM Zone: EPSG:32619
+[INFO] 
+[INFO] Ground Material Type:              Wet Ground                     | Frequency Range:   1   -  10   (GHz)
+[INFO] Building Rooftop Material Type:    Metal                          | Frequency Range:   1   -  100  (GHz)
+[INFO] Building Wall Material Type:       Concrete                       | Frequency Range:   1   -  100  (GHz)
+[INFO] 
 [INFO] Estimated ground polygon size: width=997m, height=902m
+
 Parsing buildings: 100%|█████████████████████| 168/168 [00:00<00:00, 1383.61it/s]
 ```
 
 Note: The public overpass-api.de server imposes query rate limits (~2–10 queries/sec). For higher throughput (e.g., ~100–200 queries/sec on an SSD machine), consider [hosting your own OSM server](https://wiki.openstreetmap.org/wiki/Overpass_API/Installation).
 
+#### 3) Customize Material Types for Ground, Building Rooftops/Walls
+You can specify material types for different surfaces using the following arguments: `--ground-material`, `--rooftop-material`, and `--wall-material` followed by a `<MATERIAL_ID>`. List all available materials and their properties using:
+```console
+$ scenegen --list-materials
 
-#### 3) Preview 3D Scene in Sionna
+Available ITU materials and their frequency ranges:
+ID |              Name              | Frequency Range (GHz)
+0  | Vacuum (≈Air)                  | 0.001 -  100 
+---------------------------------------------------
+1  | Concrete                       |   1   -  100 
+---------------------------------------------------
+2  | Brick                          |   1   -  40  
+---------------------------------------------------
+3  | Plasterboard                   |   1   -  100 
+---------------------------------------------------
+4  | Wood                           | 0.001 -  100 
+---------------------------------------------------
+5  | Glass                          |  0.1  -  100 
+   |                                |  220  -  450 
+---------------------------------------------------
+6  | Ceiling Board                  |   1   -  100 
+   |                                |  220  -  450 
+---------------------------------------------------
+7  | Chipboard                      |   1   -  100 
+---------------------------------------------------
+8  | Plywood                        |   1   -  40  
+---------------------------------------------------
+9  | Marble                         |   1   -  60  
+---------------------------------------------------
+10 | Floorboard                     |  50   -  100 
+---------------------------------------------------
+11 | Metal                          |   1   -  100 
+---------------------------------------------------
+12 | Very Dry Ground                |   1   -  10  
+---------------------------------------------------
+13 | Medium Dry Ground              |   1   -  10  
+---------------------------------------------------
+14 | Wet Ground                     |   1   -  10  
+---------------------------------------------------
+Material properties based on ITU-R Recommendation P.2040-2: 
+        "Effects of building materials and structures on radiowave propagation above about 100 MHz"
+```
+
+
+#### 4) Preview 3D Scene in Sionna
 
 After the above example command, the 3D scene file is saved to the corresponding folder under `./scenes/`. You can load it directly in Sionna to explore or run ray tracing simulations. Please refer to [Tutorial #1](examples/sionna_rt_coverage_map.ipynb) and [Tutorial #2](examples/sionna_rt_rays_analyze.ipynb) for two example notebooks.
 

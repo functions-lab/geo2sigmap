@@ -482,9 +482,6 @@ class Scene:
             # Compute face centroids
             face_centroids = np.mean(vertices_np[faces_np], axis=1)
 
-            # Identify top surface faces (highest Z-value)
-            top_faces_np = faces_np[face_centroids[:, 2] == building_height]
-
             z_values = vertices_np[:, 2]
             top_vertex_indices = np.where(z_values == building_height)[
                 0
@@ -494,35 +491,15 @@ class Scene:
             top_surface = wedge_t.select_by_index(top_vertex_indices)
 
             other_faces_np = faces_np[face_centroids[:, 2] < building_height]
-            # print("vertices_np",vertices_np)
-            # print("face_np", faces_np)
-            # print("top_faces_np" ,top_faces_np)
-            # print("other_faces_np", other_faces_np)
 
             # Convert to Open3D Tensor API
-            top_faces_o3c = o3c.Tensor(top_faces_np, dtype=o3c.int32)
             other_faces_o3c = o3c.Tensor(other_faces_np, dtype=o3c.int32)
-
-            # Create two separate tensor-based meshes
-            # rooftop_mesh = o3d.t.geometry.TriangleMesh()
-            # rooftop_mesh.vertex["positions"] = vertices_tensor  # Same vertices
-            # rooftop_mesh.triangle["indices"] = top_faces_o3c
-
-            # # Create two separate meshes
-            # rooftop_mesh = o3d.geometry.TriangleMesh()
-            # rooftop_mesh.vertices = vertices  # Same vertices
-            # rooftop_mesh.triangles = o3d.utility.Vector3iVector(rooftop_faces)
-
-            # wall_mesh = o3d.geometry.TriangleMesh()
-            # wall_mesh.vertices = vertices  # Same vertices
-            # wall_mesh.triangles = o3d.utility.Vector3iVector(wall_faces)
 
             wall_mesh = o3d.t.geometry.TriangleMesh()
             wall_mesh.vertex["positions"] = vertices_tensor  # Same vertices
             wall_mesh.triangle["indices"] = other_faces_o3c
 
             wall_mesh.remove_unreferenced_vertices()
-            # rooftop_mesh.remove_unreferenced_vertices()
 
             o3d.t.io.write_triangle_mesh(
                 os.path.join(mesh_data_dir, f"building_{idx}_rooftop.ply"),
@@ -547,9 +524,7 @@ class Scene:
                 name="filename",
                 value=f"mesh/building_{idx}_rooftop.ply",
             )
-            ET.SubElement(
-                sionna_shape, "ref", id=rooftop_material_type, name="bsdf"
-            )
+            ET.SubElement(sionna_shape, "ref", id=rooftop_material_type, name="bsdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             sionna_shape = ET.SubElement(
@@ -561,9 +536,7 @@ class Scene:
                 name="filename",
                 value=f"mesh/building_{idx}_wall.ply",
             )
-            ET.SubElement(
-                sionna_shape, "ref", id=wall_material_type, name="bsdf"
-            )
+            ET.SubElement(sionna_shape, "ref", id=wall_material_type, name="bsdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:

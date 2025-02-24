@@ -81,7 +81,7 @@ The repository includes Jupyter notebooks demonstrating various aspects of Geo2S
 - [Tutorial #2](examples/sionna_rt_rays_analyze.ipynb): Randomly generate outdoor RX locations and perform point-to-point ray tracing to analyze detailed ray properties.
 - [Tutorial #3](examples/visualize_measurements.ipynb): Using `Bokeh` to visualize the CBRS LTE measurements collected on the Duke campus.
 - [Tutorial #4](examples/ml_coverage_map.ipynb): Complete workflow including scene generation, ML model inference, and evaluation using measurement data.
-- [Tutorial #5](examples/NIST_28GHz_Boulder_Downtoem_Measurements.ipynb): evaluation of the NIST 28 GHz measurements.
+- [Tutorial #5](examples/NIST_28GHz_Boulder_Downtoem_Measurements.ipynb): Evaluation of the NIST 28 GHz measurements.
 
 
 ### CLI Tool Example Usage

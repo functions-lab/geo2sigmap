@@ -131,7 +131,7 @@ You can specify material types for different surfaces using the following argume
 $ scenegen --list-materials
 
 Available ITU materials and their frequency ranges:
-ID |              Name              | Frequency Range (GHz)
+ID |         Name         | Frequency Range (GHz)
 0  | Vacuum (≈Air)        | 0.001 -  100 
 ---------------------------------------------------
 1  | Concrete             |   1   -  100 

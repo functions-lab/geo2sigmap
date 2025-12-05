@@ -54,7 +54,7 @@ def gcs_to_proj(poly):
 
 def build_pdal_pipeline(extent_epsg3857, usgs_3dep_dataset_names, pc_resolution, filterNoise=False,
                         reclassify=False, savePointCloud=True, outCRS=3857, pc_outName='filter_test',
-                        pc_outType='laz'):
+                        pc_outType='copc'):
     """
     Build pdal pipeline for requesting, processing, and saving point cloud data. Each processing step is a 'stage'
     in the final pdal pipeline. Each stages is appended to the 'pointcloud_pipeline' object to produce the final pipeline.
@@ -166,7 +166,15 @@ def build_pdal_pipeline(extent_epsg3857, usgs_3dep_dataset_names, pc_resolution,
 
     if savePointCloud == True:
 
-        if pc_outType == 'las':
+        # COPC Writer (The Modern/Fast Way)
+        if pc_outType == 'copc':
+            savePC_stage = {
+                "type": "writers.copc",
+                "filename": str(pc_outName) + '.copc.laz',
+                "forward": "all"  # Keeps original VLRs/Metadata from USGS
+            }
+
+        elif pc_outType == 'las':
             savePC_stage = {
                 "type": "writers.las",
                 "filename": str(pc_outName) + '.' + str(pc_outType),
@@ -178,7 +186,7 @@ def build_pdal_pipeline(extent_epsg3857, usgs_3dep_dataset_names, pc_resolution,
                 "filename": str(pc_outName) + '.' + str(pc_outType),
             }
         else:
-            raise Exception("pc_outType must be 'las' or 'laz'.")
+            raise Exception("pc_outType must be 'las', 'laz', 'copc'.")
 
         pointcloud_pipeline['pipeline'].append(savePC_stage)
 
@@ -414,7 +422,7 @@ def generate_hag(polygon, data_dir, CRS="EPSG:3857"):
             savePointCloud=True, 
             outCRS=CRS.to_string(),
             pc_outName=os.path.join(data_dir, 'pointcloud_test'), 
-            pc_outType='laz', 
+            pc_outType='copc', 
             demType='hag',
             gridMethod='idw', 
             dem_outName=os.path.join(data_dir, 'test_hag'), 

@@ -305,7 +305,7 @@ class Scene:
         # 0) Query USGS 3DEP LiDAR data and generate GEOTIFF file for building height calibration
         # ---------------------------------------------------------------------
         try:
-            laz_file_path = Path(os.path.join(data_dir, "test_hag.laz"))
+            laz_file_path = Path(os.path.join(data_dir, "test_hag.copc.laz"))
             #tif_file_path = Path(os.path.join(data_dir, "test_hag.tif"))
             if lidar_terrain or lidar_calibration:
                 if not laz_file_path.exists():# or not tif_file_path.exists():
@@ -336,7 +336,7 @@ class Scene:
                         )
                     else:
                         
-                        generate_terrain_mesh(os.path.join(data_dir, "test_hag.laz"),
+                        generate_terrain_mesh(laz_file_path,
                             os.path.join(mesh_data_dir, f"lidar_terrain.ply"), src_crs=projection_UTM_EPSG_code, dest_crs=projection_UTM_EPSG_code,
                             plot_figures=False, center_x=center_x, center_y=center_y
                         )

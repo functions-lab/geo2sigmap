@@ -600,6 +600,18 @@ def calculate_building_height_from_lidar(
         "pipeline": [laz_path, {"type": "filters.crop", "polygon": poly_ground_wkt}]
     }
 
+
+    pipeline_json = {
+        "pipeline": [
+            {
+                "type": "readers.copc",
+                "filename": laz_path,
+                "polygon": poly_ground_wkt, # <--- The Magic happens here
+                "requests": 1  # Optional: Optimizes for local file reads
+            }
+        ]
+    }
+
     pipeline = pdal.Pipeline(json.dumps(pipeline_json))
 
     # Execute the pipeline. This is the most computationally expensive step.

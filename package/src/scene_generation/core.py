@@ -28,6 +28,7 @@ from pathlib import Path
 
 from .dem import generate_terrain_mesh_dem
 
+from .numpy_lidar_crop import LiDARContext
 # Create a module-level logger
 logger = logging.getLogger(__name__)
 
@@ -467,6 +468,13 @@ class Scene:
         # ---------------------------------------------------------------------
         # 8) Process each building to create a 3D mesh (extrude by building height)
         # ---------------------------------------------------------------------
+
+        # 1. LOAD ONCE (Takes ~5-10 seconds for 2GB file)
+        # This keeps the data in RAM.
+        if lidar_calibration:
+            lidar_ctx = LiDARContext(str(laz_file_path))
+    
+    
         for idx, building in tqdm(
             enumerate(buildings_list),
             total=len(buildings_list),
@@ -490,11 +498,12 @@ class Scene:
             if lidar_calibration:
                 try:
                     # 1. Try LiDAR-based height calculation
-                    lidar_result = calculate_building_height_from_lidar(
-                        laz_path=str(laz_file_path),
-                        polygon_wkt=building_polygon.wkt,
-                        osm_id=osm_id
-                    )
+                    # lidar_result = calculate_building_height_from_lidar(
+                    #     laz_path=str(laz_file_path),
+                    #     polygon_wkt=building_polygon.wkt,
+                    #     osm_id=osm_id
+                    # )
+                    lidar_result = lidar_ctx.get_height(building_polygon.wkt, osm_id=osm_id)
 
                     # 2. Check for "Soft Failure" (Method ran, but found no points)
                     if lidar_result is None:
@@ -857,6 +866,10 @@ class Scene:
                 np.array(self._building_map),
             )
 
+        try:
+            del lidar_ctx
+        except NameError:
+            pass
         return np.array(self._building_map)
 
     def _draw_building(self, building_polygon, building_height):

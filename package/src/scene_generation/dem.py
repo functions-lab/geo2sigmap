@@ -23,6 +23,7 @@ def generate_terrain_mesh_dem(aoi_poly, ply_save_path,):
         mode = "multi_zone"     
     clip_reproject_dem_to_wgs84_utm(aoi_poly, links, mode=mode, mosaic=True, out_prefix=ply_save_path.parent / "dem")
     dem_to_ply(ply_save_path.parent / "dem.tif",ply_save_path, stride=1, z_scale=1.0)
+    del locator
     
     
     

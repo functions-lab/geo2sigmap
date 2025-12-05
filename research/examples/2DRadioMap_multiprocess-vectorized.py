@@ -280,7 +280,7 @@ def main(ply_file, color_file, cell_size, n_jobs, batch_size, output_file):
     faces_data = mesh.faces
     #print("faces_data.shape",faces_data.shape)
     
-    triangle_values_data = np.load(color_file)
+    triangle_values_data = np.load(color_file).squeeze()
     #print("verts.shape",verts.shape)
 
     min_x, min_y = mesh.bounds[0][:2]

@@ -5,12 +5,7 @@ Utilities sub-package for the Scene Generation library.
 import pyproj
 from pyproj import Transformer, CRS
 
-from shapely.geometry import (
-    Polygon,
-    MultiPolygon,
-    LinearRing,
-    Point
-)
+from shapely.geometry import Polygon, MultiPolygon, LinearRing, Point
 
 import numpy as np
 import math
@@ -20,6 +15,18 @@ import rasterio
 
 from typing import List, Tuple
 
+
+import json
+from typing import Optional, Dict, Any
+import pdal
+import shapely
+from shapely import wkt
+
+
+import logging
+
+# Creates a logger named 'duke_lidar.height'
+logger = logging.getLogger(__name__)
 
 
 try:
@@ -41,11 +48,12 @@ def get_package_version() -> str:
         return pkg_version(PACKAGE_NAME)
     except PackageNotFoundError:
         return "0.0.0.dev (uninstalled)"
-    
-    
+
+
 # -------------------------------------------------------------------
 # 1) Geographic Coordinate System Related
 # -------------------------------------------------------------------
+
 
 def top_left_to_center(x, y, width, height):
     """
@@ -64,7 +72,7 @@ def top_left_to_center(x, y, width, height):
     y_center = (height / 2) - y
     return x_center, y_center
 
-    
+
 def get_utm_epsg_code_from_gps(lon: float, lat: float) -> CRS:
     """
     Determine the UTM coordinate reference system (CRS) appropriate for a given
@@ -134,11 +142,7 @@ def gps_to_utm_xy(lon: float, lat: float, utm_epsg):
 
 
 def rect_from_point_and_size(
-    lon: float,
-    lat: float,
-    position: str,
-    width: float,
-    height: float
+    lon: float, lat: float, position: str, width: float, height: float
 ) -> List[Tuple[float, float]]:
     """
     Create a rectangular polygon (as a list of coordinates) given a GPS point and
@@ -163,17 +167,14 @@ def rect_from_point_and_size(
 
     # TODO: Check for the coner case such as rossing the International Date Line at ±180°, crossing multiple UTM zones
 
-
     # Get the UTM EPSG code based on the given longitude/latitude.
     utm_epsg = get_utm_epsg_code_from_gps(lon, lat)
 
     # Convert the reference GPS point to UTM (x, y).
     point_utm = gps_to_utm_xy(lon, lat, utm_epsg)
 
-
     # Prepare a transformer to go from UTM back to EPSG:4326.
     transformer = Transformer.from_crs(utm_epsg, "EPSG:4326", always_xy=True)
-
 
     if position == "top-left":
         min_lon_left = point_utm[0]
@@ -181,59 +182,50 @@ def rect_from_point_and_size(
         max_lat_top = point_utm[1]
         min_lat_bottom = point_utm[1] - height
 
-
-
-        
     elif position == "top-right":
 
         min_lon_left = point_utm[0] - width
-        max_lon_right = point_utm[0] 
+        max_lon_right = point_utm[0]
         max_lat_top = point_utm[1]
         min_lat_bottom = point_utm[1] - height
 
-
-    
     elif position == "bottom-right":
 
         min_lon_left = point_utm[0] - width
-        max_lon_right = point_utm[0] 
+        max_lon_right = point_utm[0]
         max_lat_top = point_utm[1] + height
         min_lat_bottom = point_utm[1]
-
 
     elif position == "bottom-left":
 
         min_lon_left = point_utm[0]
         max_lon_right = point_utm[0] + width
         max_lat_top = point_utm[1] + height
-        min_lat_bottom = point_utm[1] 
-
+        min_lat_bottom = point_utm[1]
 
     elif position == "center":
-        min_lon_left = point_utm[0] - width/2
-        max_lon_right = point_utm[0] + width/2
-        max_lat_top = point_utm[1] + height/2
-        min_lat_bottom = point_utm[1] - height/2
-
+        min_lon_left = point_utm[0] - width / 2
+        max_lon_right = point_utm[0] + width / 2
+        max_lat_top = point_utm[1] + height / 2
+        min_lat_bottom = point_utm[1] - height / 2
 
     else:
-        raise ValueError(f"Unknown position: {position}. "
-                         "Must be one of [top-left, top-right, bottom-left, bottom-right, center].")
-    
-        
-
+        raise ValueError(
+            f"Unknown position: {position}. "
+            "Must be one of [top-left, top-right, bottom-left, bottom-right, center]."
+        )
 
     points_utm = [
-            [min_lon_left, min_lat_bottom], 
-            [min_lon_left, max_lat_top],
-            [max_lon_right, max_lat_top],
-            [max_lon_right, min_lat_bottom],
-            [min_lon_left, min_lat_bottom]
-        ]
-
+        [min_lon_left, min_lat_bottom],
+        [min_lon_left, max_lat_top],
+        [max_lon_right, max_lat_top],
+        [max_lon_right, min_lat_bottom],
+        [min_lon_left, min_lat_bottom],
+    ]
 
     points_gps = [transformer.transform(x, y) for x, y in points_utm]
     return points_gps
+
 
 # -------------------------------------------------------------------
 # 2) Polygon/Coordinates Related
@@ -255,18 +247,23 @@ def round_polygon_coordinates(polygon: Polygon, decimal_places: int = 0) -> Poly
     Polygon
         A new Polygon with rounded exterior and interior coordinates.
     """
-    rounded_exterior = LinearRing([
-        (round(x, decimal_places), round(y, decimal_places))
-        for x, y in polygon.exterior.coords
-    ])
-    rounded_interiors = [
-        LinearRing([
+    rounded_exterior = LinearRing(
+        [
             (round(x, decimal_places), round(y, decimal_places))
-            for x, y in interior.coords
-        ])
+            for x, y in polygon.exterior.coords
+        ]
+    )
+    rounded_interiors = [
+        LinearRing(
+            [
+                (round(x, decimal_places), round(y, decimal_places))
+                for x, y in interior.coords
+            ]
+        )
         for interior in polygon.interiors
     ]
     return Polygon(rounded_exterior, rounded_interiors)
+
 
 def round_geometry_coords(geometry, decimal_places: int = 0):
     """
@@ -285,16 +282,16 @@ def round_geometry_coords(geometry, decimal_places: int = 0):
     Polygon or MultiPolygon
         The same geometry type with rounded coordinates.
     """
-    if geometry.geom_type == 'Polygon':
+    if geometry.geom_type == "Polygon":
         return round_polygon_coordinates(geometry, decimal_places)
-    elif geometry.geom_type == 'MultiPolygon':
-        return MultiPolygon([
-            round_polygon_coordinates(poly, decimal_places)
-            for poly in geometry
-        ])
+    elif geometry.geom_type == "MultiPolygon":
+        return MultiPolygon(
+            [round_polygon_coordinates(poly, decimal_places) for poly in geometry]
+        )
     else:
         # If not a Polygon or MultiPolygon, return unchanged
         return geometry
+
 
 def generate_random_points(poly: Polygon, num_points: int):
     """
@@ -322,6 +319,7 @@ def generate_random_points(poly: Polygon, num_points: int):
             points.append(random_point)
     return points
 
+
 def unique_coords(input_coords):
     """
     Given a list of (x, y) coordinates, return a new list with duplicate
@@ -344,6 +342,7 @@ def unique_coords(input_coords):
             unique_coords_res.append(coord)
             seen_coords.add(coord)
     return unique_coords_res
+
 
 def reorder_localize_coords(input_coords, center_x: float, center_y: float):
     """
@@ -376,7 +375,69 @@ def reorder_localize_coords(input_coords, center_x: float, center_y: float):
     ]
     return res_coords
 
-def random_building_height(building: dict, building_polygon: Polygon) -> float:
+
+import hashlib
+
+# import numpy as np
+
+# A pre-calculated lookup table representing a Normal Distribution (Mean=5, Std=1)
+# We map a uniform random integer (0-99) to a building height.
+# Probabilities:
+# Level 3: ~6%  (Indices 0-5)
+# Level 4: ~24% (Indices 6-29)
+# Level 5: ~38% (Indices 30-67)  <- Peak of the bell curve
+# Level 6: ~24% (Indices 68-91)
+# Level 7: ~6%  (Indices 92-97)
+# Outliers (2, 8): ~2% (Indices 98-99)
+HEIGHT_LOOKUP_TABLE = np.array(
+    [3] * 6 + [4] * 24 + [5] * 38 + [6] * 24 + [7] * 6 + [2, 8]
+)
+
+# def random_building_height(building: dict,  building_polygon: Polygon) -> float:
+#     """
+#     Returns a building height that is GUARANTEED to be identical
+#     across all operating systems, CPUs, and Python versions.
+#     """
+
+#     # ... [Explicit tag checks same as before] ...
+#     if 'building:height' in building and is_float(building['building:height']):
+#         return float(building['building:height'])
+
+#     # --- Deterministic Fallback ---
+
+#     # 1. Get the ID (String consistency is key)
+#     osm_id = str(building.get('id', building.get('osmid', 0)))
+
+#     # 2. Hash it (MD5 is standard across all platforms)
+#     id_hash = hashlib.md5(osm_id.encode('utf-8')).hexdigest()
+
+#     # 3. Convert to Integer Seed
+#     # We strip to the last 8 chars to ensure it fits in 32-bit int safely
+#     seed = int(id_hash[-8:], 16)
+
+#     # 4. Use Legacy RandomState (Guaranteed stability)
+#     rng = np.random.RandomState(seed)
+
+#     # 5. INTEGER ONLY GENERATION
+#     # We pick an index from 0 to 99. This uses only integer logic.
+#     idx = rng.randint(0, 100)
+
+#     # 6. Map to Height
+#     levels = HEIGHT_LOOKUP_TABLE[idx]
+
+#     return float(levels) * 3.5
+
+# def is_float(value):
+#     try:
+#         float(value)
+#         return True
+#     except:
+#         return False
+
+
+def estimate_building_height_from_osm(
+    building: dict
+) -> float:
     """
     Determine a building's height from OSM tags if available, else random.
 
@@ -385,51 +446,259 @@ def random_building_height(building: dict, building_polygon: Polygon) -> float:
     building : dict
         A record (row) from an OSM data source containing building attributes,
         e.g. 'building:height', 'height', 'building:levels', etc.
-    building_polygon : Polygon
-        The polygon geometry of this building (unused in this function's fallback).
 
-    Returns
-    -------
-    float
-        The estimated building height in meters.
+    Returns:
+        dict: {
+            "building_height": float,
+            "method": str ("osm_tag_X", "osm_fallback_random"),
+        }
     """
-    if 'building:height' in building and is_float(building['building:height']):
-        building_height = float(building['building:height'])
-    elif 'height' in building and is_float(building['height']):
-        building_height = float(building['height'])
-    elif 'building:levels' not in building or not is_float(building['building:levels']):
-        # Fallback random height (units: meters)
-        building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
-    elif 'level' not in building or not is_float(building['level']):
-        building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
+
+    # --- 1. Explicit Height (Best Quality) ---
+    if "building:height" in building and is_float(building["building:height"]):
+        res = float(building["building:height"])
+        return {
+            "building_height": res,
+            "method": "osm_tag_building:height",
+        }
+
+    if "height" in building and is_float(building["height"]):
+        res = float(building["height"])
+        return {
+            "building_height": res,
+            "method": "osm_tag_height",
+        }
+
+    # --- 2. Explicit Levels (Medium Quality) ---
+    # Standard OSM tag is 'building:levels'.
+    if "building:levels" in building and is_float(building["building:levels"]):
+        res = float(building["building:levels"]) * 3.5
+        return {
+            "building_height": res,
+            "method": "osm_tag_building:levels",
+        }
+
+    # Some mappers just use 'levels'
+    if "levels" in building and is_float(building["levels"]):
+        res = float(building["levels"]) * 3.5
+        return {
+            "building_height": res,
+            "method": "osm_tag_levels",
+        }
+
+    # --- Deterministic Fallback ---
+
+    # 1. Get the ID (String consistency is key)
+    osm_id = str(building.get("id", building.get("osmid", 0)))
+
+    logger.debug(
+        f"Building (OSM way ID: {osm_id}) missing height or level tags. "
+        "Falling back to random height."
+    )
+
+    # 2. Hash it (MD5 is standard across all platforms)
+    id_hash = hashlib.md5(osm_id.encode("utf-8")).hexdigest()
+
+    # 3. Convert to Integer Seed
+    # We strip to the last 8 chars to ensure it fits in 32-bit int safely
+    seed = int(id_hash[-8:], 16)
+
+    # 4. Use Legacy RandomState (Guaranteed stability)
+    rng = np.random.RandomState(seed)
+
+    # 5. INTEGER ONLY GENERATION
+    # We pick an index from 0 to 99. This uses only integer logic.
+    idx = rng.randint(0, 100)
+
+    # 6. Map to Height
+    levels = HEIGHT_LOOKUP_TABLE[idx]
+
+    res = float(levels) * 3.5
+
+    return {
+        "building_height": res,
+        "method": "osm_fallback_random",
+    }
+
+
+def calculate_building_height_from_lidar(
+    laz_path: str,
+    polygon_wkt: str,
+    osm_id: Optional[int] = None,
+    ground_buffer: float = 2.0,
+    roof_erosion: float = -1.5,
+) -> Optional[Dict[str, float]]:
+    """
+    Estimates building height from LiDAR data using robust geometric and statistical filtering.
+
+    This function implements a "Superset/Subset" approach to solve the urban canyon problem.
+    It reads a single buffered crop of the LiDAR data to minimize I/O overhead, then
+    uses vectorized geometric operations to separate ground context from roof points.
+
+    The height is calculated as: Height = Mode(Roof Z) - Median(Ground Z).
+
+    Args:
+        laz_path (str): The file path to the input .laz or .las file.
+        polygon_wkt (str): The building footprint in Well-Known Text (WKT) format.
+            Must use the same coordinate reference system (CRS) as the LAZ file.
+        osm_id (Optional[int], optional): The OSM way ID of the building polygon.
+            Used for logging and debugging purposes. Defaults to None.
+        ground_buffer (float, optional): The distance in meters to expand (dilate)
+            the polygon to capture surrounding ground points. Defaults to 2.0.
+            Note: Values < 1.0 may fail to capture ground in sparse datasets.
+        roof_erosion (float, optional): The distance in meters to shrink (erode)
+            the polygon for roof point extraction. Defaults to -1.5.
+            A negative value is required. This erosion removes points near the
+            building edge, filtering out vertical wall points and interference
+            from adjacent taller structures.
+
+    Returns:
+        Optional[Dict[str, float]]: A dictionary containing height metrics, or None
+        if insufficient points were found. The dictionary keys are:
+            - 'ground_mean': The median elevation of the surrounding ground.
+            - 'roof_z': The estimated elevation of the roof (calculated via Mode/95th voting).
+            - 'height': The calculated building height (roof_z - ground_mean).
+            - 'method': The statistical method used for the roof ('mode' or '95th').
+
+    Raises:
+        pdal.PipelineError: If the PDAL pipeline fails to execute (e.g., file not found).
+        shapely.errors.WKTReadingError: If the input WKT string is invalid.
+    """
+
+    # --- 1. Geometry Preparation ---
+    try:
+        poly_geom = wkt.loads(polygon_wkt)
+    except Exception as e:
+        # Re-raising with context is helpful for library users debugging bad inputs
+        raise ValueError(f"Invalid WKT provided: {e}")
+
+    # Create the 'Superset' polygon: Used to fetch all necessary context (Ground + Roof)
+    poly_ground_geom = poly_geom.buffer(ground_buffer)
+    poly_ground_wkt = poly_ground_geom.wkt
+
+    # Create the 'Subset' polygon: Used to strictly isolate the roof core
+    # We erode the polygon to avoid "bleeding" points from adjacent tall walls
+    poly_roof_geom = poly_geom.buffer(roof_erosion)
+
+    # Fallback: If erosion removes the entire polygon (e.g., small shed < 3m wide),
+    # revert to the original footprint to ensure we get *some* data.
+    if poly_roof_geom.is_empty:
+        poly_roof_geom = poly_geom
+        # In a logging environment, we would use logger.warning() here
+        logger.warning(
+            f"Building polygon (OSM way ID: {osm_id}) became empty after erosion ({roof_erosion}m). "
+            "Falling back to original footprint."
+        )
+
+    # Optimization: 'prepare' accelerates subsequent vectorized queries in Shapely 2.0+
+    shapely.prepare(poly_roof_geom)
+
+    # --- 2. Single-Pass PDAL Execution (I/O Bound) ---
+    # We define a pipeline to crop only the expanded area.
+    # This prevents reading the entire file or running the pipeline twice.
+    pipeline_json = {
+        "pipeline": [laz_path, {"type": "filters.crop", "polygon": poly_ground_wkt}]
+    }
+
+    pipeline = pdal.Pipeline(json.dumps(pipeline_json))
+
+    # Execute the pipeline. This is the most computationally expensive step.
+    pipeline.execute()
+    arr = pipeline.arrays[0]
+
+    # Early exit if the crop yielded no points (e.g., wrong coordinates)
+    if len(arr) == 0:
+        return None
+
+    # --- 3. Data Segmentation (CPU Bound) ---
+
+    # A. Ground Extraction Strategy
+    # We rely on ASPRS Standard Class 2 (Ground).
+    # The crop is already buffered, so these are the points immediately surrounding the building.
+    ground_points = arr[arr["Classification"] == 2]
+
+    if len(ground_points) == 0:
+        # Fallback: Assume 0.0 or handle based on specific project requirements.
+        # Returning 0.0 allows the script to continue, but data quality should be flagged.
+        ground_z_mean = 0.0
     else:
-        building_height = float(building['building:levels']) * 3.5
+        # Use Median instead of Mean to be robust against underground noise/basement reflections
+        ground_z_mean = np.median(ground_points["Z"])
 
-    return building_height
+    # B. Roof Extraction Strategy
+    # First, filter out known ground points
+    non_ground_subset = arr[arr["Classification"] != 2]
 
+    if len(non_ground_subset) == 0:
+        return None
+
+    # Vectorized Point-in-Polygon Check
+    # shapely.contains_xy is a ufunc (Universal Function) optimized in C.
+    # It creates a boolean mask much faster than iterating through Point objects.
+    mask_inside_roof = shapely.contains_xy(
+        poly_roof_geom, non_ground_subset["X"], non_ground_subset["Y"]
+    )
+
+    actual_roof_points = non_ground_subset[mask_inside_roof]
+
+    if len(actual_roof_points) == 0:
+        return None
+
+    roof_z = actual_roof_points["Z"]
+
+    # --- 4. Statistical Height Determination ---
+
+    # Calculate the 95th Percentile (Standard approach, sensitive to outliers)
+    z_95 = np.percentile(roof_z, 95)
+
+    # Calculate the Mode (Robust approach)
+    # Roofs are flat surfaces (high density), walls are vertical (low density).
+    # We bin Z values by 20cm to find the "densest" vertical slice.
+    bins = np.arange(np.min(roof_z), np.max(roof_z) + 0.2, 0.2)
+    hist, bin_edges = np.histogram(roof_z, bins=bins)
+
+    peak_idx = np.argmax(hist)
+    z_mode = (bin_edges[peak_idx] + bin_edges[peak_idx + 1]) / 2.0
+
+    # Voting Logic:
+    # If the 95th percentile is > 3.0m higher than the mode, it indicates
+    # we likely caught a "spike" (noise) or a neighbor's wall.
+    # In that case, the Mode is the safer physical estimate.
+    if (z_95 - z_mode) > 3.0:
+        final_roof_z = z_mode
+        method = "mode"
+    else:
+        final_roof_z = z_95
+        method = "95th"
+
+    return {
+        "ground_mean": float(ground_z_mean),
+        "roof_z": float(final_roof_z),
+        "building_height": float(final_roof_z - ground_z_mean),
+        "method": method,
+    }
 
 
 def get_center_subarray(arr, x, y):
     """
     Extracts the center subarray of size (x, y) from a 2D NumPy array.
-    
+
     Parameters:
     - arr: 2D NumPy array
     - x: Number of rows in the subarray
     - y: Number of columns in the subarray
-    
+
     Returns:
     - Center subarray of shape (x, y)
     """
     H, W = arr.shape  # Get original array size
-    
+
     # Compute starting indices
     start_x = (H - x) // 2
     start_y = (W - y) // 2
-    
+
     # Extract the subarray
     return arr[start_x : start_x + x, start_y : start_y + y]
-
 
 
 def error_tolerance_rate(y_true, y_pred, threshold, relative=False):
@@ -454,16 +723,16 @@ def error_tolerance_rate(y_true, y_pred, threshold, relative=False):
     -------
     float
         The percentage of predictions within the specified error tolerance.
-    
+
     Notes:
     ------
     - If `relative=True`, zero values in `y_true` are ignored to avoid division by zero.
     - The function returns a percentage (0 to 100) rather than a fraction.
     """
-    
+
     if relative:
         # Mask to exclude zero values in `y_true` to prevent division by zero
-        valid_mask = (y_true != 0)
+        valid_mask = y_true != 0
         y_true = y_true[valid_mask]
         y_pred = y_pred[valid_mask]
 
@@ -478,7 +747,6 @@ def error_tolerance_rate(y_true, y_pred, threshold, relative=False):
 
     # Return the percentage of values within tolerance
     return (within_tolerance / len(y_true)) * 100 if len(y_true) > 0 else 0.0
-
 
 
 def is_float(element) -> bool:
@@ -505,17 +773,18 @@ def is_float(element) -> bool:
 
 
 def print_if_int(num):
-  """Prints the number as an integer if it's an integer, otherwise prints the original number."""
-  if math.isclose(num, int(num)):
-    return  int(num)
-  else:
-    return num
-  
+    """Prints the number as an integer if it's an integer, otherwise prints the original number."""
+    if math.isclose(num, int(num)):
+        return int(num)
+    else:
+        return num
+
 
 class GeoTIFFHandler:
     """
     Class for opening and querying a GeoTIFF file for height (HAG, DEM, etc.).
     """
+
     def __init__(self, filepath: str):
         """
         Parameters
@@ -547,13 +816,14 @@ class GeoTIFFHandler:
 
         bounds = self.src.bounds
         gps_bounds = transform_bounds(
-            self.src.crs, "EPSG:4326",
-            bounds.left, bounds.bottom,
-            bounds.right, bounds.top
+            self.src.crs,
+            "EPSG:4326",
+            bounds.left,
+            bounds.bottom,
+            bounds.right,
+            bounds.top,
         )
-        logger.info(
-            "GPS Bounds [lon_min, lat_min, lon_max, lat_max]: %s", gps_bounds
-        )
+        logger.info("GPS Bounds [lon_min, lat_min, lon_max, lat_max]: %s", gps_bounds)
 
     def query(self, gps_coordinate, reverse_xy: bool = False):
         """
@@ -576,8 +846,10 @@ class GeoTIFFHandler:
 
         # Transform from WGS84 to raster's CRS
         transformed_coordinates = transform(
-            {'init': 'epsg:4326'}, self.src.crs,
-            [gps_coordinate[0]], [gps_coordinate[1]]
+            {"init": "epsg:4326"},
+            self.src.crs,
+            [gps_coordinate[0]],
+            [gps_coordinate[1]],
         )
         x, y = transformed_coordinates[0][0], transformed_coordinates[1][0]
 
@@ -588,7 +860,7 @@ class GeoTIFFHandler:
         hag_value = self.src.read(
             1,
             window=rasterio.windows.Window(col, row, 1, 1),
-            resampling=Resampling.nearest
+            resampling=Resampling.nearest,
         )
         return hag_value.squeeze()
 

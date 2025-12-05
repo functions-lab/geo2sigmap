@@ -27,6 +27,7 @@ import pyvista as pv
 from pathlib import Path
 
 from .dem import generate_terrain_mesh_dem
+
 # Create a module-level logger
 logger = logging.getLogger(__name__)
 
@@ -305,9 +306,9 @@ class Scene:
         # ---------------------------------------------------------------------
         try:
             laz_file_path = Path(os.path.join(data_dir, "test_hag.laz"))
-            tif_file_path = Path(os.path.join(data_dir, "test_hag.tif"))
+            #tif_file_path = Path(os.path.join(data_dir, "test_hag.tif"))
             if lidar_terrain or lidar_calibration:
-                if not laz_file_path.exists() or not tif_file_path.exists():
+                if not laz_file_path.exists():# or not tif_file_path.exists():
                     
                     from .USGS_LiDAR_HAG import generate_hag
                     
@@ -324,7 +325,7 @@ class Scene:
     
                 assert laz_file_path.exists(), f"LAZ file does not exist: {laz_file_path}"
     
-                assert tif_file_path.exists(), f"TIF file does not exist: {tif_file_path}"
+                #assert tif_file_path.exists(), f"TIF file does not exist: {tif_file_path}"
                 print("Skip the lidar_terrain.ply")
                 if not Path(os.path.join(data_dir,"mesh" ,"lidar_terrain.ply")).exists():
 
@@ -439,7 +440,7 @@ class Scene:
         buildings = ox.features.features_from_bbox(
             bbox=ground_polygon_4326_bbox, tags={"building": True}
         )
-        buildings = buildings.to_crs(projection_UTM_EPSG_code)
+        buildings = buildings.to_crs(projection_UTM_EPSG_code).reset_index()
 
         # Filter out the building which outside the bounding box since
         # OSM will return some extra buildings.
@@ -455,23 +456,24 @@ class Scene:
         # ---------------------------------------------------------------------
         # 7) Init the building height handler. (osm or lidar)
         # ---------------------------------------------------------------------
-        if lidar_calibration:
-            try:
-                hag_handler = GeoTIFFHandler(hag_tiff_path)
-            except Exception as e:
-                hag_handler = None
-        else:
-            hag_handler = None
+        # if lidar_calibration:
+        #     try:
+        #         hag_handler = GeoTIFFHandler(tif_file_path)
+        #     except Exception as e:
+        #         hag_handler = None
+        # else:
+        #     hag_handler = None
 
         # ---------------------------------------------------------------------
         # 8) Process each building to create a 3D mesh (extrude by building height)
         # ---------------------------------------------------------------------
-
         for idx, building in tqdm(
             enumerate(buildings_list),
             total=len(buildings_list),
-            desc="Parsing buildings",
+            desc="Parsing buildings"
         ):
+            osm_id = str(building.get('id', building.get('osmid', 0)))
+           
             # Debug the inner hole buildings
             # if building['type'] != "multipolygon":
             #     continue
@@ -485,43 +487,60 @@ class Scene:
                 continue
 
             # First try to get building height from LiDAR
-            if hag_handler:
-                random_points = generate_random_points(building_polygon, 30)
-                abs_height = []
-                for point in random_points:
-                    res = hag_handler.query(to_4326.transform(point.x, point.y), False)
-                    abs_height.append(res)
-
-                # plt.scatter([point.x for point in random_points ],[point.y for point in random_points ], c=abs_height, cmap='viridis')
-                # plt.colorbar(label='Height above ground (DSM - DEM) meters')
-
-                # plt.title('Random Points within a Building Polygon')
-                # plt.xlabel('Longitude EPSG:6933')
-                # plt.ylabel('Latitude EPSG:6933')
-                # plt.show()
-                print("Building height list: ", abs_height)
-                print()
-                filtered_list = [
-                    x for x in abs_height if x.size > 0 and x != -9999 and x > 2
-                ]
-                print("Building height list: ", abs_height)
-                print()
+            if lidar_calibration:
                 try:
-                    building_height = np.mean(filtered_list)
-                    print("Avg Building Height: ", building_height)
-                    if math.isnan(building_height):
-                        raise ValueError("The value is NaN")
-                except Exception as e:
-                    print("Random Building Height: ", building_height)
-                    building_height = random_building_height(building, building_polygon)
-            else:
-                building_height = random_building_height(building, building_polygon)
+                    # 1. Try LiDAR-based height calculation
+                    lidar_result = calculate_building_height_from_lidar(
+                        laz_path=str(laz_file_path),
+                        polygon_wkt=building_polygon.wkt,
+                        osm_id=osm_id
+                    )
 
+                    # 2. Check for "Soft Failure" (Method ran, but found no points)
+                    if lidar_result is None:
+                        # We raise a controlled error to trigger the fallback block below
+                        raise ValueError("Insufficient LiDAR points in building footprint")
+
+                    # 3. Success! Extract the data
+                    building_height = round(lidar_result["building_height"], 1)
+                    method_used = "lidar"
+                    method_used_detail = lidar_result["method"]
+
+                except (ValueError, RuntimeError) as e:
+                    # 4. Handle Operational Errors (Data missing, File locked, etc.)
+                    # We log this as DEBUG so it doesn't spam your console, 
+                    # but we include 'exc_info=False' to keep logs clean (or True if you need tracebacks)
+                    logger.debug(f"LiDAR unavailable for Building {osm_id}: {e}. Falling back to OSM.")
+                    
+                    # 5. Execute Fallback
+                    osm_results = estimate_building_height_from_osm(building)
+                    building_height = osm_results["building_height"]
+                    method_used = "osm_fallback"
+                    method_used_detail = osm_results["method"]
+                except Exception as e:
+                    # 6. Safety Net for "Real" Bugs (Syntax errors, typos, unexpected crashes)
+                    # We log this as ERROR because this is NOT supposed to happen.
+                    logger.error(f"CRITICAL FAILURE on Building {osm_id}: {e}", exc_info=True)
+                    
+                    # We still fallback so the scene_gen doesn't die, but we know something is wrong.
+                    osm_results = estimate_building_height_from_osm(building)
+                    building_height = osm_results["building_height"]
+                    method_used = "osm_emergency"
+                    method_used_detail = osm_results["method"]
+                    
+            else:
+                osm_results = estimate_building_height_from_osm(building)
+                building_height = osm_results["building_height"]
+                method_used = "osm"
+                method_used_detail = osm_results["method"]
+                
+            
+            
             # Skip buildings with height <= 0
             if building_height <=0:
                 continue
             # building_height = NYC_LiDAR_building_height(building, building_polygon)
-
+            
             outer_xy = unique_coords(
                 reorder_localize_coords(building_polygon.exterior, center_x, center_y)
             )
@@ -577,6 +596,8 @@ class Scene:
                     building_z_value = 0
             else:
                 building_z_value = 0
+
+                
                 
         
             #print("Building's Z-value: ", building_z_value)
@@ -706,6 +727,7 @@ class Scene:
             ET.SubElement(sionna_shape, "ref", id=rooftop_material_type, name="bsdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
+
             sionna_shape = ET.SubElement(
                 scene, "shape", type="ply", id=f"mesh-building_{idx}_wall"
             )
@@ -717,11 +739,108 @@ class Scene:
             )
             ET.SubElement(sionna_shape, "ref", id=wall_material_type, name="bsdf")
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
+            #ET.SubElement(sionna_shape, "default", name="random_building_height", value=str(building_height_random))
+            #ET.SubElement(sionna_shape, "default", name="hag_building_height", value=str(building_height))
+            #ET.SubElement(sionna_shape, "default", name="lidar_building_height", value=str(raw_lidar_building_height))
+
+            # if building_height != building_height_random :
+            #     points = np.concatenate([v, np.full((nv, 1), fill_value=building_z_value + min(building_height, building_height_random,raw_lidar_building_height))], axis=1)
+    
+            #     mesh_o3d = o3d.t.geometry.TriangleMesh()
+            #     mesh_o3d.vertex.positions = o3d.core.Tensor(points)
+            #     mesh_o3d.triangle.indices = o3d.core.Tensor(f)
+    
+            #     wedge_t = mesh_o3d.extrude_linear([0, 0, max(building_height, building_height_random, raw_lidar_building_height)])
+            #     # Get vertices and faces
+            #     vertices_tensor = wedge_t.vertex["positions"]
+            #     faces_tensor = wedge_t.triangle["indices"]
+    
+            #     # Convert to NumPy for calculations
+            #     vertices_np = vertices_tensor.numpy()
+            #     faces_np = faces_tensor.numpy()
+    
+            #     # Compute face centroids
+            #     face_centroids = np.mean(vertices_np[faces_np], axis=1)
+    
+            #     z_values = vertices_np[:, 2]
+            #     top_vertex_indices = np.where(z_values == max(building_height, building_height_random, raw_lidar_building_height) + building_z_value)[
+            #         0
+            #     ].tolist()  # Indices of top vertices
+            #     #print("top vertex indices: ", top_vertex_indices)
+                
+    
+    
+    
+            #     # Extract the top surface
+            #     top_surface = wedge_t.select_by_index(top_vertex_indices)
+    
+            #     other_faces_np = faces_np[face_centroids[:, 2] < max(building_height, building_height_random, raw_lidar_building_height)+building_z_value]
+            #     if len(other_faces_np) == 0:
+            #         print("All vertices: ", vertices_np)
+            #         print("top vertex indices: ", top_vertex_indices)
+            #         print("max height of meshes: ", np.max(z_values))
+            #         print("min height of meshes: ", np.min(z_values))
+            #         print("building height: ", building_height)
+            #         print("building z value: ", building_z_value)
+            #         print("building height + building z value: ", building_height + building_z_value)
+                    
+                
+            #         print("other faces np: ", other_faces_np)
+            #         print("max height of meshes: ", np.max(z_values))
+            #         print("building height: ", building_height)
+            #         print("building z value: ", building_z_value)
+            #         print("building height + building z value: ", building_height + building_z_value)
+            #     # Convert to Open3D Tensor API
+            #     other_faces_o3c = o3c.Tensor(other_faces_np, dtype=o3c.int32)
+    
+            #     wall_mesh = o3d.t.geometry.TriangleMesh()
+            #     wall_mesh.vertex["positions"] = vertices_tensor  # Same vertices
+            #     wall_mesh.triangle["indices"] = other_faces_o3c
+    
+            #     wall_mesh.remove_unreferenced_vertices()
+    
+            #     print("Writting Rooftop", flush=True)
+            #     o3d.t.io.write_triangle_mesh(
+            #         os.path.join(mesh_data_dir, f"building_{idx}_rooftop_{upper}.ply"),
+            #         top_surface,
+            #         write_ascii=write_ply_ascii,
+            #     )
+            #     o3d.t.io.write_triangle_mesh(
+            #         os.path.join(mesh_data_dir, f"building_{idx}_wall_{upper}.ply"),
+            #         wall_mesh,
+            #         write_ascii=write_ply_ascii,
+            #     )
+    
+            #     # o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
+    
+            #     # Add shape elements for PLY files in the folder
+            #     sionna_shape = ET.SubElement(
+            #         scene, "shape", type="ply", id=f"mesh-building_{idx}_rooftop_{upper}"
+            #     )
+            #     ET.SubElement(
+            #         sionna_shape,
+            #         "string",
+            #         name="filename",
+            #         value=f"mesh/building_{idx}_rooftop_{upper}.ply",
+            #     )
+            #     ET.SubElement(sionna_shape, "ref", id=rooftop_material_type, name="bsdf")
+            #     ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
+    
+            #     sionna_shape = ET.SubElement(
+            #         scene, "shape", type="ply", id=f"mesh-building_{idx}_wall_{upper}"
+            #     )
+            #     ET.SubElement(
+            #         sionna_shape,
+            #         "string",
+            #         name="filename",
+            #         value=f"mesh/building_{idx}_wall_{upper}.ply",
+            #     )
+            #     ET.SubElement(sionna_shape, "ref", id="mat-itu_metal", name="bsdf")
+            #     ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:
                 self._draw_building(building_polygon, building_height)
 
-        del hag_handler
         xml_string = ET.tostring(scene, encoding="utf-8")
         xml_pretty = minidom.parseString(xml_string).toprettyxml(
             indent="    "

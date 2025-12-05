@@ -283,22 +283,22 @@ def make_DEM_pipeline(extent_epsg3857, usgs_3dep_dataset_name, pc_resolution, de
             "type": "filters.hag_nn",
             "count": 10
         }
-        dem_pipeline['pipeline'].append(hagfilter_stage)
+        # dem_pipeline['pipeline'].append(hagfilter_stage)
 
-        dem_stage = {
-            "type": "writers.gdal",
-            "filename": str(dem_outName) + '.' + str(dem_outExt),
-            "gdaldriver": driver,
-            "nodata": -9999,
-            "output_type": gridMethod,
-            "dimension": "HeightAboveGround",
-            "resolution": float(dem_resolution),
-            "gdalopts": "COMPRESS=LZW,TILED=YES,blockxsize=256,blockysize=256,COPY_SRC_OVERVIEWS=YES"
-        }
+        # dem_stage = {
+        #     "type": "writers.gdal",
+        #     "filename": str(dem_outName) + '.' + str(dem_outExt),
+        #     "gdaldriver": driver,
+        #     "nodata": -9999,
+        #     "output_type": gridMethod,
+        #     "dimension": "HeightAboveGround",
+        #     "resolution": float(dem_resolution),
+        #     "gdalopts": "COMPRESS=LZW,TILED=YES,blockxsize=256,blockysize=256,COPY_SRC_OVERVIEWS=YES"
+        # }
     else:
         raise Exception("demType must be 'dsm' or 'dtm' or 'hag'.")
 
-    dem_pipeline['pipeline'].append(dem_stage)
+    #dem_pipeline['pipeline'].append(dem_stage)
 
     return dem_pipeline
 

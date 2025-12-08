@@ -92,7 +92,7 @@ class LiDARContext:
         ground_subset = points_box[mask_ground_poly & (points_box['Classification'] == 2)]
         
         if len(ground_subset) == 0:
-            ground_z_mean = 0.0
+            return None
         else:
             ground_z_mean = np.median(ground_subset['Z'])
 

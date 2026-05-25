@@ -6,3 +6,6 @@ rasterio
 tqdm
 pillow
 open3d
+duckdb
+geopandas
+pandas

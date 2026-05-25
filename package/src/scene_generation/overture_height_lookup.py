@@ -10,11 +10,12 @@ Main idea:
       to the best overlapping Overture building.
     - Return one representative fallback height in meters.
 
-Suggested fallback priority:
-    1. Overture building height
-    2. Max building_part top height
-    3. Overture num_floors * floor_height
-    4. None
+Suggested fallback priority (after spatial match):
+    When has_parts or parts are linked: max(part heights, parent height,
+        parent num_floors * floor_height) so low parent OR low parts alone
+        do not win (fixes both podium-on-parent and height-on-parent cases).
+    Otherwise: parent height, then parts, then num_floors * floor_height.
+    None if nothing usable.
 """
 
 import warnings
@@ -132,24 +133,28 @@ class OvertureHeightLookup:
         if overlap_ratio < self.min_overlap_ratio:
             return None
 
-        # 1) Prefer Overture building-level height.
-        height = self._safe_float(best.get("height"))
-
-        if self._valid_height(height):
-            return height
-
-        # 2) If building parts exist, collapse them to one height.
         building_id = best.get("id")
-        part_height = self._height_from_parts(building_id)
+        part_height, parent_height, floors_height = self._heights_from_match(
+            best, building_id
+        )
+
+        # Complex buildings: take the best of parts + parent (not parts alone).
+        if self._prefer_parts_height(best, building_id):
+            combined = self._max_valid_heights(
+                part_height, parent_height, floors_height
+            )
+            if combined is not None:
+                return combined
+
+        # Simple buildings: parent, then parts, then floors.
+        if self._valid_height(parent_height):
+            return parent_height
 
         if self._valid_height(part_height):
             return part_height
 
-        # 3) Fall back to num_floors if available.
-        num_floors = self._safe_float(best.get("num_floors"))
-
-        if self._valid_floor_count(num_floors):
-            return num_floors * self.floor_height
+        if self._valid_height(floors_height):
+            return floors_height
 
         return None
 
@@ -332,31 +337,83 @@ class OvertureHeightLookup:
     # Height extraction helpers
     # -------------------------------------------------------------------------
 
+    def _heights_from_match(self, building_row, building_id):
+        """
+        Collect part, parent, and floor-based height candidates for one match.
+        """
+        part_height = self._height_from_parts(building_id)
+        parent_height = self._safe_float(building_row.get("height"))
+        num_floors = self._safe_float(building_row.get("num_floors"))
+        floors_height = None
+
+        if self._valid_floor_count(num_floors):
+            floors_height = num_floors * self.floor_height
+
+        return part_height, parent_height, floors_height
+
+    def _max_valid_heights(self, *values):
+        """
+        Return the maximum of all values that pass _valid_height, or None.
+        """
+        valid = [float(v) for v in values if self._valid_height(v)]
+
+        if len(valid) == 0:
+            return None
+
+        return max(valid)
+
+    def _prefer_parts_height(self, building_row, building_id):
+        """
+        Return True when building_part data should win over parent height.
+        """
+        has_parts = building_row.get("has_parts")
+        if has_parts is True:
+            return True
+        if isinstance(has_parts, str) and has_parts.strip().lower() == "true":
+            return True
+        return self._has_linked_parts(building_id)
+
+    def _has_linked_parts(self, building_id):
+        parts, _note = self._get_parts_for_building_id(building_id)
+        return parts is not None and not parts.empty
+
+    def _get_parts_for_building_id(self, building_id):
+        """
+        Return parts GeoDataFrame for a building id, trying common key variants.
+        """
+        if building_id is None or pd.isna(building_id):
+            return None, "missing building_id"
+
+        if building_id in self.parts_by_building_id:
+            return self.parts_by_building_id[building_id], "exact id key"
+
+        str_id = str(building_id)
+        if str_id in self.parts_by_building_id:
+            return self.parts_by_building_id[str_id], "str(id) key"
+
+        return None, "no parts for building_id"
+
     def _height_from_parts(self, building_id):
         """
         Collapse Overture building_parts into one representative height.
 
-        Current rule:
-            Use maximum top height over all parts:
-                top = min_height + height
-
-        This is intentionally conservative for ray tracing because it avoids
-        flattening tall buildings into short average-height prisms.
+        Uses the maximum part ``height`` (meters above ground). Stacked parts
+        with ``min_height`` are not summed into min_height+height here, because
+        that can over-estimate a single extruded footprint (e.g. spire segments).
+        Per-part fallback: num_floors * floor_height when height is missing.
         """
 
         if building_id is None or pd.isna(building_id):
             return None
 
-        if building_id not in self.parts_by_building_id:
+        parts, _note = self._get_parts_for_building_id(building_id)
+        if parts is None or parts.empty:
             return None
-
-        parts = self.parts_by_building_id[building_id]
 
         tops = []
 
         for _, part in parts.iterrows():
             height = self._safe_float(part.get("height"))
-            min_height = self._safe_float(part.get("min_height"))
 
             if not self._valid_height(height):
                 num_floors = self._safe_float(part.get("num_floors"))
@@ -365,10 +422,7 @@ class OvertureHeightLookup:
                     height = num_floors * self.floor_height
 
             if self._valid_height(height):
-                if not self._valid_height(min_height):
-                    min_height = 0.0
-
-                tops.append(min_height + height)
+                tops.append(height)
 
         if len(tops) == 0:
             return None

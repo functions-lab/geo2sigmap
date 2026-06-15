@@ -463,6 +463,8 @@ class Scene:
         else:
             hag_handler = None
 
+        init_overture_lookup(bbox=ground_polygon_4326_bbox, verbose=True)
+
         # ---------------------------------------------------------------------
         # 8) Process each building to create a 3D mesh (extrude by building height)
         # ---------------------------------------------------------------------
@@ -513,9 +515,13 @@ class Scene:
                         raise ValueError("The value is NaN")
                 except Exception as e:
                     print("Random Building Height: ", building_height)
-                    building_height = random_building_height(building, building_polygon)
+                    building_height = random_building_height(
+                        building, building_polygon, to_wgs84=to_4326
+                    )
             else:
-                building_height = random_building_height(building, building_polygon)
+                building_height = random_building_height(
+                    building, building_polygon, to_wgs84=to_4326
+                )
 
             # Skip buildings with height <= 0
             if building_height <=0:

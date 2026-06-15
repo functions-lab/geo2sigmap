@@ -2,6 +2,7 @@
 Utilities sub-package for the Scene Generation library.
 """
 
+import logging
 import pyproj
 from pyproj import Transformer, CRS
 
@@ -11,6 +12,7 @@ from shapely.geometry import (
     LinearRing,
     Point
 )
+from shapely.ops import transform as shapely_transform
 
 import numpy as np
 import math
@@ -18,7 +20,7 @@ from rasterio.enums import Resampling
 from rasterio.warp import transform_bounds, transform
 import rasterio
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 
 
@@ -30,6 +32,7 @@ except ImportError:
 import math
 
 PACKAGE_NAME = "scene_generation"
+logger = logging.getLogger(__name__)
 
 
 def get_package_version() -> str:
@@ -42,6 +45,42 @@ def get_package_version() -> str:
     except PackageNotFoundError:
         return "0.0.0.dev (uninstalled)"
     
+
+
+# Overture height fallback
+try:
+    from .overture_height_lookup import OvertureHeightLookup
+except Exception:
+    OvertureHeightLookup = None
+
+OVERTURE_LOOKUP = None
+
+
+def init_overture_lookup(bbox, verbose=True):
+    """
+    Initialize Overture height lookup once per scene.
+
+    Parameters
+    ----------
+    bbox : tuple
+        Bounding box in lon/lat format:
+            (min_lon, min_lat, max_lon, max_lat)
+
+    verbose : bool
+        If True, print Overture loading summary.
+    """
+
+    global OVERTURE_LOOKUP
+
+    if OvertureHeightLookup is None:
+        OVERTURE_LOOKUP = None
+        logger.warning("OvertureHeightLookup could not be imported.")
+        return
+
+    OVERTURE_LOOKUP = OvertureHeightLookup(
+        bbox=bbox,
+        verbose=verbose,
+    )
     
 # -------------------------------------------------------------------
 # 1) Geographic Coordinate System Related
@@ -376,34 +415,60 @@ def reorder_localize_coords(input_coords, center_x: float, center_y: float):
     ]
     return res_coords
 
-def random_building_height(building: dict, building_polygon: Polygon) -> float:
+def random_building_height(
+    building: dict,
+    building_polygon: Polygon,
+    to_wgs84: Optional[Transformer] = None,
+) -> float:
     """
-    Determine a building's height from OSM tags if available, else random.
+    Determine a building's height from OSM tags if available,
+    then Overture if available, else random.
 
     Parameters
     ----------
     building : dict
-        A record (row) from an OSM data source containing building attributes,
-        e.g. 'building:height', 'height', 'building:levels', etc.
+        OSM building attributes.
     building_polygon : Polygon
-        The polygon geometry of this building (unused in this function's fallback).
+        Building footprint in the scene projection (typically UTM).
+    to_wgs84 : Transformer, optional
+        Transformer from scene projection to EPSG:4326. Required for
+        Overture spatial matching when the polygon is not already WGS84.
 
-    Returns
-    -------
-    float
-        The estimated building height in meters.
+    Priority:
+        1. OSM building:height
+        2. OSM height
+        3. OSM building:levels * 3.5
+        4. OSM level * 3.5
+        5. Overture fallback height
+        6. Random fallback height
     """
+
     if 'building:height' in building and is_float(building['building:height']):
         building_height = float(building['building:height'])
+
     elif 'height' in building and is_float(building['height']):
         building_height = float(building['height'])
-    elif 'building:levels' not in building or not is_float(building['building:levels']):
-        # Fallback random height (units: meters)
-        building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
-    elif 'level' not in building or not is_float(building['level']):
-        building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
-    else:
+
+    elif 'building:levels' in building and is_float(building['building:levels']):
         building_height = float(building['building:levels']) * 3.5
+
+    elif 'level' in building and is_float(building['level']):
+        building_height = float(building['level']) * 3.5
+
+    else:
+        overture_height = None
+
+        if OVERTURE_LOOKUP is not None:
+            lookup_polygon = building_polygon
+            if to_wgs84 is not None:
+                lookup_polygon = shapely_transform(to_wgs84.transform, building_polygon)
+            overture_height = OVERTURE_LOOKUP.get_height(lookup_polygon)
+
+        if overture_height is not None:
+            building_height = float(overture_height)
+        else:
+            # Original Geo2SigMap fallback
+            building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
 
     return building_height
 

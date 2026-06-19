@@ -103,7 +103,7 @@ class Scene:
             Building height source mode. Mode "1" / "lidar-osm" uses LiDAR
             HAG samples, OSM explicit height tags, OSM floor-count tags, then
             random fallback. Mode "2" / "overture" uses Overture exact height,
-            Overture levels, then random fallback.
+            Overture num_floors, then random fallback.
 
         Returns
         -------

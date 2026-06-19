@@ -208,7 +208,7 @@ def load_overture_buildings_for_aoi(
 #         Height per floor used when Overture has floor-count metadata but no
 #         explicit ``height``.
 #     use_num_floors
-#         If true, use Overture levels times ``floor_height_m`` as a fallback height.
+#         If true, use Overture num_floors times ``floor_height_m`` as a fallback height.
 #     use_height
 #         If true, use explicit Overture ``height`` values.
 #     return_match
@@ -326,7 +326,7 @@ def resolve_building_height(
         LiDAR HAG sampling, OSM explicit height tags, OSM floor-count tags,
         then random fallback.
     ``"overture"`` or ``"2"``
-        Overture explicit height, Overture levels times ``floor_height_m``, then
+        Overture explicit height, Overture num_floors times ``floor_height_m``, then
         random fallback.
 
     Parameters
@@ -453,11 +453,9 @@ def _height_from_overture_row(
             return explicit_height, "height"
 
     if use_num_floors:
-        levels = _positive_float(row.get("levels"))
-        if levels is None:
-            levels = _positive_float(row.get("num_floors"))
-        if levels is not None:
-            return levels * floor_height_m, "levels"
+        num_floors = _positive_float(row.get("num_floors"))
+        if num_floors is not None:
+            return num_floors * floor_height_m, "num_floors"
 
     return None, None
 
@@ -470,7 +468,7 @@ def _height_mode_steps(height_mode: str, use_osm_levels: bool) -> Sequence[str]:
         return steps
 
     if height_mode == HEIGHT_MODE_OVERTURE:
-        return ["overture_height", "overture_levels"]
+        return ["overture_height", "overture_num_floors"]
 
     raise ValueError(f"Unsupported building height mode: {height_mode}")
 
@@ -504,7 +502,7 @@ def _height_from_source(
             )
         return None, None, None
 
-    if source_type == "overture_levels":
+    if source_type == "overture_num_floors":
         if not use_overture_num_floors:
             return None, None, None
         height, source = _height_from_overture_row(

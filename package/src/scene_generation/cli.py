@@ -138,9 +138,9 @@ def main():
         help=(
             "Building height mode: "
             "1/lidar-osm uses LiDAR HAG, OSM explicit heights, OSM levels * level height, "
-            "then random fallback; 2/overture uses Overture footprints, "
-            "Overture height, Overture num_floors * level height, then random "
-            "fallback. Default: 1."
+            "then random fallback; 2/overture uses Overture footprints with "
+            "BuildingParts preferred when available, Overture height, Overture "
+            "num_floors * level height, then random fallback. Default: 1."
         ),
     )
 

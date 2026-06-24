@@ -25,8 +25,10 @@ import open3d.core as o3c
 from .overture_buildings import (
     HEIGHT_MODE_LIDAR_OSM,
     HEIGHT_MODE_OVERTURE,
+    load_overture_building_parts_for_aoi,
     load_overture_buildings_for_aoi,
     normalize_building_height_mode,
+    resolve_building_base_height,
     resolve_building_height,
 )
 
@@ -102,7 +104,8 @@ class Scene:
         building_height_mode : str, optional
             Building height source mode. Mode "1" / "lidar-osm" uses LiDAR
             HAG samples, OSM explicit height tags, OSM floor-count tags, then
-            random fallback. Mode "2" / "overture" uses Overture exact height,
+            random fallback. Mode "2" / "overture" uses Overture footprints
+            with BuildingParts preferred when available, Overture exact height,
             Overture num_floors, then random fallback.
 
         Returns
@@ -459,13 +462,50 @@ class Scene:
                     projection_UTM_EPSG_code,
                 )
                 filtered_buildings = buildings[buildings.intersects(ground_polygon)]
-                buildings_list = filtered_buildings.to_dict("records")
             except Exception as exc:
                 logger.warning(
                     "Unable to load Overture building footprints; skipping buildings: %s",
                     exc,
                 )
                 buildings_list = []
+            else:
+                try:
+                    building_parts = load_overture_building_parts_for_aoi(
+                        ground_polygon_4326_bbox,
+                        projection_UTM_EPSG_code,
+                    )
+                    filtered_parts = building_parts[
+                        building_parts.intersects(ground_polygon)
+                    ]
+                except Exception as exc:
+                    logger.warning(
+                        "Unable to load Overture building parts; using whole building footprints only: %s",
+                        exc,
+                    )
+                    filtered_parts = None
+
+                part_records = (
+                    filtered_parts.to_dict("records")
+                    if filtered_parts is not None
+                    else []
+                )
+                part_parent_ids = {
+                    str(part["building_id"])
+                    for part in part_records
+                    if part.get("building_id") is not None
+                }
+                building_records = [
+                    building
+                    for building in filtered_buildings.to_dict("records")
+                    if str(building.get("id")) not in part_parent_ids
+                ]
+                buildings_list = [*building_records, *part_records]
+                buildings_list.sort(key=resolve_building_base_height)
+                logger.info(
+                    "Using %d Overture building footprints and %d building parts",
+                    len(building_records),
+                    len(part_records),
+                )
         else:
             # OSMnx features API uses bounding box in the form (north, south, east, west)
             logger.debug(
@@ -571,6 +611,11 @@ class Scene:
                 to_4326=to_4326,
                 height_mode=building_height_mode,
             )
+            building_base_height = (
+                resolve_building_base_height(building)
+                if building_height_mode == HEIGHT_MODE_OVERTURE
+                else 0.0
+            )
 
             # Skip buildings with height <= 0
             if building_height <=0:
@@ -632,6 +677,7 @@ class Scene:
                     building_z_value = 0
             else:
                 building_z_value = 0
+            building_base_z_value = building_z_value + building_base_height
                 
         
             #print("Building's Z-value: ", building_z_value)
@@ -680,7 +726,7 @@ class Scene:
             # print(f)
 
             #points = np.concatenate([v, np.zeros((nv, 1))], axis=1)
-            points = np.concatenate([v, np.full((nv, 1), fill_value=building_z_value)], axis=1)
+            points = np.concatenate([v, np.full((nv, 1), fill_value=building_base_z_value)], axis=1)
     
             mesh_o3d = o3d.t.geometry.TriangleMesh()
             mesh_o3d.vertex.positions = o3d.core.Tensor(points)
@@ -699,7 +745,8 @@ class Scene:
             face_centroids = np.mean(vertices_np[faces_np], axis=1)
 
             z_values = vertices_np[:, 2]
-            top_vertex_indices = np.where(z_values == building_height + building_z_value)[
+            building_top_z_value = building_height + building_base_z_value
+            top_vertex_indices = np.where(np.isclose(z_values, building_top_z_value))[
                 0
             ].tolist()  # Indices of top vertices
             #print("top vertex indices: ", top_vertex_indices)
@@ -710,7 +757,7 @@ class Scene:
             # Extract the top surface
             top_surface = wedge_t.select_by_index(top_vertex_indices)
 
-            other_faces_np = faces_np[face_centroids[:, 2] < building_height+building_z_value]
+            other_faces_np = faces_np[face_centroids[:, 2] < building_top_z_value]
             if len(other_faces_np) == 0:
                 print("All vertices: ", vertices_np)
                 print("top vertex indices: ", top_vertex_indices)
@@ -718,14 +765,16 @@ class Scene:
                 print("min height of meshes: ", np.min(z_values))
                 print("building height: ", building_height)
                 print("building z value: ", building_z_value)
-                print("building height + building z value: ", building_height + building_z_value)
+                print("building base height: ", building_base_height)
+                print("building top z value: ", building_top_z_value)
                 
             
                 print("other faces np: ", other_faces_np)
                 print("max height of meshes: ", np.max(z_values))
                 print("building height: ", building_height)
                 print("building z value: ", building_z_value)
-                print("building height + building z value: ", building_height + building_z_value)
+                print("building base height: ", building_base_height)
+                print("building top z value: ", building_top_z_value)
             # Convert to Open3D Tensor API
             other_faces_o3c = o3c.Tensor(other_faces_np, dtype=o3c.int32)
 
@@ -774,7 +823,10 @@ class Scene:
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             if generate_building_map:
-                self._draw_building(building_polygon, building_height)
+                self._draw_building(
+                    building_polygon,
+                    building_height + building_base_height,
+                )
 
         del hag_handler
         xml_string = ET.tostring(scene, encoding="utf-8")

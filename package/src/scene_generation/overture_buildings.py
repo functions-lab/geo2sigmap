@@ -28,12 +28,14 @@ logger = logging.getLogger(__name__)
 
 OVERTURE_BUILDINGS_RELEASE = "2026-05-20.0"
 OVERTURE_BUILDINGS_S3_TEMPLATE = (
-    "s3://overturemaps-us-west-2/release/{release}/theme=buildings/type=building/*"
+    "s3://overturemaps-us-west-2/release/{release}/theme=buildings/type={feature_type}/*"
 )
 OVERTURE_BUILDINGS_AZURE_TEMPLATE = (
     "az://overturemapswestus2.blob.core.windows.net/release/"
-    "{release}/theme=buildings/type=building/*"
+    "{release}/theme=buildings/type={feature_type}/*"
 )
+OVERTURE_BUILDING_TYPE = "building"
+OVERTURE_BUILDING_PART_TYPE = "building_part"
 
 HEIGHT_MODE_LIDAR_OSM = "lidar-osm"
 HEIGHT_MODE_OVERTURE = "overture"
@@ -99,12 +101,67 @@ def load_overture_buildings_for_aoi(
     geopandas.GeoDataFrame
         Overture buildings in EPSG:4326, or ``target_crs`` when provided.
         Columns include ``id``, ``height``, ``num_floors``, ``min_height``,
-        ``roof_height``, ``subtype``, ``class``, ``has_parts``, and
-        ``geometry`` when present in the source schema.
+        ``min_floor``, ``roof_height``, ``subtype``, ``class``, ``has_parts``,
+        ``is_underground``, ``overture_feature_type``, and ``geometry`` when
+        present in the source schema.
     """
 
+    return _load_overture_building_features_for_aoi(
+        bbox_4326,
+        target_crs,
+        release=release,
+        source=source,
+        parquet_path=parquet_path,
+        require_height=require_height,
+        duckdb_connection=duckdb_connection,
+        feature_type=OVERTURE_BUILDING_TYPE,
+    )
+
+
+def load_overture_building_parts_for_aoi(
+    bbox_4326: Sequence[float],
+    target_crs=None,
+    *,
+    release: str = OVERTURE_BUILDINGS_RELEASE,
+    source: str = "s3",
+    parquet_path: Optional[str] = None,
+    require_height: bool = False,
+    duckdb_connection=None,
+) -> gpd.GeoDataFrame:
+    """
+    Load Overture building part footprints intersecting a WGS84 bounding box.
+
+    Building parts are associated with parent buildings by ``building_id`` and
+    may carry their own ``height``/``num_floors`` plus ``min_height``/``min_floor``
+    vertical offsets for stacked or floating geometry.
+    """
+
+    return _load_overture_building_features_for_aoi(
+        bbox_4326,
+        target_crs,
+        release=release,
+        source=source,
+        parquet_path=parquet_path,
+        require_height=require_height,
+        duckdb_connection=duckdb_connection,
+        feature_type=OVERTURE_BUILDING_PART_TYPE,
+    )
+
+
+def _load_overture_building_features_for_aoi(
+    bbox_4326: Sequence[float],
+    target_crs=None,
+    *,
+    release: str,
+    source: str,
+    parquet_path: Optional[str],
+    require_height: bool,
+    duckdb_connection,
+    feature_type: str,
+) -> gpd.GeoDataFrame:
     min_lon, min_lat, max_lon, max_lat = _normalize_bbox_4326(bbox_4326)
-    path = parquet_path or _overture_buildings_path(release, source)
+    path = parquet_path or _overture_buildings_path(release, source, feature_type)
+    select_columns = _overture_select_columns(feature_type)
 
     con, owns_connection = _get_duckdb_connection(duckdb_connection)
     try:
@@ -118,14 +175,7 @@ def load_overture_buildings_for_aoi(
         height_filter = "AND height IS NOT NULL AND height > 0" if require_height else ""
         query = f"""
             SELECT
-                id,
-                subtype,
-                class,
-                height,
-                num_floors,
-                min_height,
-                roof_height,
-                has_parts,
+                {select_columns},
                 bbox.xmin AS bbox_xmin,
                 bbox.ymin AS bbox_ymin,
                 bbox.xmax AS bbox_xmax,
@@ -137,6 +187,7 @@ def load_overture_buildings_for_aoi(
                 AND bbox.xmax >= ?
                 AND bbox.ymin <= ?
                 AND bbox.ymax >= ?
+                AND COALESCE(is_underground, false) = false
                 {height_filter}
         """
 
@@ -164,12 +215,60 @@ def load_overture_buildings_for_aoi(
     # matching.
     aoi = box(min_lon, min_lat, max_lon, max_lat)
     gdf = gdf[gdf.intersects(aoi)].copy()
+    gdf = _explode_polygonal_geometries(gdf)
 
     if target_crs is not None and not gdf.empty:
         gdf = gdf.to_crs(target_crs)
 
-    logger.info("Loaded %d Overture building candidates", len(gdf))
+    logger.info("Loaded %d Overture %s candidates", len(gdf), feature_type)
     return gdf
+
+
+def _overture_select_columns(feature_type: str) -> str:
+    common_columns = """
+                id,
+                height,
+                num_floors,
+                min_height,
+                min_floor,
+                roof_height,
+                is_underground
+    """
+    if feature_type == OVERTURE_BUILDING_TYPE:
+        return f"""
+                'building' AS overture_feature_type,
+                NULL::VARCHAR AS building_id,
+                subtype,
+                class,
+                has_parts,
+                {common_columns}
+        """
+    if feature_type == OVERTURE_BUILDING_PART_TYPE:
+        return f"""
+                'building_part' AS overture_feature_type,
+                building_id,
+                NULL::VARCHAR AS subtype,
+                NULL::VARCHAR AS class,
+                false AS has_parts,
+                {common_columns}
+        """
+    raise ValueError(f"Unsupported Overture buildings feature type: {feature_type}")
+
+
+def _explode_polygonal_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    if gdf.empty:
+        return gdf
+
+    gdf = gdf[gdf.geometry.notna() & ~gdf.geometry.is_empty].copy()
+    gdf = gdf[gdf.geometry.geom_type.isin(("Polygon", "MultiPolygon"))].copy()
+    if gdf.empty:
+        return gdf
+
+    try:
+        exploded = gdf.explode(index_parts=False, ignore_index=True)
+    except TypeError:
+        exploded = gdf.explode(index_parts=False).reset_index(drop=True)
+    return exploded[exploded.geometry.geom_type == "Polygon"].reset_index(drop=True)
 
 # DEPRECATED function: used in an earlier iteration to match Overture buildings to OSM footprints,
 # but we are now completely isolating Overture data from OSM data (if Overture data is used, no OSM data is used).
@@ -376,6 +475,29 @@ def resolve_building_height(
     return _height_result(height, "fallback:random", return_source)
 
 
+def resolve_building_base_height(
+    building: dict,
+    *,
+    floor_height_m: float = 3.5,
+) -> float:
+    """
+    Resolve the above-ground base offset for an Overture building or part.
+
+    Overture ``min_height`` is already in meters. When it is absent, ``min_floor``
+    can be used as a floor-count proxy for the same vertical offset.
+    """
+
+    min_height = _nonnegative_float(building.get("min_height"))
+    if min_height is not None:
+        return min_height
+
+    min_floor = _positive_float(building.get("min_floor"))
+    if min_floor is not None:
+        return min_floor * floor_height_m
+
+    return 0.0
+
+
 def _normalize_bbox_4326(bbox_4326: Sequence[float]) -> Tuple[float, float, float, float]:
     if len(bbox_4326) != 4:
         raise ValueError("bbox_4326 must contain (min_lon, min_lat, max_lon, max_lat)")
@@ -394,11 +516,17 @@ def _normalize_bbox_4326(bbox_4326: Sequence[float]) -> Tuple[float, float, floa
     return min_lon, min_lat, max_lon, max_lat
 
 
-def _overture_buildings_path(release: str, source: str) -> str:
+def _overture_buildings_path(release: str, source: str, feature_type: str) -> str:
     if source == "s3":
-        return OVERTURE_BUILDINGS_S3_TEMPLATE.format(release=release)
+        return OVERTURE_BUILDINGS_S3_TEMPLATE.format(
+            release=release,
+            feature_type=feature_type,
+        )
     if source == "azure":
-        return OVERTURE_BUILDINGS_AZURE_TEMPLATE.format(release=release)
+        return OVERTURE_BUILDINGS_AZURE_TEMPLATE.format(
+            release=release,
+            feature_type=feature_type,
+        )
     raise ValueError("source must be 's3' or 'azure'")
 
 
@@ -649,5 +777,17 @@ def _positive_float(value) -> Optional[float]:
     except (TypeError, ValueError):
         return None
     if math.isnan(numeric_value) or math.isinf(numeric_value) or numeric_value <= 0:
+        return None
+    return numeric_value
+
+
+def _nonnegative_float(value) -> Optional[float]:
+    if value is None:
+        return None
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        return None
+    if math.isnan(numeric_value) or math.isinf(numeric_value) or numeric_value < 0:
         return None
     return numeric_value

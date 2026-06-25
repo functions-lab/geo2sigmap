@@ -494,6 +494,11 @@ class Scene:
                     for part in part_records
                     if part.get("building_id") is not None
                 }
+                all_building_records = filtered_buildings.to_dict("records")
+                parent_building_by_id = {
+                    str(building.get("id")): building
+                    for building in all_building_records
+                }
                 building_records = [
                     building
                     for building in filtered_buildings.to_dict("records")
@@ -616,6 +621,34 @@ class Scene:
                 if building_height_mode == HEIGHT_MODE_OVERTURE
                 else 0.0
             )
+
+            if (
+                building_height_mode == HEIGHT_MODE_OVERTURE
+                and building.get("overture_feature_type") == "building_part"
+                and building.get("building_id") is not None
+            ):
+                parent_building = parent_building_by_id.get(
+                    str(building["building_id"])
+                )
+                if parent_building is not None:
+                    parent_height = resolve_building_height(
+                        parent_building,
+                        parent_building["geometry"],
+                        height_mode=HEIGHT_MODE_OVERTURE,
+                    )
+                    parent_base_height = resolve_building_base_height(parent_building)
+                    parent_top = parent_height + parent_base_height
+                    part_top = building_base_height + building_height
+                    if part_top > parent_top:
+                        logger.warning(
+                            "Building part %s top height %.2f exceeds parent building %s top height %.2f; "
+                            "treating min_height/min_floor as 0 for the part",
+                            building.get("id"),
+                            part_top,
+                            parent_building.get("id"),
+                            parent_top,
+                        )
+                        building_base_height = 0.0
 
             # Skip buildings with height <= 0
             if building_height <=0:

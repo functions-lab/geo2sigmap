@@ -122,7 +122,10 @@ class Scene:
         if wall_material_type not in ITU_MATERIALS:
             raise ValueError(f"Invalid wall material type: {wall_material_type}")
         building_height_mode = normalize_building_height_mode(building_height_mode)
-        use_lidar_building_heights = building_height_mode == HEIGHT_MODE_LIDAR_OSM
+        use_lidar_building_heights = building_height_mode in {
+            HEIGHT_MODE_LIDAR_OSM,
+            HEIGHT_MODE_OVERTURE,
+        }
         
         # ---------------------------------------------------------------------
         # 1) Setup OSM server and transforms

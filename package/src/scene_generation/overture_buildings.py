@@ -450,22 +450,27 @@ def resolve_building_height(
 
     height_mode = normalize_building_height_mode(height_mode)
 
-    if height_mode == HEIGHT_MODE_LIDAR_OSM:
-        height = _height_from_hag(
-            building_polygon,
-            hag_handler=hag_handler,
-            to_4326=to_4326,
-            sample_count=hag_sample_count,
-            min_height_m=min_hag_height_m,
-        )
-        if height is not None:
-            return _height_result(height, "hag", return_source)
+    # if height_mode == HEIGHT_MODE_LIDAR_OSM:
+    #     height = _height_from_hag(
+    #         building_polygon,
+    #         hag_handler=hag_handler,
+    #         to_4326=to_4326,
+    #         sample_count=hag_sample_count,
+    #         min_height_m=min_hag_height_m,
+    #     )
+    #     if height is not None:
+    #         return _height_result(height, "hag", return_source)
 
     for source_type in _height_mode_steps(height_mode, use_osm_levels):
         height, source, metadata = _height_from_source(
             source_type,
             building,
+            building_polygon,
+            hag_handler=hag_handler,
+            to_4326=to_4326,
             floor_height_m=floor_height_m,
+            hag_sample_count=hag_sample_count,
+            min_hag_height_m=min_hag_height_m,
             use_overture_num_floors=use_overture_num_floors,
         )
         if height is not None:
@@ -590,23 +595,39 @@ def _height_from_overture_row(
 
 def _height_mode_steps(height_mode: str, use_osm_levels: bool) -> Sequence[str]:
     if height_mode == HEIGHT_MODE_LIDAR_OSM:
-        steps = ["osm_explicit"]
+        steps = ["hag", "osm_explicit"]
         if use_osm_levels:
             steps.append("osm_levels")
         return steps
 
     if height_mode == HEIGHT_MODE_OVERTURE:
-        return ["overture_height", "overture_num_floors"]
+        return ["overture_height", "overture_num_floors", "hag"]
 
     raise ValueError(f"Unsupported building height mode: {height_mode}")
 
 def _height_from_source(
     source_type: str,
     building: dict,
+    building_polygon: BaseGeometry,
     *,
+    hag_handler,
+    to_4326,
+    hag_sample_count: int,
+    min_hag_height_m: float,
     floor_height_m: float,
     use_overture_num_floors: bool,
 ) -> Tuple[Optional[float], Optional[str], Optional[Dict[str, object]]]:
+    if source_type == "hag":
+        height = _height_from_hag(
+            building_polygon,
+            hag_handler=hag_handler,
+            to_4326=to_4326,
+            sample_count=hag_sample_count,
+            min_height_m=min_hag_height_m,
+        )
+        if height is not None:
+            return height, "hag", None
+        return None, None, None
     if source_type == "osm_explicit":
         height, source = _explicit_height_from_osm(building)
         return height, source, None

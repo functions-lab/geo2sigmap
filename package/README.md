@@ -46,7 +46,7 @@ Note: By default, the scene will render the terrain as a flat plane. See [Tutori
 Choose the building height source mode with `--building-height-mode`:
 
 - `lidar-osm` or `1`: LiDAR HAG sampling and averaging, OSM explicit height tags (`building:height`, then `height`), OSM floor-count tags (`building:levels`, then `levels`), then random Gaussian fallback. This is the default.
-- `overture` or `2`: Overture footprints with Overture BuildingParts preferred when available for more detailed geometry. Heights use Overture exact height, Overture levels times floor height, then random Gaussian fallback; part base offsets use Overture `min_height` or `min_floor` when present. This mode does not query OSM buildings.
+- `overture` or `2`: Overture footprints with Overture BuildingParts preferred when available for more detailed geometry. Heights use Overture exact height, Overture levels times floor height, LiDAR HAG sampling and averaging, then random Gaussian fallback; part base offsets use Overture `min_height` or `min_floor` when present. This mode does not query OSM buildings.
 
 ### 2) Generate 3D Scene using One Point + Rectangle Dimension
 ```console

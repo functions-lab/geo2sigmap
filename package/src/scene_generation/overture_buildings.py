@@ -425,8 +425,8 @@ def resolve_building_height(
         LiDAR HAG sampling, OSM explicit height tags, OSM floor-count tags,
         then random fallback.
     ``"overture"`` or ``"2"``
-        Overture explicit height, Overture num_floors times ``floor_height_m``, then
-        random fallback.
+        Overture explicit height, Overture num_floors times ``floor_height_m``,
+        LiDAR HAG sampling, then random fallback.
 
     Parameters
     ----------

@@ -106,7 +106,7 @@ class Scene:
             HAG samples, OSM explicit height tags, OSM floor-count tags, then
             random fallback. Mode "2" / "overture" uses Overture footprints
             with BuildingParts preferred when available, Overture exact height,
-            Overture num_floors, then random fallback.
+            Overture num_floors, LiDAR HAG samples, then random fallback.
 
         Returns
         -------
@@ -637,6 +637,8 @@ class Scene:
                     parent_height = resolve_building_height(
                         parent_building,
                         parent_building["geometry"],
+                        hag_handler=hag_handler,
+                        to_4326=to_4326,
                         height_mode=HEIGHT_MODE_OVERTURE,
                     )
                     parent_base_height = resolve_building_base_height(parent_building)

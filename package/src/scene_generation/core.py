@@ -645,8 +645,8 @@ class Scene:
                         )
                         building_base_height = 0.0
 
-            # Skip buildings with height <= 0
-            if building_height <=0:
+            # Skip buildings with height <= 2 m
+            if building_height <= 0:
                 continue
             # building_height = NYC_LiDAR_building_height(building, building_polygon)
 

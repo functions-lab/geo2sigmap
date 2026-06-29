@@ -16,7 +16,6 @@ import logging
 
 from argparse import ArgumentParser
 from .core import Scene
-from .overture_buildings import BUILDING_HEIGHT_MODE_OPTIONS
 from .utils import (
     rect_from_point_and_size,
     print_if_int,
@@ -121,28 +120,33 @@ def main():
         required=True,
         help="Directory where scene file will be saved.",
     )
+    # common_parser.add_argument(
+    #     "--osm-server-addr",
+    #     default="https://overpass-api.de/api/interpreter",
+    #     help="OSM server address (optional).",
+    # )
     common_parser.add_argument(
-        "--osm-server-addr",
-        default="https://overpass-api.de/api/interpreter",
-        help="OSM server address (optional).",
+        "--enable-lidar-height-calibration",
+        action="store_true",
+        help="Enable height calibration using USGS LiDAR data.",
     )
     common_parser.add_argument(
         "--enable-building-map",
         action="store_true",
         help="Enable 2D building map output.",
     )
-    common_parser.add_argument(
-        "--building-height-mode",
-        default="1",
-        choices=[*BUILDING_HEIGHT_MODE_OPTIONS, "1", "2"],
-        help=(
-            "Building height mode: "
-            "1/lidar-osm uses LiDAR HAG, OSM explicit heights, OSM levels * level height, "
-            "then random fallback; 2/overture uses Overture footprints, "
-            "Overture height, Overture num_floors * level height, then random "
-            "fallback. Default: 1."
-        ),
-    )
+    # common_parser.add_argument(
+    #     "--building-height-mode",
+    #     default="1",
+    #     choices=[*BUILDING_HEIGHT_MODE_OPTIONS, "1", "2"],
+    #     help=(
+    #         "Building height mode: "
+    #         "1/lidar-osm uses LiDAR HAG, OSM explicit heights, OSM levels * level height, "
+    #         "then random fallback; 2/overture uses Overture footprints, "
+    #         "Overture height, Overture num_floors * level height, then random "
+    #         "fallback. Default: 1."
+    #     ),
+    # )
 
     common_parser.add_argument(
         "--enable-lidar-terrain",
@@ -337,8 +341,7 @@ def main():
             ],
             args.data_dir,
             None,
-            osm_server_addr=args.osm_server_addr,
-            lidar_calibration=False,
+            lidar_height_calibration=args.enable_lidar_height_calibration,
             generate_building_map=args.enable_building_map,
             ground_material_type=list(ITU_MATERIALS.items())[args.ground_material][0],
             rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0],
@@ -361,15 +364,15 @@ def main():
             polygon_points_gps,
             args.data_dir,
             None,
-            osm_server_addr=args.osm_server_addr,
-            lidar_calibration=False,
+            # osm_server_addr=args.osm_server_addr,
+            lidar_height_calibration=args.enable_lidar_height_calibration,
             generate_building_map=args.enable_building_map,
             ground_material_type=list(ITU_MATERIALS.items())[args.ground_material][0],
             rooftop_material_type=list(ITU_MATERIALS.items())[args.rooftop_material][0],
             wall_material_type=list(ITU_MATERIALS.items())[args.wall_material][0],
             lidar_terrain=args.enable_lidar_terrain,
             dem_terrain=args.enable_dem_terrain,
-            building_height_mode=args.building_height_mode,
+            # building_height_mode=args.building_height_mode,
         )
     elif args.command == "validate":
         res_dict = {
@@ -423,12 +426,12 @@ def main():
                 "comment": "",
             },
             "scenegen_bbox_width": {
-                "display_name": "Boudning Box Width",
+                "display_name": "Bounding Box Width",
                 "value": "",
                 "comment": "meters (UTM Projection)",
             },
             "scenegen_bbox_length": {
-                "display_name": "Boudning Box Length",
+                "display_name": "Bounding Box Length",
                 "value": "",
                 "comment": "meters (UTM Projection)",
             },

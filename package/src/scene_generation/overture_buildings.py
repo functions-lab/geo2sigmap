@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import math
 import re
+import duckdb
 from typing import Dict, Optional, Sequence, Tuple, Union
 
 import geopandas as gpd
@@ -36,29 +37,29 @@ OVERTURE_BUILDINGS_AZURE_TEMPLATE = (
 OVERTURE_BUILDING_TYPE = "building"
 OVERTURE_BUILDING_PART_TYPE = "building_part"
 
-HEIGHT_MODE_LIDAR_OSM = "lidar-osm"
-HEIGHT_MODE_OVERTURE = "overture"
-BUILDING_HEIGHT_MODE_OPTIONS = (
-    HEIGHT_MODE_LIDAR_OSM,
-    HEIGHT_MODE_OVERTURE,
-)
+# HEIGHT_MODE_LIDAR_OSM = "lidar-osm"
+# HEIGHT_MODE_OVERTURE = "overture"
+# BUILDING_HEIGHT_MODE_OPTIONS = (
+#     HEIGHT_MODE_LIDAR_OSM,
+#     HEIGHT_MODE_OVERTURE,
+# )
 
-_HEIGHT_MODE_ALIASES = {
-    "1": HEIGHT_MODE_LIDAR_OSM,
-    "lidar-osm": HEIGHT_MODE_LIDAR_OSM,
-    "2": HEIGHT_MODE_OVERTURE,
-    "overture": HEIGHT_MODE_OVERTURE,
-}
+# _HEIGHT_MODE_ALIASES = {
+#     "1": HEIGHT_MODE_LIDAR_OSM,
+#     "lidar-osm": HEIGHT_MODE_LIDAR_OSM,
+#     "2": HEIGHT_MODE_OVERTURE,
+#     "overture": HEIGHT_MODE_OVERTURE,
+# }
 
 
-def normalize_building_height_mode(mode: str) -> str:
-    normalized = _HEIGHT_MODE_ALIASES.get(str(mode).strip().lower())
-    if normalized is None:
-        valid = ", ".join(BUILDING_HEIGHT_MODE_OPTIONS)
-        raise ValueError(
-            f"Invalid building height mode '{mode}'. Valid values: {valid}"
-        )
-    return normalized
+# def normalize_building_height_mode(mode: str) -> str:
+#     normalized = _HEIGHT_MODE_ALIASES.get(str(mode).strip().lower())
+#     if normalized is None:
+#         valid = ", ".join(BUILDING_HEIGHT_MODE_OPTIONS)
+#         raise ValueError(
+#             f"Invalid building height mode '{mode}'. Valid values: {valid}"
+#         )
+#     return normalized
 
 def get_latest_release_url(con, feature):
         """
@@ -423,22 +424,11 @@ def resolve_building_height(
     floor_height_m: float = 3.5,
     hag_sample_count: int = 30,
     min_hag_height_m: float = 2.0,
-    use_overture_num_floors: bool = True,
-    use_osm_levels: bool = True,
-    height_mode: str = HEIGHT_MODE_LIDAR_OSM,
+    lidar_height_calibration: bool,
     return_source: bool = False,
 ) -> Union[float, Tuple[float, Dict[str, object]]]:
     """
     Resolve the extrusion height for one building footprint.
-
-    ``height_mode`` controls the source hierarchy:
-
-    ``"lidar-osm"`` or ``"1"``
-        LiDAR HAG sampling, OSM explicit height tags, OSM floor-count tags,
-        then random fallback.
-    ``"overture"`` or ``"2"``
-        Overture explicit height, Overture num_floors times ``floor_height_m``,
-        LiDAR HAG sampling, then random fallback.
 
     Parameters
     ----------
@@ -453,14 +443,9 @@ def resolve_building_height(
     to_4326
         Transformer from the scene CRS to EPSG:4326. Required with
         ``hag_handler`` because ``GeoTIFFHandler.query`` expects GPS coords.
-    height_mode
-        One of ``"lidar-osm"`` or ``"overture"``. Numeric aliases ``"1"``
-        and ``"2"`` are also accepted.
     return_source
         If true, return ``(height, metadata)``. Otherwise return just height.
     """
-
-    height_mode = normalize_building_height_mode(height_mode)
 
     # if height_mode == HEIGHT_MODE_LIDAR_OSM:
     #     height = _height_from_hag(
@@ -473,7 +458,7 @@ def resolve_building_height(
     #     if height is not None:
     #         return _height_result(height, "hag", return_source)
 
-    for source_type in _height_mode_steps(height_mode, use_osm_levels):
+    for source_type in _height_mode_steps(lidar_height_calibration):
         height, source, metadata = _height_from_source(
             source_type,
             building,
@@ -483,7 +468,6 @@ def resolve_building_height(
             floor_height_m=floor_height_m,
             hag_sample_count=hag_sample_count,
             min_hag_height_m=min_hag_height_m,
-            use_overture_num_floors=use_overture_num_floors,
         )
         if height is not None:
             return _height_result(height, source, return_source, metadata)
@@ -613,15 +597,6 @@ def _overture_buildings_path(release: str, source: str, feature_type: str) -> st
 def _get_duckdb_connection(duckdb_connection):
     if duckdb_connection is not None:
         return duckdb_connection, False
-
-    try:
-        import duckdb
-    except ImportError as exc:
-        raise ImportError(
-            "load_overture_buildings_for_aoi requires duckdb. "
-            "Install it with `pip install duckdb`."
-        ) from exc
-
     return duckdb.connect(database=":memory:"), True
 
 
@@ -668,17 +643,10 @@ def _height_from_overture_row(
     return None, None
 
 
-def _height_mode_steps(height_mode: str, use_osm_levels: bool) -> Sequence[str]:
-    if height_mode == HEIGHT_MODE_LIDAR_OSM:
-        steps = ["hag", "osm_explicit"]
-        if use_osm_levels:
-            steps.append("osm_levels")
-        return steps
-
-    if height_mode == HEIGHT_MODE_OVERTURE:
+def _height_mode_steps(lidar_height_calibration: bool) -> Sequence[str]:
+    if lidar_height_calibration:
         return ["overture_height", "overture_num_floors", "hag"]
-
-    raise ValueError(f"Unsupported building height mode: {height_mode}")
+    return ["overture_height", "overture_num_floors"]
 
 def _height_from_source(
     source_type: str,
@@ -690,7 +658,6 @@ def _height_from_source(
     hag_sample_count: int,
     min_hag_height_m: float,
     floor_height_m: float,
-    use_overture_num_floors: bool,
 ) -> Tuple[Optional[float], Optional[str], Optional[Dict[str, object]]]:
     if source_type == "hag":
         height = _height_from_hag(
@@ -703,13 +670,13 @@ def _height_from_source(
         if height is not None:
             return height, "hag", None
         return None, None, None
-    if source_type == "osm_explicit":
-        height, source = _explicit_height_from_osm(building)
-        return height, source, None
+    # if source_type == "osm_explicit":
+    #     height, source = _explicit_height_from_osm(building)
+    #     return height, source, None
 
-    if source_type == "osm_levels":
-        height, source = _height_from_osm_levels(building, floor_height_m)
-        return height, source, None
+    # if source_type == "osm_levels":
+    #     height, source = _height_from_osm_levels(building, floor_height_m)
+    #     return height, source, None
 
     if source_type == "overture_height":
         height, source = _height_from_overture_row(
@@ -727,8 +694,6 @@ def _height_from_source(
         return None, None, None
 
     if source_type == "overture_num_floors":
-        if not use_overture_num_floors:
-            return None, None, None
         height, source = _height_from_overture_row(
             building,
             floor_height_m=floor_height_m,
@@ -798,23 +763,23 @@ def _height_from_hag(
     return height
 
 
-def _explicit_height_from_osm(building: dict) -> Tuple[Optional[float], Optional[str]]:
-    for key in ("building:height", "height"):
-        height = _height_value_to_meters(building.get(key))
-        if height is not None:
-            return height, f"osm:{key}"
-    return None, None
+# def _explicit_height_from_osm(building: dict) -> Tuple[Optional[float], Optional[str]]:
+#     for key in ("building:height", "height"):
+#         height = _height_value_to_meters(building.get(key))
+#         if height is not None:
+#             return height, f"osm:{key}"
+#     return None, None
 
 
-def _height_from_osm_levels(
-    building: dict,
-    floor_height_m: float,
-) -> Tuple[Optional[float], Optional[str]]:
-    for key in ("building:levels", "levels"):
-        levels = _positive_float(building.get(key))
-        if levels is not None:
-            return levels * floor_height_m, f"osm:{key}"
-    return None, None
+# def _height_from_osm_levels(
+#     building: dict,
+#     floor_height_m: float,
+# ) -> Tuple[Optional[float], Optional[str]]:
+#     for key in ("building:levels", "levels"):
+#         levels = _positive_float(building.get(key))
+#         if levels is not None:
+#             return levels * floor_height_m, f"osm:{key}"
+#     return None, None
 
 
 def _height_value_to_meters(value) -> Optional[float]:

@@ -32,6 +32,7 @@ from .overture_buildings import (
     normalize_building_height_mode,
     resolve_building_base_height,
     resolve_building_height,
+    should_include_overture_parent_footprint,
 )
 
 # Create a module-level logger
@@ -477,20 +478,24 @@ class Scene:
                     if filtered_parts is not None
                     else []
                 )
-                part_parent_ids = {
-                    str(part["building_id"])
-                    for part in part_records
-                    if part.get("building_id") is not None
-                }
                 all_building_records = filtered_buildings.to_dict("records")
                 parent_building_by_id = {
                     str(building.get("id")): building
                     for building in all_building_records
                 }
+                parts_by_parent_id = {}
+                for part in part_records:
+                    if part.get("building_id") is None:
+                        continue
+                    parts_by_parent_id.setdefault(str(part["building_id"]), []).append(part)
+
                 building_records = [
                     building
-                    for building in filtered_buildings.to_dict("records")
-                    if str(building.get("id")) not in part_parent_ids 
+                    for building in all_building_records
+                    if should_include_overture_parent_footprint(
+                        building,
+                        parts_by_parent_id.get(str(building.get("id")), []),
+                    )
                 ]
                 buildings_list = [*building_records, *part_records]
                 buildings_list.sort(key=resolve_building_base_height)

@@ -515,6 +515,69 @@ def resolve_building_base_height(
     return 0.0
 
 
+def resolve_overture_top_height(
+    building: dict,
+    *,
+    floor_height_m: float = 3.5,
+    use_num_floors: bool = True,
+) -> Optional[float]:
+    """
+    Resolve the top elevation for an Overture building or building part.
+
+    Returns ``None`` when the feature has no declared height or usable floor
+    count. This deliberately avoids LiDAR/random fallbacks so parent/part
+    footprint selection stays deterministic.
+    """
+
+    height, _ = _height_from_overture_row(
+        building,
+        floor_height_m=floor_height_m,
+        use_height=True,
+        use_num_floors=use_num_floors,
+    )
+    if height is None:
+        return None
+    return resolve_building_base_height(
+        building,
+        floor_height_m=floor_height_m,
+    ) + height
+
+
+def should_include_overture_parent_footprint(
+    parent_building: dict,
+    associated_parts: Sequence[dict],
+    *,
+    floor_height_m: float = 3.5,
+) -> bool:
+    """
+    Decide whether a parent Overture footprint should be kept with its parts.
+
+    Building parts are normally preferred over their parent footprint. Keep the
+    parent as well when its declared top height is shorter than every associated
+    part's declared top height, because the parent footprint still contributes
+    useful lower-volume geometry in that case.
+    """
+
+    if not associated_parts:
+        return True
+
+    parent_top = resolve_overture_top_height(
+        parent_building,
+        floor_height_m=floor_height_m,
+    )
+    if parent_top is None:
+        return False
+
+    part_tops = [
+        resolve_overture_top_height(part, floor_height_m=floor_height_m)
+        for part in associated_parts
+    ]
+    if any(part_top is None for part_top in part_tops):
+        return False
+
+    return all(parent_top < part_top for part_top in part_tops)
+
+
 def _normalize_bbox_4326(bbox_4326: Sequence[float]) -> Tuple[float, float, float, float]:
     if len(bbox_4326) != 4:
         raise ValueError("bbox_4326 must contain (min_lon, min_lat, max_lon, max_lat)")

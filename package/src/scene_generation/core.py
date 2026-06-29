@@ -1,26 +1,28 @@
 import logging
 import math
 import os
-
 import numpy as np
-import shapely
-from shapely.geometry import shape, Polygon
-from shapely.geometry.base import BaseGeometry
-from shapely import affinity
 import open3d as o3d
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 import osmnx as ox
+import datetime
+import pyvista as pv
+import shapely
 
-
+from shapely.geometry import shape
+from shapely.geometry.base import BaseGeometry
+from shapely import affinity
 from tqdm import tqdm
 from triangle import triangulate
 from PIL import Image, ImageDraw
 from pyproj import Transformer
+import open3d.core as o3c
+from pathlib import Path
 
+from .dem import generate_terrain_mesh_dem
 from .utils import *
 from .itu_materials import ITU_MATERIALS
-import open3d.core as o3c
 
 from .overture_buildings import (
     HEIGHT_MODE_LIDAR_OSM,
@@ -32,20 +34,13 @@ from .overture_buildings import (
     resolve_building_height,
 )
 
-import datetime
-
-import pyvista as pv
-from pathlib import Path
-
-from .dem import generate_terrain_mesh_dem
 # Create a module-level logger
 logger = logging.getLogger(__name__)
-
 
 class Scene:
     """
     A class that encapsulates the logic for creating the ditital twins for a given
-    bouding box with building information querying from OpenStreetMap server and
+    bounding box with building information querying from OpenStreetMap server and
     ground mesh from lidar.
 
 
@@ -225,16 +220,12 @@ class Scene:
         ET.SubElement(scene, "default", name="scenegen_min_lon", value=str(points[0][0]))
         ET.SubElement(scene, "default", name="scenegen_max_lon", value=str(points[2][0]))
         
-
-
         ET.SubElement(scene, "default", name="scenegen_ground_material", value=str(ground_material_type))
         ET.SubElement(scene, "default", name="scenegen_rooftop_material", value=str(rooftop_material_type))
         ET.SubElement(scene, "default", name="scenegen_wall_material", value=str(wall_material_type))
 
         ET.SubElement(scene, "default", name="scenegen_UTM_zone", value=str(projection_UTM_EPSG_code))
         
-       
-
         integrator = ET.SubElement(scene, "integrator", type="path")
         ET.SubElement(integrator, "integer", name="max_depth", value="12")
 
@@ -339,14 +330,8 @@ class Scene:
                 if use_lidar_building_heights and hag_tiff_path is None and tif_file_path.exists():
                     hag_tiff_path = str(tif_file_path)
                 
-    
-            
-
-    
             if lidar_terrain:
                 from .lidar_terrain_mesh import generate_terrain_mesh
-    
-    
     
                 assert laz_file_path.exists(), f"LAZ file does not exist: {laz_file_path}"
     
@@ -505,7 +490,7 @@ class Scene:
                 building_records = [
                     building
                     for building in filtered_buildings.to_dict("records")
-                    if str(building.get("id")) not in part_parent_ids
+                    if str(building.get("id")) not in part_parent_ids 
                 ]
                 buildings_list = [*building_records, *part_records]
                 buildings_list.sort(key=resolve_building_base_height)

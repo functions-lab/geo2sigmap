@@ -18,6 +18,7 @@ from typing import Dict, Optional, Sequence, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
+import urllib.request
 from shapely.geometry import box
 from shapely.geometry.base import BaseGeometry
 
@@ -25,8 +26,6 @@ from .utils import generate_random_points
 
 logger = logging.getLogger(__name__)
 
-
-OVERTURE_BUILDINGS_RELEASE = "2026-05-20.0"
 OVERTURE_BUILDINGS_S3_TEMPLATE = (
     "s3://overturemaps-us-west-2/release/{release}/theme=buildings/type={feature_type}/*"
 )
@@ -61,12 +60,27 @@ def normalize_building_height_mode(mode: str) -> str:
         )
     return normalized
 
+def get_latest_release_url(con, feature):
+        """
+        Query Overture STAC catalog for latest release URL.
+
+        Note:
+            Overture's docs recommend using the STAC catalog to find the
+            latest release instead of hardcoding a release path.
+        """
+
+        latest = con.execute(
+            "SELECT latest FROM 'https://stac.overturemaps.org/catalog.json'"
+        ).fetchone()[0]
+
+        release = str(latest).strip()
+
+        return _overture_buildings_path(release, "s3", feature)
 
 def load_overture_buildings_for_aoi(
     bbox_4326: Sequence[float],
     target_crs=None,
     *,
-    release: str = OVERTURE_BUILDINGS_RELEASE,
     source: str = "s3",
     parquet_path: Optional[str] = None,
     require_height: bool = False,
@@ -82,8 +96,6 @@ def load_overture_buildings_for_aoi(
     target_crs
         Optional CRS to reproject the returned GeoDataFrame into. Pass the
         scene's UTM CRS when creating local meshes.
-    release
-        Overture release string used when ``parquet_path`` is not supplied.
     source
         Cloud source for the default path. Supported values: ``"s3"`` and
         ``"azure"``.
@@ -109,7 +121,6 @@ def load_overture_buildings_for_aoi(
     return _load_overture_building_features_for_aoi(
         bbox_4326,
         target_crs,
-        release=release,
         source=source,
         parquet_path=parquet_path,
         require_height=require_height,
@@ -122,7 +133,6 @@ def load_overture_building_parts_for_aoi(
     bbox_4326: Sequence[float],
     target_crs=None,
     *,
-    release: str = OVERTURE_BUILDINGS_RELEASE,
     source: str = "s3",
     parquet_path: Optional[str] = None,
     require_height: bool = False,
@@ -139,7 +149,6 @@ def load_overture_building_parts_for_aoi(
     return _load_overture_building_features_for_aoi(
         bbox_4326,
         target_crs,
-        release=release,
         source=source,
         parquet_path=parquet_path,
         require_height=require_height,
@@ -152,7 +161,7 @@ def _load_overture_building_features_for_aoi(
     bbox_4326: Sequence[float],
     target_crs=None,
     *,
-    release: str,
+    release: str = None,
     source: str,
     parquet_path: Optional[str],
     require_height: bool,
@@ -160,10 +169,13 @@ def _load_overture_building_features_for_aoi(
     feature_type: str,
 ) -> gpd.GeoDataFrame:
     min_lon, min_lat, max_lon, max_lat = _normalize_bbox_4326(bbox_4326)
-    path = parquet_path or _overture_buildings_path(release, source, feature_type)
-    select_columns = _overture_select_columns(feature_type)
 
     con, owns_connection = _get_duckdb_connection(duckdb_connection)
+    if release is None:
+        release = get_latest_release_url(con, feature_type)
+    print(f"Using Overture release: {release}")
+    path = parquet_path or release
+    select_columns = _overture_select_columns(feature_type)
     try:
         _load_duckdb_extensions(con)
         if source == "s3" and parquet_path is None:

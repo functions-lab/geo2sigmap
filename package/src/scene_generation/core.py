@@ -453,6 +453,21 @@ class Scene:
             if filtered_parts is not None
             else []
         )
+        # parts where height and num_floors are both None
+        parts_without_height_or_num_floors = []
+        # parts where height is None but num_floors is not None
+        parts_with_num_floors = []
+        # parts where height is not None
+        parts_with_height = []
+        for part in part_records:
+            if part.get("height") is not None:
+                parts_with_height.append(part)
+                continue
+            if part.get("num_floors") is not None:
+                parts_with_num_floors.append(part)
+                continue
+            parts_without_height_or_num_floors.append(part)
+
         all_building_records = filtered_buildings.to_dict("records")
         parent_building_by_id = {
             str(building.get("id")): building                    
@@ -472,8 +487,23 @@ class Scene:
                 parts_by_parent_id.get(str(building.get("id")),[]),
             )
         ]
-        buildings_list = [*building_records, *part_records]
-        buildings_list.sort(key=resolve_building_base_height)
+        # buildings where height and num_floors are both None
+        buildings_without_height_or_num_floors = []
+        # buildings where height is None but num_floors is not None
+        buildings_with_num_floors = []
+        # buildings where height is not None
+        buildings_with_height = []
+        for building in building_records:
+            if building.get("height") is not None:
+                buildings_with_height.append(building)
+                continue
+            if building.get("num_floors") is not None:
+                buildings_with_num_floors.append(building)
+                continue
+            buildings_without_height_or_num_floors.append(building)
+
+        buildings_list = [*buildings_without_height_or_num_floors, *parts_without_height_or_num_floors, *buildings_with_num_floors, *parts_with_num_floors, *buildings_with_height, *parts_with_height]
+        # buildings_list.sort(key=resolve_building_base_height)
         logger.info(
             "Using %d Overture building footprints and %d building parts",
             len(building_records),
@@ -849,27 +879,31 @@ class Scene:
         return np.array(self._building_map)
 
     def _draw_building(self, building_polygon, building_height):
+        draw = ImageDraw.Draw(self._building_map)
+
+        # Draw exterior
         local_exterior = reorder_localize_coords(
             building_polygon.exterior,
             self._ground_polygon_envelope_UTM.bounds[0],
             self._ground_polygon_envelope_UTM.bounds[3],
         )
-        ImageDraw.Draw(self._building_map).polygon(
-            [(x, -y) for x, y in list(local_exterior)],
+
+        draw.polygon(
+            [(x, -y) for x, y in local_exterior],
             outline=int(building_height),
             fill=int(building_height),
         )
-        # local_coor_building_polygon = affinity.translate(building_polygon, xoff=-1 * tmpres[0], yoff=-1 * tmpres[1])
-        # # print("local_coor_building_polygon:",local_coor_building_polygon,'\n\n\n\n')
 
-        # local_coor_building_polygon = round_polygon_coordinates(local_coor_building_polygon)
+        # Remove holes
+        for interior in building_polygon.interiors:
+            local_interior = reorder_localize_coords(
+                interior,
+                self._ground_polygon_envelope_UTM.bounds[0],
+                self._ground_polygon_envelope_UTM.bounds[3],
+            )
 
-        # ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(local_coor_building_polygon.exterior.coords)],
-        #                             outline=int(building_height), fill=int(building_height))
-
-        # # Handle the "holes" inside the polygon
-        # if len(list(local_coor_building_polygon.interiors)) != 0:
-        #     for inner_hole in list(local_coor_building_polygon.interiors):
-        #         ImageDraw.Draw(img).polygon([(x, -y) for x, y in list(inner_hole.coords)], outline=int(0),
-        #                                     fill=int(0))
-        # Create and write the XML file
+            draw.polygon(
+                [(x, -y) for x, y in local_interior],
+                outline=0,
+                fill=0,
+            )

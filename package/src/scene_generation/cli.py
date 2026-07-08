@@ -120,11 +120,11 @@ def main():
         required=True,
         help="Directory where scene file will be saved.",
     )
-    # common_parser.add_argument(
-    #     "--osm-server-addr",
-    #     default="https://overpass-api.de/api/interpreter",
-    #     help="OSM server address (optional).",
-    # )
+    common_parser.add_argument(
+        "--osm-server-addr",
+        default="https://overpass-api.de/api/interpreter",
+        help="OSM server address (optional).",
+    )
     common_parser.add_argument(
         "--enable-lidar-height-calibration",
         action="store_true",
@@ -135,18 +135,18 @@ def main():
         action="store_true",
         help="Enable 2D building map output.",
     )
-    # common_parser.add_argument(
-    #     "--building-height-mode",
-    #     default="1",
-    #     choices=[*BUILDING_HEIGHT_MODE_OPTIONS, "1", "2"],
-    #     help=(
-    #         "Building height mode: "
-    #         "1/lidar-osm uses LiDAR HAG, OSM explicit heights, OSM levels * level height, "
-    #         "then random fallback; 2/overture uses Overture footprints, "
-    #         "Overture height, Overture num_floors * level height, then random "
-    #         "fallback. Default: 1."
-    #     ),
-    # )
+    common_parser.add_argument(
+        "--building-height-mode",
+        default="overture-lidar",
+        choices=["overture-lidar", "lidar-osm"],
+        help=(
+            "Building height mode: "
+            "overture uses Overture footprints of buildings and building parts, "
+            "Overture height, Overture num_floors * level height, LiDAR HAG, then random fallback; "
+            "lidar-osm uses LiDAR HAG, OSM explicit heights, OSM levels * level height, then random fallback; "
+            "Default: overture-lidar."
+        ),
+    )
 
     common_parser.add_argument(
         "--enable-lidar-terrain",
@@ -364,7 +364,7 @@ def main():
             polygon_points_gps,
             args.data_dir,
             None,
-            # osm_server_addr=args.osm_server_addr,
+            osm_server_addr=args.osm_server_addr,
             lidar_height_calibration=args.enable_lidar_height_calibration,
             generate_building_map=args.enable_building_map,
             ground_material_type=list(ITU_MATERIALS.items())[args.ground_material][0],
@@ -372,7 +372,7 @@ def main():
             wall_material_type=list(ITU_MATERIALS.items())[args.wall_material][0],
             lidar_terrain=args.enable_lidar_terrain,
             dem_terrain=args.enable_dem_terrain,
-            # building_height_mode=args.building_height_mode,
+            building_height_mode=args.building_height_mode,
         )
     elif args.command == "validate":
         res_dict = {

@@ -61,6 +61,7 @@ OVERTURE_BUILDING_PART_TYPE = "building_part"
 #         )
 #     return normalized
 
+# method from Josef Ullrich's work
 def get_latest_release_url(con, feature):
         """
         Query Overture STAC catalog for latest release URL.
@@ -240,6 +241,7 @@ def _load_overture_building_features_for_aoi(
 def _overture_select_columns(feature_type: str) -> str:
     common_columns = """
                 id,
+                building_id,
                 height,
                 num_floors,
                 min_height,
@@ -667,16 +669,10 @@ def _height_from_source(
             sample_count=hag_sample_count,
             min_height_m=min_hag_height_m,
         )
+        # print("trying hag for", building)
         if height is not None:
             return height, "hag", None
         return None, None, None
-    # if source_type == "osm_explicit":
-    #     height, source = _explicit_height_from_osm(building)
-    #     return height, source, None
-
-    # if source_type == "osm_levels":
-    #     height, source = _height_from_osm_levels(building, floor_height_m)
-    #     return height, source, None
 
     if source_type == "overture_height":
         height, source = _height_from_overture_row(
@@ -685,6 +681,7 @@ def _height_from_source(
             use_height=True,
             use_num_floors=False,
         )
+        # print("trying overture height for", building)
         if height is not None:
             return height, f"overture:{source}", _overture_row_metadata(
                 building,
@@ -700,6 +697,7 @@ def _height_from_source(
             use_height=False,
             use_num_floors=True,
         )
+        # print("trying overture num floors for", building)
         if height is not None:
             return height, f"overture:{source}", _overture_row_metadata(
                 building,

@@ -435,9 +435,7 @@ def resolve_building_height(
     Parameters
     ----------
     building
-        Building record from ``GeoDataFrame.to_dict("records")``. In
-        ``lidar-osm`` mode this is an OSM record. In ``overture`` mode this is
-        an Overture record.
+        Building record from ``GeoDataFrame.to_dict("records")``, either OSM record or Overture record, depending on the data source used.
     building_polygon
         Building footprint in the scene's projected CRS.
     hag_handler

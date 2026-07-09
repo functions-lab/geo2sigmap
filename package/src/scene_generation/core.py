@@ -72,7 +72,7 @@ class Scene:
         lidar_terrain:bool = False,
         dem_terrain:bool = False,
         gen_lidar_terrain_only:bool = False,
-        building_height_mode: str = "overture-lidar",
+        building_data_source: str = "overture",
     ):
         """
         Generate a ground mesh from the given polygon (defined by `points`), extrude them into 3D meshes,
@@ -99,7 +99,8 @@ class Scene:
             If generate_building_map is True, returns a 2D NumPy array of building heights.
             Otherwise, returns None.
         """
-        if building_height_mode == "overture-lidar":
+        # overture data source
+        if building_data_source == "overture":
             if ground_material_type not in ITU_MATERIALS:
                 raise ValueError(f"Invalid ground material type: {ground_material_type}")
             if rooftop_material_type not in ITU_MATERIALS:
@@ -888,7 +889,7 @@ class Scene:
                 )
 
             return np.array(self._building_map)
-        # lidar-osm mode
+        # osm data source
         else:
             if ground_material_type not in ITU_MATERIALS:
                 raise ValueError(f"Invalid ground material type: {ground_material_type}")

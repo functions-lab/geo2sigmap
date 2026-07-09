@@ -136,15 +136,12 @@ def main():
         help="Enable 2D building map output.",
     )
     common_parser.add_argument(
-        "--building-height-mode",
-        default="overture-lidar",
-        choices=["overture-lidar", "lidar-osm"],
+        "--building-data-source",
+        default="overture",
+        choices=["overture", "lidar"],
         help=(
-            "Building height mode: "
-            "overture uses Overture footprints of buildings and building parts, "
-            "Overture height, Overture num_floors * level height, LiDAR HAG, then random fallback; "
-            "lidar-osm uses LiDAR HAG, OSM explicit heights, OSM levels * level height, then random fallback; "
-            "Default: overture-lidar."
+            "Choose which data source to use for building footprints and heights. Choices: "
+            "overture, lidar. Default: overture."
         ),
     )
 
@@ -348,7 +345,7 @@ def main():
             wall_material_type=list(ITU_MATERIALS.items())[args.wall_material][0],
             lidar_terrain=args.enable_lidar_terrain,
             dem_terrain=args.enable_dem_terrain,
-            building_height_mode=args.building_height_mode,
+            building_data_source=args.building_data_source,
         )
     elif args.command == "point":
         polygon_points_gps = rect_from_point_and_size(
@@ -372,7 +369,7 @@ def main():
             wall_material_type=list(ITU_MATERIALS.items())[args.wall_material][0],
             lidar_terrain=args.enable_lidar_terrain,
             dem_terrain=args.enable_dem_terrain,
-            building_height_mode=args.building_height_mode,
+            building_data_source=args.building_data_source,
         )
     elif args.command == "validate":
         res_dict = {

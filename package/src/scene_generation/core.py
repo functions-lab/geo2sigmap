@@ -9,6 +9,7 @@ import osmnx as ox
 import datetime
 import pyvista as pv
 import shapely
+import pandas as pd
 
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
@@ -72,7 +73,7 @@ class Scene:
         lidar_terrain:bool = False,
         dem_terrain:bool = False,
         gen_lidar_terrain_only:bool = False,
-        building_data_source: str = "overture",
+        building_data_source: str = "overture"
     ):
         """
         Generate a ground mesh from the given polygon (defined by `points`), extrude them into 3D meshes,
@@ -559,6 +560,9 @@ class Scene:
             # 8) Process each building to create a 3D mesh (extrude by building height)
             # ---------------------------------------------------------------------
 
+            # store centroid and building height information in a dataframe
+            centroids_and_heights = []
+
             # convert each record to a Shapely footprint
             for idx, building in tqdm(
                 enumerate(buildings_list),
@@ -630,7 +634,6 @@ class Scene:
                 building_base_height = (
                     resolve_building_base_height(building)
                 )
-
                 if (
                     building.get("overture_feature_type") == "building_part"
                     and building.get("building_id") is not None
@@ -650,6 +653,7 @@ class Scene:
                         parent_top = parent_height + parent_base_height
                         part_top = building_base_height + building_height
                         if part_top > parent_top:
+                            '''
                             logger.warning(
                                 "Building part %s top height %.2f exceeds parent building %s top height %.2f; "
                                 "treating min_height/min_floor as 0 for the part",
@@ -658,6 +662,7 @@ class Scene:
                                 parent_building.get("id"),
                                 parent_top,
                             )
+                            '''
                             building_base_height = 0.0
 
                 # Skip buildings with height <= 2 m
@@ -669,6 +674,28 @@ class Scene:
                     reorder_localize_coords(building_polygon.exterior, center_x, center_y)
                 )
                 
+                # USE THE BELOW SECTION FOR BUILDING CENTROID AND HEIGHT INFO
+                # WITH LIDAR TERRAIN TURNED OFF
+                centroid = building_polygon.centroid
+                centroid_lon, centroid_lat = to_4326.transform(
+                    centroid.x, centroid.y
+                )
+                print(
+                    f"building centroid lon={centroid_lon:.6f} lat={centroid_lat:.6f} height (from bottom to top)={building_height:.2f} base height={building_base_height:.2f} height above ground={building_height + building_base_height:.2f}"
+                )
+                centroids_and_heights.append(
+                    {
+                        "overture_building_or_part_id": building.get("id"),
+                        "overture_parent_building_id" : building.get("building_id") if building.get("overture_feature_type") == "building_part" else "N/A",
+                        "centroid_lon": centroid_lon,
+                        "centroid_lat": centroid_lat,
+                        "height": building_height,
+                        "base_height": building_base_height,
+                        "height_above_ground": building_height + building_base_height,
+                    }
+                )
+                # USE THE ABOVE SECTION FOR BUILDING CENTROID AND HEIGHT INFO
+                # WITH LIDAR TERRAIN TURNED OFF
                 
                 if lidar_terrain:
                     mesh = surface_mesh
@@ -872,6 +899,11 @@ class Scene:
                     )
 
             del hag_handler
+            # Save the centroids and heights to a CSV file
+            centroids_and_heights_df = pd.DataFrame(centroids_and_heights)
+            centroids_and_heights_df.to_csv(
+                os.path.join(data_dir, "building_centroids_and_heights.csv"), index=False
+            )
             xml_string = ET.tostring(scene, encoding="utf-8")
             xml_pretty = minidom.parseString(xml_string).toprettyxml(
                 indent="    "
@@ -1262,6 +1294,8 @@ class Scene:
             # 8) Process each building to create a 3D mesh (extrude by building height)
             # ---------------------------------------------------------------------
 
+            centroids_and_heights = []
+
             for idx, building in tqdm(
                 enumerate(buildings_list),
                 total=len(buildings_list),
@@ -1312,6 +1346,28 @@ class Scene:
                 else:
                     building_height = random_building_height(building, building_polygon)
 
+                # USE THE BELOW SECTION FOR BUILDING CENTROID AND HEIGHT INFO
+                # WITH LIDAR TERRAIN TURNED OFF
+
+                centroid = building_polygon.centroid
+                centroid_lon, centroid_lat = to_4326.transform(
+                    centroid.x, centroid.y
+                )
+                print(
+                    f"Building centroid lon={centroid_lon:.6f} lat={centroid_lat:.6f} height={building_height:.2f} base height={0.0} height above ground={building_height:.2f}"
+                )
+                centroids_and_heights.append(
+                    {
+                        "centroid_lon": centroid_lon,
+                        "centroid_lat": centroid_lat,
+                        "height": building_height,
+                        "base_height": 0.0,
+                        "height_above_ground": building_height,
+                    }
+                )
+                # USE THE ABOVE SECTION FOR BUILDING CENTROID AND HEIGHT INFO
+                # WITH LIDAR TERRAIN TURNED OFF
+                
                 # Skip buildings with height <= 0
                 if building_height <=0:
                     continue
@@ -1517,6 +1573,11 @@ class Scene:
                     self._draw_building(building_polygon, building_height)
 
             del hag_handler
+            # save centroids_and_heights to a CSV file
+            centroids_and_heights_df = pd.DataFrame(centroids_and_heights)
+            centroids_and_heights_df.to_csv(
+                os.path.join(data_dir, "building_centroids_and_heights.csv"), index=False
+            )
             xml_string = ET.tostring(scene, encoding="utf-8")
             xml_pretty = minidom.parseString(xml_string).toprettyxml(
                 indent="    "

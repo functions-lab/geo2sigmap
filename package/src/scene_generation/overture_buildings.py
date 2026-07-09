@@ -848,3 +848,23 @@ def _nonnegative_float(value) -> Optional[float]:
     if math.isnan(numeric_value) or math.isinf(numeric_value) or numeric_value < 0:
         return None
     return numeric_value
+
+""" 
+# for querying footprint centroid coordinates by building ID
+
+bbox_4326 = [-74.007201, 40.712267, -74.000018, 40.717733]
+building_id = "f8878ea8-656e-4c15-a66e-0ebc7710cf0f"
+buildings = load_overture_buildings_for_aoi(bbox_4326)
+
+building = buildings.loc[buildings["id"] == building_id]
+
+if building.empty:
+    raise LookupError(f"No building found with id '{building_id}'.")
+
+centroid = building.geometry.iloc[0].centroid
+
+lon = centroid.x
+lat = centroid.y
+
+print(f"Longitude: {lon:.8f}, Latitude: {lat:.8f}")
+"""

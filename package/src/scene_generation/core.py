@@ -15,7 +15,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely import affinity
 from tqdm import tqdm
 from triangle import triangulate
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageChops
 from pyproj import Transformer
 import open3d.core as o3c
 from pathlib import Path
@@ -541,8 +541,8 @@ class Scene:
             # ---------------------------------------------------------------------
             # 6) If generating building map, prepare an empty grayscale image
             # ---------------------------------------------------------------------
-            # Create a new empty Image, mode 'L' means 8bit grayscale image.
-            self._building_map = Image.new("L", (width, height), 0)
+            # Create a new empty Image, mode 'I' means 32bit integer grayscale image.
+            self._building_map = Image.new("I", (width, height), 0)
 
             # ---------------------------------------------------------------------
             # 7) Init the building height handler. (osm or lidar)
@@ -1244,8 +1244,8 @@ class Scene:
             # ---------------------------------------------------------------------
             # 6) If generating building map, prepare an empty grayscale image
             # ---------------------------------------------------------------------
-            # Create a new empty Image, mode 'L' means 8bit grayscale image.
-            self._building_map = Image.new("L", (width, height), 0)
+            # Create a new empty Image, mode 'I' means 32bit grayscale image.
+            self._building_map = Image.new("I", (width, height), 0)
 
             # ---------------------------------------------------------------------
             # 7) Init the building height handler. (osm or lidar)
@@ -1536,9 +1536,10 @@ class Scene:
             return np.array(self._building_map)
 
     def _draw_building(self, building_polygon, building_height):
-        draw = ImageDraw.Draw(self._building_map)
+        # Draw onto a temporary image
+        temp = Image.new("I", self._building_map.size, 0)
+        draw = ImageDraw.Draw(temp)
 
-        # Draw exterior
         local_exterior = reorder_localize_coords(
             building_polygon.exterior,
             self._ground_polygon_envelope_UTM.bounds[0],
@@ -1564,3 +1565,9 @@ class Scene:
                 outline=0,
                 fill=0,
             )
+
+        current = np.asarray(self._building_map)
+        new = np.asarray(temp)
+
+        merged = np.maximum(current, new)
+        self._building_map = Image.fromarray(merged.astype(np.uint8))

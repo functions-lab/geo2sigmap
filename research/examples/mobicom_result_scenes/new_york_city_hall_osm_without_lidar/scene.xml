@@ -1,0 +1,1925 @@
+<?xml version="1.0" ?>
+<scene version="2.1.0">
+    <default name="spp" value="4096"/>
+    <default name="resx" value="1024"/>
+    <default name="resy" value="1024"/>
+    <default name="scenegen_version" value="1.0.0"/>
+    <default name="scenegen_create_time" value="2026-07-09 13:37:52.269708"/>
+    <default name="scenegen_min_lat" value="40.71232840151068"/>
+    <default name="scenegen_max_lat" value="40.717732799597556"/>
+    <default name="scenegen_min_lon" value="-74.00720146888486"/>
+    <default name="scenegen_max_lon" value="-74.00001824403576"/>
+    <default name="scenegen_ground_material" value="mat-itu_wet_ground"/>
+    <default name="scenegen_rooftop_material" value="mat-itu_metal"/>
+    <default name="scenegen_wall_material" value="mat-itu_concrete"/>
+    <default name="scenegen_UTM_zone" value="EPSG:32618"/>
+    <integrator type="path">
+        <integer name="max_depth" value="12"/>
+    </integrator>
+    <bsdf type="twosided" id="mat-itu_concrete">
+        <bsdf type="diffuse">
+            <rgb value="0.539479 0.539479 0.53948" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_brick">
+        <bsdf type="diffuse">
+            <rgb value="1.0 0.498 0.0549" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_plasterboard">
+        <bsdf type="diffuse">
+            <rgb value="1.0 0.7333 0.4706" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_wood">
+        <bsdf type="diffuse">
+            <rgb value="0.043 0.58 0.184" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_glass">
+        <bsdf type="diffuse">
+            <rgb value="0.5961 0.8745 0.5412" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_ceiling_board">
+        <bsdf type="diffuse">
+            <rgb value="1.0 0.5961 0.5882" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_chipboard">
+        <bsdf type="diffuse">
+            <rgb value="0.7725 0.6902 0.8353" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_plywood">
+        <bsdf type="diffuse">
+            <rgb value="0.549 0.3373 0.2941" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_marble">
+        <bsdf type="diffuse">
+            <rgb value="0.701101 0.644479 0.48515" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_floorboard">
+        <bsdf type="diffuse">
+            <rgb value="0.8902 0.4667 0.7608" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_metal">
+        <bsdf type="diffuse">
+            <rgb value="0.219526 0.219526 0.254152" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_very_dry_ground">
+        <bsdf type="diffuse">
+            <rgb value="0.498 0.498 0.498" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_medium_dry_ground">
+        <bsdf type="diffuse">
+            <rgb value="0.7804 0.7804 0.7804" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="twosided" id="mat-itu_wet_ground">
+        <bsdf type="diffuse">
+            <rgb value="0.91 0.569 0.055" name="reflectance"/>
+        </bsdf>
+    </bsdf>
+    <bsdf type="radio-material" id="mat-very_dry_ground_P.527"/>
+    <bsdf type="radio-material" id="mat-medium_dry_ground_P.527"/>
+    <bsdf type="radio-material" id="mat-wet_ground_P.527"/>
+    <emitter type="constant" id="World">
+        <rgb value="1.000000 1.000000 1.000000" name="radiance"/>
+    </emitter>
+    <sensor type="perspective" id="Camera">
+        <string name="fov_axis" value="x"/>
+        <float name="fov" value="42.854885"/>
+        <float name="principal_point_offset_x" value="0.000000"/>
+        <float name="principal_point_offset_y" value="-0.000000"/>
+        <float name="near_clip" value="0.100000"/>
+        <float name="far_clip" value="10000.000000"/>
+        <transform name="to_world">
+            <rotate x="1" angle="0"/>
+            <rotate y="1" angle="0"/>
+            <rotate z="1" angle="-90"/>
+            <translate value="0 0 100"/>
+        </transform>
+        <sampler type="independent">
+            <integer name="sample_count" value="$spp"/>
+        </sampler>
+        <film type="hdrfilm">
+            <integer name="width" value="$resx"/>
+            <integer name="height" value="$resy"/>
+        </film>
+    </sensor>
+    <default name="scenegen_center_lat" value="40.715000"/>
+    <default name="scenegen_center_lon" value="-74.003610"/>
+    <shape type="ply" id="mesh-ground">
+        <string name="filename" value="mesh/ground.ply"/>
+        <ref id="mat-itu_wet_ground" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <default name="scenegen_bbox_width" value="601"/>
+    <default name="scenegen_bbox_length" value="601"/>
+    <shape type="ply" id="mesh-building_1_rooftop">
+        <string name="filename" value="mesh/building_1_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_1_wall">
+        <string name="filename" value="mesh/building_1_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_2_rooftop">
+        <string name="filename" value="mesh/building_2_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_2_wall">
+        <string name="filename" value="mesh/building_2_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_3_rooftop">
+        <string name="filename" value="mesh/building_3_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_3_wall">
+        <string name="filename" value="mesh/building_3_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_4_rooftop">
+        <string name="filename" value="mesh/building_4_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_4_wall">
+        <string name="filename" value="mesh/building_4_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_5_rooftop">
+        <string name="filename" value="mesh/building_5_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_5_wall">
+        <string name="filename" value="mesh/building_5_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_6_rooftop">
+        <string name="filename" value="mesh/building_6_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_6_wall">
+        <string name="filename" value="mesh/building_6_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_7_rooftop">
+        <string name="filename" value="mesh/building_7_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_7_wall">
+        <string name="filename" value="mesh/building_7_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_8_rooftop">
+        <string name="filename" value="mesh/building_8_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_8_wall">
+        <string name="filename" value="mesh/building_8_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_9_rooftop">
+        <string name="filename" value="mesh/building_9_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_9_wall">
+        <string name="filename" value="mesh/building_9_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_10_rooftop">
+        <string name="filename" value="mesh/building_10_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_10_wall">
+        <string name="filename" value="mesh/building_10_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_11_rooftop">
+        <string name="filename" value="mesh/building_11_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_11_wall">
+        <string name="filename" value="mesh/building_11_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_12_rooftop">
+        <string name="filename" value="mesh/building_12_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_12_wall">
+        <string name="filename" value="mesh/building_12_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_13_rooftop">
+        <string name="filename" value="mesh/building_13_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_13_wall">
+        <string name="filename" value="mesh/building_13_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_14_rooftop">
+        <string name="filename" value="mesh/building_14_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_14_wall">
+        <string name="filename" value="mesh/building_14_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_15_rooftop">
+        <string name="filename" value="mesh/building_15_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_15_wall">
+        <string name="filename" value="mesh/building_15_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_16_rooftop">
+        <string name="filename" value="mesh/building_16_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_16_wall">
+        <string name="filename" value="mesh/building_16_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_17_rooftop">
+        <string name="filename" value="mesh/building_17_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_17_wall">
+        <string name="filename" value="mesh/building_17_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_18_rooftop">
+        <string name="filename" value="mesh/building_18_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_18_wall">
+        <string name="filename" value="mesh/building_18_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_19_rooftop">
+        <string name="filename" value="mesh/building_19_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_19_wall">
+        <string name="filename" value="mesh/building_19_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_20_rooftop">
+        <string name="filename" value="mesh/building_20_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_20_wall">
+        <string name="filename" value="mesh/building_20_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_21_rooftop">
+        <string name="filename" value="mesh/building_21_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_21_wall">
+        <string name="filename" value="mesh/building_21_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_22_rooftop">
+        <string name="filename" value="mesh/building_22_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_22_wall">
+        <string name="filename" value="mesh/building_22_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_23_rooftop">
+        <string name="filename" value="mesh/building_23_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_23_wall">
+        <string name="filename" value="mesh/building_23_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_24_rooftop">
+        <string name="filename" value="mesh/building_24_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_24_wall">
+        <string name="filename" value="mesh/building_24_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_25_rooftop">
+        <string name="filename" value="mesh/building_25_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_25_wall">
+        <string name="filename" value="mesh/building_25_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_26_rooftop">
+        <string name="filename" value="mesh/building_26_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_26_wall">
+        <string name="filename" value="mesh/building_26_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_27_rooftop">
+        <string name="filename" value="mesh/building_27_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_27_wall">
+        <string name="filename" value="mesh/building_27_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_28_rooftop">
+        <string name="filename" value="mesh/building_28_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_28_wall">
+        <string name="filename" value="mesh/building_28_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_29_rooftop">
+        <string name="filename" value="mesh/building_29_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_29_wall">
+        <string name="filename" value="mesh/building_29_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_30_rooftop">
+        <string name="filename" value="mesh/building_30_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_30_wall">
+        <string name="filename" value="mesh/building_30_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_31_rooftop">
+        <string name="filename" value="mesh/building_31_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_31_wall">
+        <string name="filename" value="mesh/building_31_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_32_rooftop">
+        <string name="filename" value="mesh/building_32_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_32_wall">
+        <string name="filename" value="mesh/building_32_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_33_rooftop">
+        <string name="filename" value="mesh/building_33_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_33_wall">
+        <string name="filename" value="mesh/building_33_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_34_rooftop">
+        <string name="filename" value="mesh/building_34_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_34_wall">
+        <string name="filename" value="mesh/building_34_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_35_rooftop">
+        <string name="filename" value="mesh/building_35_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_35_wall">
+        <string name="filename" value="mesh/building_35_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_36_rooftop">
+        <string name="filename" value="mesh/building_36_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_36_wall">
+        <string name="filename" value="mesh/building_36_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_37_rooftop">
+        <string name="filename" value="mesh/building_37_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_37_wall">
+        <string name="filename" value="mesh/building_37_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_38_rooftop">
+        <string name="filename" value="mesh/building_38_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_38_wall">
+        <string name="filename" value="mesh/building_38_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_39_rooftop">
+        <string name="filename" value="mesh/building_39_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_39_wall">
+        <string name="filename" value="mesh/building_39_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_40_rooftop">
+        <string name="filename" value="mesh/building_40_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_40_wall">
+        <string name="filename" value="mesh/building_40_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_41_rooftop">
+        <string name="filename" value="mesh/building_41_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_41_wall">
+        <string name="filename" value="mesh/building_41_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_42_rooftop">
+        <string name="filename" value="mesh/building_42_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_42_wall">
+        <string name="filename" value="mesh/building_42_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_43_rooftop">
+        <string name="filename" value="mesh/building_43_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_43_wall">
+        <string name="filename" value="mesh/building_43_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_44_rooftop">
+        <string name="filename" value="mesh/building_44_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_44_wall">
+        <string name="filename" value="mesh/building_44_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_45_rooftop">
+        <string name="filename" value="mesh/building_45_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_45_wall">
+        <string name="filename" value="mesh/building_45_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_46_rooftop">
+        <string name="filename" value="mesh/building_46_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_46_wall">
+        <string name="filename" value="mesh/building_46_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_47_rooftop">
+        <string name="filename" value="mesh/building_47_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_47_wall">
+        <string name="filename" value="mesh/building_47_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_48_rooftop">
+        <string name="filename" value="mesh/building_48_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_48_wall">
+        <string name="filename" value="mesh/building_48_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_49_rooftop">
+        <string name="filename" value="mesh/building_49_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_49_wall">
+        <string name="filename" value="mesh/building_49_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_50_rooftop">
+        <string name="filename" value="mesh/building_50_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_50_wall">
+        <string name="filename" value="mesh/building_50_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_51_rooftop">
+        <string name="filename" value="mesh/building_51_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_51_wall">
+        <string name="filename" value="mesh/building_51_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_52_rooftop">
+        <string name="filename" value="mesh/building_52_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_52_wall">
+        <string name="filename" value="mesh/building_52_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_53_rooftop">
+        <string name="filename" value="mesh/building_53_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_53_wall">
+        <string name="filename" value="mesh/building_53_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_54_rooftop">
+        <string name="filename" value="mesh/building_54_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_54_wall">
+        <string name="filename" value="mesh/building_54_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_55_rooftop">
+        <string name="filename" value="mesh/building_55_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_55_wall">
+        <string name="filename" value="mesh/building_55_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_56_rooftop">
+        <string name="filename" value="mesh/building_56_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_56_wall">
+        <string name="filename" value="mesh/building_56_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_57_rooftop">
+        <string name="filename" value="mesh/building_57_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_57_wall">
+        <string name="filename" value="mesh/building_57_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_58_rooftop">
+        <string name="filename" value="mesh/building_58_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_58_wall">
+        <string name="filename" value="mesh/building_58_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_59_rooftop">
+        <string name="filename" value="mesh/building_59_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_59_wall">
+        <string name="filename" value="mesh/building_59_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_60_rooftop">
+        <string name="filename" value="mesh/building_60_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_60_wall">
+        <string name="filename" value="mesh/building_60_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_61_rooftop">
+        <string name="filename" value="mesh/building_61_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_61_wall">
+        <string name="filename" value="mesh/building_61_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_62_rooftop">
+        <string name="filename" value="mesh/building_62_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_62_wall">
+        <string name="filename" value="mesh/building_62_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_63_rooftop">
+        <string name="filename" value="mesh/building_63_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_63_wall">
+        <string name="filename" value="mesh/building_63_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_64_rooftop">
+        <string name="filename" value="mesh/building_64_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_64_wall">
+        <string name="filename" value="mesh/building_64_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_65_rooftop">
+        <string name="filename" value="mesh/building_65_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_65_wall">
+        <string name="filename" value="mesh/building_65_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_66_rooftop">
+        <string name="filename" value="mesh/building_66_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_66_wall">
+        <string name="filename" value="mesh/building_66_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_67_rooftop">
+        <string name="filename" value="mesh/building_67_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_67_wall">
+        <string name="filename" value="mesh/building_67_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_68_rooftop">
+        <string name="filename" value="mesh/building_68_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_68_wall">
+        <string name="filename" value="mesh/building_68_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_69_rooftop">
+        <string name="filename" value="mesh/building_69_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_69_wall">
+        <string name="filename" value="mesh/building_69_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_70_rooftop">
+        <string name="filename" value="mesh/building_70_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_70_wall">
+        <string name="filename" value="mesh/building_70_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_71_rooftop">
+        <string name="filename" value="mesh/building_71_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_71_wall">
+        <string name="filename" value="mesh/building_71_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_72_rooftop">
+        <string name="filename" value="mesh/building_72_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_72_wall">
+        <string name="filename" value="mesh/building_72_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_73_rooftop">
+        <string name="filename" value="mesh/building_73_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_73_wall">
+        <string name="filename" value="mesh/building_73_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_74_rooftop">
+        <string name="filename" value="mesh/building_74_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_74_wall">
+        <string name="filename" value="mesh/building_74_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_75_rooftop">
+        <string name="filename" value="mesh/building_75_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_75_wall">
+        <string name="filename" value="mesh/building_75_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_76_rooftop">
+        <string name="filename" value="mesh/building_76_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_76_wall">
+        <string name="filename" value="mesh/building_76_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_77_rooftop">
+        <string name="filename" value="mesh/building_77_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_77_wall">
+        <string name="filename" value="mesh/building_77_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_78_rooftop">
+        <string name="filename" value="mesh/building_78_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_78_wall">
+        <string name="filename" value="mesh/building_78_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_79_rooftop">
+        <string name="filename" value="mesh/building_79_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_79_wall">
+        <string name="filename" value="mesh/building_79_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_80_rooftop">
+        <string name="filename" value="mesh/building_80_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_80_wall">
+        <string name="filename" value="mesh/building_80_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_81_rooftop">
+        <string name="filename" value="mesh/building_81_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_81_wall">
+        <string name="filename" value="mesh/building_81_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_82_rooftop">
+        <string name="filename" value="mesh/building_82_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_82_wall">
+        <string name="filename" value="mesh/building_82_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_83_rooftop">
+        <string name="filename" value="mesh/building_83_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_83_wall">
+        <string name="filename" value="mesh/building_83_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_84_rooftop">
+        <string name="filename" value="mesh/building_84_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_84_wall">
+        <string name="filename" value="mesh/building_84_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_85_rooftop">
+        <string name="filename" value="mesh/building_85_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_85_wall">
+        <string name="filename" value="mesh/building_85_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_86_rooftop">
+        <string name="filename" value="mesh/building_86_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_86_wall">
+        <string name="filename" value="mesh/building_86_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_87_rooftop">
+        <string name="filename" value="mesh/building_87_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_87_wall">
+        <string name="filename" value="mesh/building_87_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_88_rooftop">
+        <string name="filename" value="mesh/building_88_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_88_wall">
+        <string name="filename" value="mesh/building_88_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_89_rooftop">
+        <string name="filename" value="mesh/building_89_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_89_wall">
+        <string name="filename" value="mesh/building_89_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_90_rooftop">
+        <string name="filename" value="mesh/building_90_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_90_wall">
+        <string name="filename" value="mesh/building_90_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_91_rooftop">
+        <string name="filename" value="mesh/building_91_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_91_wall">
+        <string name="filename" value="mesh/building_91_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_92_rooftop">
+        <string name="filename" value="mesh/building_92_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_92_wall">
+        <string name="filename" value="mesh/building_92_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_93_rooftop">
+        <string name="filename" value="mesh/building_93_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_93_wall">
+        <string name="filename" value="mesh/building_93_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_94_rooftop">
+        <string name="filename" value="mesh/building_94_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_94_wall">
+        <string name="filename" value="mesh/building_94_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_95_rooftop">
+        <string name="filename" value="mesh/building_95_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_95_wall">
+        <string name="filename" value="mesh/building_95_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_96_rooftop">
+        <string name="filename" value="mesh/building_96_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_96_wall">
+        <string name="filename" value="mesh/building_96_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_97_rooftop">
+        <string name="filename" value="mesh/building_97_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_97_wall">
+        <string name="filename" value="mesh/building_97_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_98_rooftop">
+        <string name="filename" value="mesh/building_98_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_98_wall">
+        <string name="filename" value="mesh/building_98_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_99_rooftop">
+        <string name="filename" value="mesh/building_99_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_99_wall">
+        <string name="filename" value="mesh/building_99_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_100_rooftop">
+        <string name="filename" value="mesh/building_100_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_100_wall">
+        <string name="filename" value="mesh/building_100_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_101_rooftop">
+        <string name="filename" value="mesh/building_101_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_101_wall">
+        <string name="filename" value="mesh/building_101_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_102_rooftop">
+        <string name="filename" value="mesh/building_102_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_102_wall">
+        <string name="filename" value="mesh/building_102_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_103_rooftop">
+        <string name="filename" value="mesh/building_103_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_103_wall">
+        <string name="filename" value="mesh/building_103_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_104_rooftop">
+        <string name="filename" value="mesh/building_104_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_104_wall">
+        <string name="filename" value="mesh/building_104_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_105_rooftop">
+        <string name="filename" value="mesh/building_105_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_105_wall">
+        <string name="filename" value="mesh/building_105_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_106_rooftop">
+        <string name="filename" value="mesh/building_106_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_106_wall">
+        <string name="filename" value="mesh/building_106_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_107_rooftop">
+        <string name="filename" value="mesh/building_107_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_107_wall">
+        <string name="filename" value="mesh/building_107_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_108_rooftop">
+        <string name="filename" value="mesh/building_108_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_108_wall">
+        <string name="filename" value="mesh/building_108_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_109_rooftop">
+        <string name="filename" value="mesh/building_109_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_109_wall">
+        <string name="filename" value="mesh/building_109_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_110_rooftop">
+        <string name="filename" value="mesh/building_110_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_110_wall">
+        <string name="filename" value="mesh/building_110_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_111_rooftop">
+        <string name="filename" value="mesh/building_111_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_111_wall">
+        <string name="filename" value="mesh/building_111_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_112_rooftop">
+        <string name="filename" value="mesh/building_112_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_112_wall">
+        <string name="filename" value="mesh/building_112_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_113_rooftop">
+        <string name="filename" value="mesh/building_113_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_113_wall">
+        <string name="filename" value="mesh/building_113_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_114_rooftop">
+        <string name="filename" value="mesh/building_114_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_114_wall">
+        <string name="filename" value="mesh/building_114_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_115_rooftop">
+        <string name="filename" value="mesh/building_115_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_115_wall">
+        <string name="filename" value="mesh/building_115_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_116_rooftop">
+        <string name="filename" value="mesh/building_116_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_116_wall">
+        <string name="filename" value="mesh/building_116_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_117_rooftop">
+        <string name="filename" value="mesh/building_117_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_117_wall">
+        <string name="filename" value="mesh/building_117_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_118_rooftop">
+        <string name="filename" value="mesh/building_118_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_118_wall">
+        <string name="filename" value="mesh/building_118_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_119_rooftop">
+        <string name="filename" value="mesh/building_119_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_119_wall">
+        <string name="filename" value="mesh/building_119_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_120_rooftop">
+        <string name="filename" value="mesh/building_120_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_120_wall">
+        <string name="filename" value="mesh/building_120_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_121_rooftop">
+        <string name="filename" value="mesh/building_121_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_121_wall">
+        <string name="filename" value="mesh/building_121_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_122_rooftop">
+        <string name="filename" value="mesh/building_122_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_122_wall">
+        <string name="filename" value="mesh/building_122_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_123_rooftop">
+        <string name="filename" value="mesh/building_123_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_123_wall">
+        <string name="filename" value="mesh/building_123_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_124_rooftop">
+        <string name="filename" value="mesh/building_124_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_124_wall">
+        <string name="filename" value="mesh/building_124_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_125_rooftop">
+        <string name="filename" value="mesh/building_125_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_125_wall">
+        <string name="filename" value="mesh/building_125_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_126_rooftop">
+        <string name="filename" value="mesh/building_126_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_126_wall">
+        <string name="filename" value="mesh/building_126_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_127_rooftop">
+        <string name="filename" value="mesh/building_127_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_127_wall">
+        <string name="filename" value="mesh/building_127_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_128_rooftop">
+        <string name="filename" value="mesh/building_128_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_128_wall">
+        <string name="filename" value="mesh/building_128_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_129_rooftop">
+        <string name="filename" value="mesh/building_129_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_129_wall">
+        <string name="filename" value="mesh/building_129_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_130_rooftop">
+        <string name="filename" value="mesh/building_130_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_130_wall">
+        <string name="filename" value="mesh/building_130_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_131_rooftop">
+        <string name="filename" value="mesh/building_131_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_131_wall">
+        <string name="filename" value="mesh/building_131_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_132_rooftop">
+        <string name="filename" value="mesh/building_132_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_132_wall">
+        <string name="filename" value="mesh/building_132_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_133_rooftop">
+        <string name="filename" value="mesh/building_133_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_133_wall">
+        <string name="filename" value="mesh/building_133_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_134_rooftop">
+        <string name="filename" value="mesh/building_134_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_134_wall">
+        <string name="filename" value="mesh/building_134_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_135_rooftop">
+        <string name="filename" value="mesh/building_135_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_135_wall">
+        <string name="filename" value="mesh/building_135_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_136_rooftop">
+        <string name="filename" value="mesh/building_136_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_136_wall">
+        <string name="filename" value="mesh/building_136_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_137_rooftop">
+        <string name="filename" value="mesh/building_137_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_137_wall">
+        <string name="filename" value="mesh/building_137_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_138_rooftop">
+        <string name="filename" value="mesh/building_138_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_138_wall">
+        <string name="filename" value="mesh/building_138_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_139_rooftop">
+        <string name="filename" value="mesh/building_139_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_139_wall">
+        <string name="filename" value="mesh/building_139_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_140_rooftop">
+        <string name="filename" value="mesh/building_140_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_140_wall">
+        <string name="filename" value="mesh/building_140_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_141_rooftop">
+        <string name="filename" value="mesh/building_141_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_141_wall">
+        <string name="filename" value="mesh/building_141_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_142_rooftop">
+        <string name="filename" value="mesh/building_142_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_142_wall">
+        <string name="filename" value="mesh/building_142_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_143_rooftop">
+        <string name="filename" value="mesh/building_143_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_143_wall">
+        <string name="filename" value="mesh/building_143_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_144_rooftop">
+        <string name="filename" value="mesh/building_144_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_144_wall">
+        <string name="filename" value="mesh/building_144_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_145_rooftop">
+        <string name="filename" value="mesh/building_145_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_145_wall">
+        <string name="filename" value="mesh/building_145_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_146_rooftop">
+        <string name="filename" value="mesh/building_146_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_146_wall">
+        <string name="filename" value="mesh/building_146_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_147_rooftop">
+        <string name="filename" value="mesh/building_147_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_147_wall">
+        <string name="filename" value="mesh/building_147_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_148_rooftop">
+        <string name="filename" value="mesh/building_148_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_148_wall">
+        <string name="filename" value="mesh/building_148_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_149_rooftop">
+        <string name="filename" value="mesh/building_149_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_149_wall">
+        <string name="filename" value="mesh/building_149_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_150_rooftop">
+        <string name="filename" value="mesh/building_150_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_150_wall">
+        <string name="filename" value="mesh/building_150_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_151_rooftop">
+        <string name="filename" value="mesh/building_151_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_151_wall">
+        <string name="filename" value="mesh/building_151_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_152_rooftop">
+        <string name="filename" value="mesh/building_152_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_152_wall">
+        <string name="filename" value="mesh/building_152_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_153_rooftop">
+        <string name="filename" value="mesh/building_153_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_153_wall">
+        <string name="filename" value="mesh/building_153_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_154_rooftop">
+        <string name="filename" value="mesh/building_154_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_154_wall">
+        <string name="filename" value="mesh/building_154_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_155_rooftop">
+        <string name="filename" value="mesh/building_155_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_155_wall">
+        <string name="filename" value="mesh/building_155_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_156_rooftop">
+        <string name="filename" value="mesh/building_156_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_156_wall">
+        <string name="filename" value="mesh/building_156_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_158_rooftop">
+        <string name="filename" value="mesh/building_158_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_158_wall">
+        <string name="filename" value="mesh/building_158_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_159_rooftop">
+        <string name="filename" value="mesh/building_159_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_159_wall">
+        <string name="filename" value="mesh/building_159_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_160_rooftop">
+        <string name="filename" value="mesh/building_160_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_160_wall">
+        <string name="filename" value="mesh/building_160_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_161_rooftop">
+        <string name="filename" value="mesh/building_161_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_161_wall">
+        <string name="filename" value="mesh/building_161_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_162_rooftop">
+        <string name="filename" value="mesh/building_162_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_162_wall">
+        <string name="filename" value="mesh/building_162_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_163_rooftop">
+        <string name="filename" value="mesh/building_163_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_163_wall">
+        <string name="filename" value="mesh/building_163_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_165_rooftop">
+        <string name="filename" value="mesh/building_165_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_165_wall">
+        <string name="filename" value="mesh/building_165_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_166_rooftop">
+        <string name="filename" value="mesh/building_166_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_166_wall">
+        <string name="filename" value="mesh/building_166_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_167_rooftop">
+        <string name="filename" value="mesh/building_167_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_167_wall">
+        <string name="filename" value="mesh/building_167_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_168_rooftop">
+        <string name="filename" value="mesh/building_168_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_168_wall">
+        <string name="filename" value="mesh/building_168_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_169_rooftop">
+        <string name="filename" value="mesh/building_169_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_169_wall">
+        <string name="filename" value="mesh/building_169_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_170_rooftop">
+        <string name="filename" value="mesh/building_170_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_170_wall">
+        <string name="filename" value="mesh/building_170_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_171_rooftop">
+        <string name="filename" value="mesh/building_171_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_171_wall">
+        <string name="filename" value="mesh/building_171_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_172_rooftop">
+        <string name="filename" value="mesh/building_172_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_172_wall">
+        <string name="filename" value="mesh/building_172_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_173_rooftop">
+        <string name="filename" value="mesh/building_173_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_173_wall">
+        <string name="filename" value="mesh/building_173_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_174_rooftop">
+        <string name="filename" value="mesh/building_174_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_174_wall">
+        <string name="filename" value="mesh/building_174_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_175_rooftop">
+        <string name="filename" value="mesh/building_175_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_175_wall">
+        <string name="filename" value="mesh/building_175_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_176_rooftop">
+        <string name="filename" value="mesh/building_176_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_176_wall">
+        <string name="filename" value="mesh/building_176_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_177_rooftop">
+        <string name="filename" value="mesh/building_177_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_177_wall">
+        <string name="filename" value="mesh/building_177_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_178_rooftop">
+        <string name="filename" value="mesh/building_178_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_178_wall">
+        <string name="filename" value="mesh/building_178_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_179_rooftop">
+        <string name="filename" value="mesh/building_179_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_179_wall">
+        <string name="filename" value="mesh/building_179_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_180_rooftop">
+        <string name="filename" value="mesh/building_180_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_180_wall">
+        <string name="filename" value="mesh/building_180_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_181_rooftop">
+        <string name="filename" value="mesh/building_181_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_181_wall">
+        <string name="filename" value="mesh/building_181_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_182_rooftop">
+        <string name="filename" value="mesh/building_182_rooftop.ply"/>
+        <ref id="mat-itu_metal" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+    <shape type="ply" id="mesh-building_182_wall">
+        <string name="filename" value="mesh/building_182_wall.ply"/>
+        <ref id="mat-itu_concrete" name="bsdf"/>
+        <boolean name="face_normals" value="true"/>
+    </shape>
+</scene>

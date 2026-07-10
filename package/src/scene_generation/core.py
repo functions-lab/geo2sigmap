@@ -665,7 +665,7 @@ class Scene:
                             '''
                             building_base_height = 0.0
 
-                # Skip buildings with height <= 2 m
+                # Skip buildings with height <= 0 m
                 if building_height <= 0:
                     continue
                 # building_height = NYC_LiDAR_building_height(building, building_polygon)
@@ -1631,4 +1631,4 @@ class Scene:
         new = np.asarray(temp)
 
         merged = np.maximum(current, new)
-        self._building_map = Image.fromarray(merged.astype(np.uint8))
+        self._building_map = Image.fromarray(merged.astype(np.uint32))

@@ -35,9 +35,18 @@ from .overture_buildings import (
     resolve_building_height,
     should_include_overture_parent_footprint,
 )
+from .overture_roads import (
+    build_road_polygon,
+    load_overture_roads_for_aoi,
+    resolve_road_width,
+)
 
 # Create a module-level logger
 logger = logging.getLogger(__name__)
+
+# Vertical offset applied to road meshes so they don't sit exactly coplanar
+# with the ground/terrain mesh (which causes z-fighting in the renderer).
+ROAD_Z_OFFSET_M = 0.1
 
 class Scene:
     """
@@ -73,7 +82,9 @@ class Scene:
         lidar_terrain:bool = False,
         dem_terrain:bool = False,
         gen_lidar_terrain_only:bool = False,
-        building_data_source: str = "overture"
+        building_data_source: str = "overture",
+        generate_roads: bool = True,
+        road_material_type: str = None,
     ):
         """
         Generate a ground mesh from the given polygon (defined by `points`), extrude them into 3D meshes,
@@ -93,6 +104,17 @@ class Scene:
             If True, write the ply file in ascii format, otherwise binary format will be used.
         ground_scale : float, optional
             The ratio to scale the ground polygon. TODO:Add examples to show why need scale. OSMNX query intersection.
+        generate_roads : bool, optional
+            If True (default) and ``building_data_source == "overture"``, query Overture
+            transportation segments (``subtype == "road"``) for the AOI, buffer each
+            centerline into a flat footprint using a per-class default width, and add
+            them to the scene as flat meshes.
+        road_material_type : str, optional
+            ITU material id (a key in ``ITU_MATERIALS``) used for road meshes.
+            Defaults to ``None``, which reuses ``ground_material_type`` so roads are
+            physically indistinguishable from the ground surface. Pass a different
+            material (e.g. ``"mat-itu_chipboard"``) to give roads a distinct color
+            in the Mitsuba/Sionna preview.
 
         Returns
         -------
@@ -108,7 +130,10 @@ class Scene:
                 raise ValueError(f"Invalid rooftop material type: {rooftop_material_type}")
             if wall_material_type not in ITU_MATERIALS:
                 raise ValueError(f"Invalid wall material type: {wall_material_type}")
-            
+            if road_material_type is not None and road_material_type not in ITU_MATERIALS:
+                raise ValueError(f"Invalid road material type: {road_material_type}")
+            resolved_road_material_type = road_material_type or ground_material_type
+
             # Determine the UTM projection from the first point
             projection_UTM_EPSG_code = get_utm_epsg_code_from_gps(
                 points[0][0], points[0][1]
@@ -899,6 +924,143 @@ class Scene:
                     )
 
             del hag_handler
+
+            # ---------------------------------------------------------------------
+            # 9) Query Overture roads within the bounding box and mesh them flat
+            # ---------------------------------------------------------------------
+            if generate_roads:
+                try:
+                    roads = load_overture_roads_for_aoi(
+                        ground_polygon_4326_bbox,
+                        projection_UTM_EPSG_code,
+                    )
+                    filtered_roads = roads[roads.intersects(ground_polygon)]
+                    road_records = filtered_roads.to_dict("records")
+                except Exception as exc:
+                    logger.warning(
+                        "Unable to load Overture road segments; skipping roads: %s",
+                        exc,
+                    )
+                    road_records = []
+
+                logger.info("Using %d Overture road segments", len(road_records))
+
+                for idx, road in tqdm(
+                    enumerate(road_records),
+                    total=len(road_records),
+                    desc="Parsing roads",
+                ):
+                    centerline = road["geometry"]
+                    if not isinstance(centerline, BaseGeometry):
+                        centerline = shape(centerline)
+                    if centerline.geom_type != "LineString":
+                        continue
+
+                    road_width = resolve_road_width(road)
+                    road_polygon = build_road_polygon(centerline, road_width)
+                    if road_polygon is None or road_polygon.is_empty:
+                        continue
+
+                    # Clip to the AOI so buffered segment ends near the boundary
+                    # don't extend past it.
+                    road_polygon = road_polygon.intersection(ground_polygon)
+                    if road_polygon.geom_type == "MultiPolygon":
+                        road_polygon = max(road_polygon.geoms, key=lambda geom: geom.area)
+                    if road_polygon.is_empty or road_polygon.geom_type != "Polygon":
+                        continue
+
+                    outer_xy = unique_coords(
+                        reorder_localize_coords(road_polygon.exterior, center_x, center_y)
+                    )
+                    if len(outer_xy) < 3:
+                        continue
+
+                    holes_xy = []
+                    for inner_hole in list(road_polygon.interiors):
+                        valid_coords = reorder_localize_coords(
+                            inner_hole, center_x, center_y
+                        )
+                        holes_xy.append(unique_coords(valid_coords))
+
+                    def edge_idxs(nv):
+                        i = np.append(np.arange(nv), 0)
+                        return np.stack([i[:-1], i[1:]], axis=1)
+
+                    nv = 0
+                    verts, edges = [], []
+                    for loop in (outer_xy, *holes_xy):
+                        verts.append(loop)
+                        edges.append(nv + edge_idxs(len(loop)))
+                        nv += len(loop)
+                    verts, edges = np.concatenate(verts), np.concatenate(edges)
+
+                    holes = np.array([np.mean(h, axis=0) for h in holes_xy])
+                    if len(holes) != 0:
+                        d = triangulate(
+                            dict(vertices=verts, segments=edges, holes=holes), opts="p"
+                        )
+                    else:
+                        d = triangulate(dict(vertices=verts, segments=edges), opts="p")
+
+                    v, f = d["vertices"], d["triangles"]
+                    if len(f) == 0:
+                        continue
+                    nv = len(v)
+
+                    if lidar_terrain:
+                        mesh = surface_mesh
+                        bottom, top = mesh.bounds[-2:]
+
+                        def ray_trace_z(x, y):
+                            start = [x, y, bottom - 1.0]
+                            stop = [x, y, top + 1.0]
+                            trace_points, _ = mesh.ray_trace(start, stop)
+                            if trace_points.shape[0] == 0:
+                                return 1e299
+                            return np.max(trace_points[:, 2])
+
+                        from concurrent.futures import ThreadPoolExecutor
+
+                        with ThreadPoolExecutor() as executor:
+                            res_z_parallel = list(
+                                executor.map(lambda pt: ray_trace_z(pt[0], pt[1]), outer_xy)
+                            )
+                        road_z_value = int(np.floor(np.min(res_z_parallel)))
+                        if road_z_value > 1e20:
+                            road_z_value = 0
+                    else:
+                        road_z_value = 0
+
+                    # Roads are perfectly flat and coplanar with the ground/terrain
+                    # mesh; lift them slightly to avoid z-fighting in the renderer.
+                    road_z_value += ROAD_Z_OFFSET_M
+
+                    points = np.concatenate(
+                        [v, np.full((nv, 1), fill_value=road_z_value)], axis=1
+                    )
+
+                    mesh_o3d = o3d.t.geometry.TriangleMesh()
+                    mesh_o3d.vertex.positions = o3d.core.Tensor(points)
+                    mesh_o3d.triangle.indices = o3d.core.Tensor(f)
+
+                    o3d.t.io.write_triangle_mesh(
+                        os.path.join(mesh_data_dir, f"road_{idx}.ply"),
+                        mesh_o3d,
+                        write_ascii=write_ply_ascii,
+                    )
+
+                    sionna_shape = ET.SubElement(
+                        scene, "shape", type="ply", id=f"mesh-road_{idx}"
+                    )
+                    ET.SubElement(
+                        sionna_shape,
+                        "string",
+                        name="filename",
+                        value=f"mesh/road_{idx}.ply",
+                    )
+                    ET.SubElement(sionna_shape, "ref", id=resolved_road_material_type, name="bsdf")
+                    ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
+
             # Save the centroids and heights to a CSV file
             centroids_and_heights_df = pd.DataFrame(centroids_and_heights)
             centroids_and_heights_df.to_csv(

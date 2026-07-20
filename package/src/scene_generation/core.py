@@ -83,7 +83,7 @@ class Scene:
         dem_terrain:bool = False,
         gen_lidar_terrain_only:bool = False,
         building_data_source: str = "overture",
-        generate_roads: bool = True,
+        generate_roads: bool = False,
         road_material_type: str = None,
     ):
         """

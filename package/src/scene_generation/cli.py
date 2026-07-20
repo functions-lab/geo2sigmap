@@ -25,8 +25,9 @@ from .utils import (
 from .itu_materials import ITU_MATERIALS
 
 import xml.etree.ElementTree as ET
-
 import os
+import sys
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 
 def setup_logging(log_file="debug.log"):
@@ -67,15 +68,9 @@ def setup_logging(log_file="debug.log"):
     logger.addHandler(file_handler)
 
 
-#!/usr/bin/env python3
 """
 CLI entry point for Scene Generation Pipeline.
 """
-
-import sys
-from argparse import ArgumentParser, RawTextHelpFormatter
-
-
 def main():
     """
     Main function to parse arguments and dispatch subcommands.
@@ -187,6 +182,18 @@ def main():
         ),
     )
 
+    common_parser.add_argument(
+        "--generate_roads",
+        action="store_true",
+        help="Enable road generation from Overture data. Only applicable when building_data_source is 'overture' and LiDAR and DEM terrain are disabled."
+    )
+
+    common_parser.add_argument(
+        "--road-visual-material",
+        type=int,
+        help="ID of the material to use for visualization of roads."
+    )
+
     # Create subparsers for different subcommands
     subparsers = parser.add_subparsers(
         title="Subcommands", dest="command", help="Available subcommands."
@@ -219,8 +226,8 @@ def main():
         parents=[common_parser],
         help="Work with a single point and a rectangle size.",
     )
-    parser_point.add_argument("lon", type=float, help="Latitude.")
-    parser_point.add_argument("lat", type=float, help="Longitude.")
+    parser_point.add_argument("lon", type=float, help="Longitude.")
+    parser_point.add_argument("lat", type=float, help="Latitude.")
     parser_point.add_argument(
         "position",
         choices=["top-left", "top-right", "bottom-left", "bottom-right", "center"],
@@ -304,7 +311,6 @@ def main():
     logger = logging.getLogger(__name__)
 
     # Handle the materials
-
     if args.ground_material not in range(len(ITU_MATERIALS.keys())):
         logger.error(f"Invalid ground material: {args.ground_material}")
         sys.exit(1)
@@ -315,6 +321,10 @@ def main():
 
     if args.wall_material not in range(len(ITU_MATERIALS)):
         logger.error(f"Invalid wall material: {args.wall_material}")
+        sys.exit(1)
+
+    if args.road_visual_material not in range(len(ITU_MATERIALS)):
+        logger.error(f"Invalid road visualization material: {args.road_visual_material}")
         sys.exit(1)
 
     # Dispatch subcommands
@@ -346,6 +356,8 @@ def main():
             lidar_terrain=args.enable_lidar_terrain,
             dem_terrain=args.enable_dem_terrain,
             building_data_source=args.building_data_source,
+            generate_roads = args.generate_roads,
+            road_material_type=list(ITU_MATERIALS.items())[args.road_visual_material][0]
         )
     elif args.command == "point":
         polygon_points_gps = rect_from_point_and_size(
@@ -370,6 +382,8 @@ def main():
             lidar_terrain=args.enable_lidar_terrain,
             dem_terrain=args.enable_dem_terrain,
             building_data_source=args.building_data_source,
+            generate_roads = args.generate_roads,
+            road_material_type=list(ITU_MATERIALS.items())[args.road_visual_material][0]
         )
     elif args.command == "validate":
         res_dict = {
@@ -495,7 +509,6 @@ def main():
         except Exception as e:
             # Handle the case where the bbox coordinates are not available
             pass
-
 
 
 if __name__ == "__main__":

@@ -133,10 +133,10 @@ def main():
     common_parser.add_argument(
         "--building-data-source",
         default="overture",
-        choices=["overture", "lidar"],
+        choices=["overture", "osm"],
         help=(
             "Choose which data source to use for building footprints and heights. Choices: "
-            "overture, lidar. Default: overture."
+            "overture, osm. Default: overture."
         ),
     )
 

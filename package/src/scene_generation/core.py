@@ -26,11 +26,8 @@ from .utils import *
 from .itu_materials import ITU_MATERIALS
 
 from .overture_buildings import (
-    # HEIGHT_MODE_LIDAR_OSM,
-    # HEIGHT_MODE_OVERTURE,
     load_overture_building_parts_for_aoi,
     load_overture_buildings_for_aoi,
-    # normalize_building_height_mode,
     resolve_building_base_height,
     resolve_building_height,
     should_include_overture_parent_footprint,
@@ -50,9 +47,8 @@ ROAD_Z_OFFSET_M = 0.1
 
 class Scene:
     """
-    A class that encapsulates the logic for creating the ditital twins for a given
-    bounding box with building information querying from OpenStreetMap server and
-    ground mesh from lidar.
+    A class that encapsulates the logic for creating the digital twins for a given
+    bounding box with building information, querying from OpenStreetMap server or Overture Maps, and ground mesh from LiDAR.
 
 
     Usage:
@@ -61,8 +57,13 @@ class Scene:
             points=[(lon1, lat1), (lon2, lat2), ...],
             data_dir="path/to/output",
             hag_tiff_path="path/to/hag.tiff",
+            osm_server_addr="path/to/osm/server",
             lidar_height_calibration=True,
-            generate_building_map=True
+            generate_building_map=True,
+            lidar_terrain=True,
+            building_data_source="overture",
+            generate_roads=True,
+            road_material_type="mat-itu_chipboard"
         )
     """
 
@@ -96,19 +97,36 @@ class Scene:
             Coordinates defining the polygon (in WGS84 lon/lat).
         data_dir : str
             Directory where output files (XML, meshes, etc.) will be saved.
-        lidar_height_calibration : bool
-            LiDAR data is used as a step in the height prioritization hierarchy before random fallback.
+        hag_tiff_path :
+            Path to TIFF file.
+        osm_server_addr : str, optional
+            Address of OSM server (default is public Overpass server).
+        lidar_height_calibration : bool, optional
+            LiDAR data is used as a step in the height prioritization hierarchy.
         generate_building_map : bool, optional
             If True, generate a 2D building map image (and save as a NumPy file).
         write_ply_ascii : bool, optional
-            If True, write the ply file in ascii format, otherwise binary format will be used.
+            If True, write the ply file in ascii format. Otherwise, binary format will be used.
         ground_scale : float, optional
-            The ratio to scale the ground polygon. TODO:Add examples to show why need scale. OSMNX query intersection.
+            The ratio to scale of the ground polygon. TODO:Add examples to show why need scale. OSMNX query intersection.
+        ground_material_type : str, optional
+            ITU material id (a key in ``ITU_MATERIALS``) used for ground mesh. Defaults to "mat-itu_wet_ground".
+        rooftop_material_type : str, optional
+            ITU material id (a key in ``ITU_MATERIALS``) used for rooftop meshes. Defaults to "mat-itu_metal".
+        wall_material_type : str, optional
+            ITU material id (a key in ``ITU_MATERIALS``) used for wall meshes. Defaults to "mat-itu_concrete".
+        lidar_terrain : bool, optional
+            If True, use LiDAR data to generate the ground terrain. Defaults to False.
+        dem_terrain : bool, optional
+            If True, use DEM data to generate the ground terrain. Defaults to False.
+        gen_lidar_terrain_only : bool, optional
+            If True, . Defaults to False.
+        building_data_source : str, optional
+            Choose which data source to use for building footprints and heights. Choices: "overture", "osm". Defaults to "overture".
         generate_roads : bool, optional
-            If True (default) and ``building_data_source == "overture"``, query Overture
+            If True (default) and ``building_data_source == "overture"``, query Overture.
             transportation segments (``subtype == "road"``) for the AOI, buffer each
-            centerline into a flat footprint using a per-class default width, and add
-            them to the scene as flat meshes.
+            centerline into a flat footprint using a per-class default width, and add them to the scene as flat meshes.
         road_material_type : str, optional
             ITU material id (a key in ``ITU_MATERIALS``) used for road meshes.
             Defaults to ``None``, which reuses ``ground_material_type`` so roads are

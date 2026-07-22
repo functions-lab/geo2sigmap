@@ -1,5 +1,5 @@
 """
-Helpers for loading Overture Maps building footprints for a scene AOI.
+Helpers for loading Overture Maps building and part footprints for a scene AOI.
 
 The scene generator already works in two coordinate spaces:
   * EPSG:4326 for external data lookups.
@@ -37,30 +37,6 @@ OVERTURE_BUILDINGS_AZURE_TEMPLATE = (
 OVERTURE_BUILDING_TYPE = "building"
 OVERTURE_BUILDING_PART_TYPE = "building_part"
 
-# HEIGHT_MODE_LIDAR_OSM = "lidar-osm"
-# HEIGHT_MODE_OVERTURE = "overture"
-# BUILDING_HEIGHT_MODE_OPTIONS = (
-#     HEIGHT_MODE_LIDAR_OSM,
-#     HEIGHT_MODE_OVERTURE,
-# )
-
-# _HEIGHT_MODE_ALIASES = {
-#     "1": HEIGHT_MODE_LIDAR_OSM,
-#     "lidar-osm": HEIGHT_MODE_LIDAR_OSM,
-#     "2": HEIGHT_MODE_OVERTURE,
-#     "overture": HEIGHT_MODE_OVERTURE,
-# }
-
-
-# def normalize_building_height_mode(mode: str) -> str:
-#     normalized = _HEIGHT_MODE_ALIASES.get(str(mode).strip().lower())
-#     if normalized is None:
-#         valid = ", ".join(BUILDING_HEIGHT_MODE_OPTIONS)
-#         raise ValueError(
-#             f"Invalid building height mode '{mode}'. Valid values: {valid}"
-#         )
-#     return normalized
-
 # method from Josef Ullrich's work
 def get_latest_release_url(con, feature):
         """
@@ -85,7 +61,6 @@ def load_overture_buildings_for_aoi(
     *,
     source: str = "s3",
     parquet_path: Optional[str] = None,
-    require_height: bool = False,
     duckdb_connection=None,
 ) -> gpd.GeoDataFrame:
     """
@@ -100,13 +75,10 @@ def load_overture_buildings_for_aoi(
         scene's UTM CRS when creating local meshes.
     source
         Cloud source for the default path. Supported values: ``"s3"`` and
-        ``"azure"``.
+        ``"azure"``. Default: ``"s3"``.
     parquet_path
         Override path for testing or pinned local/cloud data. This should point
         at the Overture buildings GeoParquet partition.
-    require_height
-        If true, keep only rows with a positive explicit ``height`` value.
-        Leave false if you also want to use floor counts as a fallback.
     duckdb_connection
         Optional existing DuckDB connection, mostly useful for tests.
 
@@ -125,7 +97,6 @@ def load_overture_buildings_for_aoi(
         target_crs,
         source=source,
         parquet_path=parquet_path,
-        require_height=require_height,
         duckdb_connection=duckdb_connection,
         feature_type=OVERTURE_BUILDING_TYPE,
     )
@@ -137,7 +108,6 @@ def load_overture_building_parts_for_aoi(
     *,
     source: str = "s3",
     parquet_path: Optional[str] = None,
-    require_height: bool = False,
     duckdb_connection=None,
 ) -> gpd.GeoDataFrame:
     """
@@ -153,7 +123,6 @@ def load_overture_building_parts_for_aoi(
         target_crs,
         source=source,
         parquet_path=parquet_path,
-        require_height=require_height,
         duckdb_connection=duckdb_connection,
         feature_type=OVERTURE_BUILDING_PART_TYPE,
     )
@@ -166,7 +135,6 @@ def _load_overture_building_features_for_aoi(
     release: str = None,
     source: str,
     parquet_path: Optional[str],
-    require_height: bool,
     duckdb_connection,
     feature_type: str,
 ) -> gpd.GeoDataFrame:
@@ -186,7 +154,6 @@ def _load_overture_building_features_for_aoi(
             con.execute("SET s3_use_ssl=true")
             con.execute("SET s3_requester_pays=false")
 
-        height_filter = "AND height IS NOT NULL AND height > 0" if require_height else ""
         query = f"""
             SELECT
                 {select_columns},
@@ -202,7 +169,6 @@ def _load_overture_building_features_for_aoi(
                 AND bbox.ymin <= ?
                 AND bbox.ymax >= ?
                 AND COALESCE(is_underground, false) = false
-                {height_filter}
         """
 
         df = con.execute(
@@ -285,137 +251,6 @@ def _explode_polygonal_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         exploded = gdf.explode(index_parts=False).reset_index(drop=True)
     return exploded[exploded.geometry.geom_type == "Polygon"].reset_index(drop=True)
 
-# DEPRECATED function: used in an earlier iteration to match Overture buildings to OSM footprints,
-# but we are now completely isolating Overture data from OSM data (if Overture data is used, no OSM data is used).
-# def lookup_overture_height(
-#     building_polygon: BaseGeometry,
-#     overture_buildings: gpd.GeoDataFrame,
-#     *,
-#     min_iou: float = 0.3,
-#     min_coverage: float = 0.5,
-#     floor_height_m: float = 3.5,
-#     use_num_floors: bool = True,
-#     use_height: bool = True,
-#     return_match: bool = False,
-# ) -> Union[Optional[float], Tuple[Optional[float], Optional[Dict[str, object]]]]:
-#     """
-#     Match one local building footprint to Overture candidates and return a height.
-
-#     ``building_polygon`` and ``overture_buildings`` must already be in the same
-#     CRS.
-
-#     The match accepts a candidate when either:
-#       * intersection-over-union is at least ``min_iou``; or
-#       * the candidate covers at least ``min_coverage`` of the local footprint.
-
-#     Parameters
-#     ----------
-#     building_polygon
-#         Local building footprint in the same CRS as ``overture_buildings``.
-#     overture_buildings
-#         GeoDataFrame returned by ``load_overture_buildings_for_aoi``.
-#     min_iou
-#         Minimum intersection-over-union needed for a match.
-#     min_coverage
-#         Minimum fraction of the local footprint covered by the candidate.
-#     floor_height_m
-#         Height per floor used when Overture has floor-count metadata but no
-#         explicit ``height``.
-#     use_num_floors
-#         If true, use Overture num_floors times ``floor_height_m`` as a fallback height.
-#     use_height
-#         If true, use explicit Overture ``height`` values.
-#     return_match
-#         If true, return ``(height, metadata)``. Otherwise return just height.
-
-#     Returns
-#     -------
-#     float or None
-#         Building height in meters when a matching Overture candidate has a
-#         usable height; otherwise None.
-#     """
-
-#     no_match = (None, None) if return_match else None
-#     if building_polygon is None or building_polygon.is_empty:
-#         return no_match
-#     if overture_buildings is None or len(overture_buildings) == 0:
-#         return no_match
-#     if "geometry" not in overture_buildings:
-#         return no_match
-
-#     building_area = building_polygon.area
-#     if building_area <= 0:
-#         return no_match
-
-#     candidate_idx = overture_buildings.sindex.query(
-#         building_polygon,
-#         predicate="intersects",
-#     )
-#     if len(candidate_idx) == 0:
-#         return no_match
-
-#     best = None
-#     candidates = overture_buildings.iloc[candidate_idx]
-#     for row_idx, row in candidates.iterrows():
-#         candidate_geom = row.geometry
-#         if candidate_geom is None or candidate_geom.is_empty:
-#             continue
-
-#         intersection_area = building_polygon.intersection(candidate_geom).area
-#         if intersection_area <= 0:
-#             continue
-
-#         candidate_area = candidate_geom.area
-#         union_area = building_area + candidate_area - intersection_area
-#         if candidate_area <= 0 or union_area <= 0:
-#             continue
-
-#         iou = intersection_area / union_area
-#         building_coverage = intersection_area / building_area
-#         candidate_coverage = intersection_area / candidate_area
-#         if iou < min_iou and building_coverage < min_coverage:
-#             continue
-
-#         height, source = _height_from_overture_row(
-#             row,
-#             floor_height_m=floor_height_m,
-#             use_height=use_height,
-#             use_num_floors=use_num_floors,
-#         )
-#         if height is None:
-#             continue
-
-#         # Prefer explicit Overture heights over floor-derived estimates, then
-#         # prefer the strongest geometric match.
-#         score = (
-#             1 if source == "height" else 0,
-#             iou,
-#             building_coverage,
-#             candidate_coverage,
-#             intersection_area,
-#         )
-#         if best is None or score > best["score"]:
-#             best = {
-#                 "height": height,
-#                 "score": score,
-#                 "metadata": {
-#                     "overture_id": row.get("id"),
-#                     "height_source": source,
-#                     "height": height,
-#                     "iou": iou,
-#                     "building_coverage": building_coverage,
-#                     "candidate_coverage": candidate_coverage,
-#                     "intersection_area": intersection_area,
-#                     "row_index": row_idx,
-#                 },
-#             }
-
-#     if best is None:
-#         return no_match
-#     if return_match:
-#         return best["height"], best["metadata"]
-#     return best["height"]
-
 
 def resolve_building_height(
     building: dict,
@@ -443,20 +278,17 @@ def resolve_building_height(
     to_4326
         Transformer from the scene CRS to EPSG:4326. Required with
         ``hag_handler`` because ``GeoTIFFHandler.query`` expects GPS coords.
+    floor_height_m : float, optional
+        Multiplier (in m) for number of floors to obtain height. Default: 3.5.
+    hag_sample_count : int, optional
+        Number of points to sample from LiDAR HAG. Default: 30.
+    min_hag_height_m : float, optional
+        Minimum height above ground in meters to be considered a valid sample when performing LiDAR HAG averaging. Default: 2.0.
+    lidar_height_calibration : boolean
+        If True, use LiDAR as a step in the height determination hierarchy.
     return_source
-        If true, return ``(height, metadata)``. Otherwise return just height.
+        If True, return ``(height, metadata)``. Otherwise return just height.
     """
-
-    # if height_mode == HEIGHT_MODE_LIDAR_OSM:
-    #     height = _height_from_hag(
-    #         building_polygon,
-    #         hag_handler=hag_handler,
-    #         to_4326=to_4326,
-    #         sample_count=hag_sample_count,
-    #         min_height_m=min_hag_height_m,
-    #     )
-    #     if height is not None:
-    #         return _height_result(height, "hag", return_source)
 
     for source_type in _height_mode_steps(lidar_height_calibration):
         height, source, metadata = _height_from_source(
@@ -667,7 +499,6 @@ def _height_from_source(
             sample_count=hag_sample_count,
             min_height_m=min_hag_height_m,
         )
-        # print("trying hag for", building)
         if height is not None:
             return height, "hag", None
         return None, None, None
@@ -679,7 +510,6 @@ def _height_from_source(
             use_height=True,
             use_num_floors=False,
         )
-        # print("trying overture height for", building)
         if height is not None:
             return height, f"overture:{source}", _overture_row_metadata(
                 building,
@@ -695,7 +525,6 @@ def _height_from_source(
             use_height=False,
             use_num_floors=True,
         )
-        # print("trying overture num floors for", building)
         if height is not None:
             return height, f"overture:{source}", _overture_row_metadata(
                 building,
@@ -757,53 +586,6 @@ def _height_from_hag(
     if math.isnan(height) or math.isinf(height):
         return None
     return height
-
-
-# def _explicit_height_from_osm(building: dict) -> Tuple[Optional[float], Optional[str]]:
-#     for key in ("building:height", "height"):
-#         height = _height_value_to_meters(building.get(key))
-#         if height is not None:
-#             return height, f"osm:{key}"
-#     return None, None
-
-
-# def _height_from_osm_levels(
-#     building: dict,
-#     floor_height_m: float,
-# ) -> Tuple[Optional[float], Optional[str]]:
-#     for key in ("building:levels", "levels"):
-#         levels = _positive_float(building.get(key))
-#         if levels is not None:
-#             return levels * floor_height_m, f"osm:{key}"
-#     return None, None
-
-
-def _height_value_to_meters(value) -> Optional[float]:
-    if value is None:
-        return None
-
-    numeric_value = _positive_float(value)
-    if numeric_value is not None:
-        return numeric_value
-
-    if not isinstance(value, str):
-        return None
-
-    normalized = value.strip().lower().replace(",", ".")
-    if not normalized:
-        return None
-
-    match = re.search(r"[-+]?\d*\.?\d+", normalized)
-    if not match:
-        return None
-
-    numeric_value = _positive_float(match.group(0))
-    if numeric_value is None:
-        return None
-
-    if "ft" in normalized or "feet" in normalized or "foot" in normalized:
-        return numeric_value * 0.3048
-    return numeric_value
 
 
 def _random_fallback_height(floor_height_m: float) -> float:

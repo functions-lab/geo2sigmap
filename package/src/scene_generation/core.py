@@ -986,7 +986,7 @@ class Scene:
 
 
         # osm data source
-        else:
+        elif building_data_source == "osm":
             if ground_material_type not in ITU_MATERIALS:
                 raise ValueError(f"Invalid ground material type: {ground_material_type}")
             if rooftop_material_type not in ITU_MATERIALS:
@@ -1567,6 +1567,10 @@ class Scene:
                 )
 
             return np.array(self._building_map)
+
+        # invalid building data source
+        else:
+            raise ValueError(f"Invalid building data source: {building_data_source}")
 
     def _draw_building(self, building_polygon, building_height):
         # Draw onto a temporary image

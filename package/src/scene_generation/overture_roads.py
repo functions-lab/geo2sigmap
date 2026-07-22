@@ -96,7 +96,7 @@ def load_overture_roads_for_aoi(
         scene's UTM CRS before buffering centerlines into road footprints.
     source
         Cloud source for the default path. Supported values: ``"s3"`` and
-        ``"azure"``.
+        ``"azure"``. Defaults to ``"s3"``.
     parquet_path
         Override path for testing or pinned local/cloud data. This should
         point at the Overture transportation segment GeoParquet partition.
@@ -240,7 +240,7 @@ def build_road_polygon(line: BaseGeometry, width_m: float) -> Optional[Polygon]:
 def _first_rule_value(rules):
     # `width_rules` / `road_surface` are lists of {"value": ..., "between": ...}
     # scoped-rule structs. Prefer a rule that applies to the whole segment
-    # (`between` is null); otherwise fall back to the first rule.
+    # (`between` is null); otherwise, fall back to the first rule.
     if rules is None:
         return None
     try:

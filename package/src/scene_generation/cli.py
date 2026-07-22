@@ -323,7 +323,7 @@ def main():
         logger.error(f"Invalid wall material: {args.wall_material}")
         sys.exit(1)
 
-    if args.road_visual_material not in range(len(ITU_MATERIALS)):
+    if args.road_visual_material is not None and args.road_visual_material not in range(len(ITU_MATERIALS)):
         logger.error(f"Invalid road visualization material: {args.road_visual_material}")
         sys.exit(1)
 
@@ -357,7 +357,7 @@ def main():
             dem_terrain=args.enable_dem_terrain,
             building_data_source=args.building_data_source,
             generate_roads = args.generate_roads,
-            road_material_type=list(ITU_MATERIALS.items())[args.road_visual_material][0]
+            road_material_type = None if not args.road_visual_material else list(ITU_MATERIALS.items())[args.road_visual_material][0]
         )
     elif args.command == "point":
         polygon_points_gps = rect_from_point_and_size(
@@ -383,7 +383,7 @@ def main():
             dem_terrain=args.enable_dem_terrain,
             building_data_source=args.building_data_source,
             generate_roads = args.generate_roads,
-            road_material_type=list(ITU_MATERIALS.items())[args.road_visual_material][0]
+            road_material_type = None if not args.road_visual_material else list(ITU_MATERIALS.items())[args.road_visual_material][0]
         )
     elif args.command == "validate":
         res_dict = {

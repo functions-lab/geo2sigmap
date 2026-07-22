@@ -399,8 +399,8 @@ def random_building_height(building: dict, building_polygon: Polygon) -> float:
         building_height = float(building['height'])
     elif 'building:levels' in building and is_float(building['building:levels']):
         building_height = float(building['building:levels']) * 3.5
-    elif 'level' in building and is_float(building['level']):
-        building_height = float(building['level']) * 3.5
+    elif 'levels' in building and is_float(building['levels']):
+        building_height = float(building['levels']) * 3.5
     else:
         # Fallback random height (units: meters)
         building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))

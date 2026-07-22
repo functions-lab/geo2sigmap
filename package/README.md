@@ -27,26 +27,31 @@ To see all available options for scene generation, use `-h`:
 ### 1) Generate 3D Scene using Four Corner Points
 
 ```console
-$ scenegen bbox -71.0602 42.3512 -71.0484 42.3591 --data-dir scenes/Boston
+$ scenegen bbox -74.008934 40.710506 -74.002948 40.715061 --data-dir scenes/NewYork
 
-[INFO] Check the bbox at http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484
-[INFO] Using UTM Zone: EPSG:32619
+[INFO] Check the bbox at http://bboxfinder.com/#40.7105,-74.0089,40.7151,-74.0029
+[INFO] Using UTM Zone: EPSG:32618
 [INFO] 
-[INFO] Ground Material Type:           Wet Ground       | Frequency Range:   1   -  10   (GHz)
-[INFO] Building Rooftop Material Type: Metal            | Frequency Range:   1   -  100  (GHz)
-[INFO] Building Wall Material Type:    Concrete         | Frequency Range:   1   -  100  (GHz)
+[INFO] Ground Material Type:              Wet Ground           | Frequency Range:   1   -  10   (GHz)
+[INFO] Building Rooftop Material Type:    Metal                | Frequency Range:   1   -  100  (GHz)
+[INFO] Building Wall Material Type:       Concrete             | Frequency Range:   1   -  100  (GHz)
 [INFO] 
-[INFO] Estimated ground polygon size: width=994m, height=901m
-Parsing buildings: 100%|█████████████████████| 389/389 [00:00<00:00, 1403.12it/s]
+[INFO] Estimated ground polygon size: width=512m, height=512m
+Using Overture release: s3://overturemaps-us-west-2/release/2026-07-22.0/theme=buildings/type=building/*
+[INFO] Loaded 162 Overture building candidates
+Using Overture release: s3://overturemaps-us-west-2/release/2026-07-22.0/theme=buildings/type=building_part/*
+[INFO] Loaded 186 Overture building_part candidates
+[INFO] Found 129 Overture buildings and 186 building parts before pruning
+Parsing buildings: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 315/315 [00:00<00:00, 391.49it/s]
 ```
-The above commands generate a 3D scene for an area in downtown Boston. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#42.3512,-71.0602,42.3591,-71.0484).
+The above commands generate a 3D scene for an area around New York City's city hall. You can preview or verify the bounding box at [bboxfinder.com](http://bboxfinder.com/#40.7105,-74.0089,40.7151,-74.0029).
 
-Note: By default, the scene will render the terrain as a flat plane. See [Tutorial 3](#3-generate-3d-scene-using-lidar-or-dem-data) to include elevation and terrain information.
+Note: By default, the scene will render the terrain as a flat plane. See [Tutorial 1](#1-sionna_coverage_map.ipynb) to include elevation and terrain information.
 
-Choose the building height source mode with `--building-height-mode`:
+Choose the building data source mode with `--building-data-source`:
 
-- `lidar-osm` or `1`: LiDAR HAG sampling and averaging, OSM explicit height tags (`building:height`, then `height`), OSM floor-count tags (`building:levels`, then `levels`), then random Gaussian fallback. This is the default.
-- `overture` or `2`: Overture footprints with Overture BuildingParts preferred when available for more detailed geometry. Heights use Overture exact height, Overture levels times floor height, LiDAR HAG sampling and averaging, then random Gaussian fallback; part base offsets use Overture `min_height` or `min_floor` when present. This mode does not query OSM buildings.
+- `overture`: Footprints and heights are sourced from Overture buildings and building parts. Heights of buildings and parts are determined according to the following hierarchy: Overture `height` tag, Overture `num_floors` tag * floor height multiplier, LiDAR HAG sampling and averaging if the `enable-lidar-height-calibration` is also used, and then random Gaussian fallback. If `min_height` or, secondarily, `min_floor` is available in Overture, building/part height is offset accordingly. Pruning of buildings with associated parts and detection/correction of some common Overture contributor misinterpretations is performed. `overture` is the default selection for building data source.
+- `osm`: Footprints and heights are sourced from OSM buildings. Heights of buildings are determined accoridng to the following hierarchy: LiDAR HAG sampling and averaging if the `enable-lidar-height-calibration` is also used, OSM `building:height` tag, OSM `height` tag, OSM `building:levels` tag, OSM `levels` tag, and then random Gaussian fallback.
 
 ### 2) Generate 3D Scene using One Point + Rectangle Dimension
 ```console

@@ -116,11 +116,11 @@ class Scene:
         wall_material_type : str, optional
             ITU material id (a key in ``ITU_MATERIALS``) used for wall meshes. Defaults to "mat-itu_concrete".
         lidar_terrain : bool, optional
-            If True, use LiDAR data to generate the ground terrain. Defaults to False.
+            If True, use LiDAR data to generate the ground terrain (if dem_terrain is True, uses DEM data to generate the ground terrain). Defaults to False.
         dem_terrain : bool, optional
-            If True, use DEM data to generate the ground terrain. Defaults to False.
+            If True and lidar_terrain is True, use DEM data to generate the ground terrain. Defaults to False.
         gen_lidar_terrain_only : bool, optional
-            If True, . Defaults to False.
+            If True, generates only the terrain mesh, no buildings or roads. Defaults to False.
         building_data_source : str, optional
             Choose which data source to use for building footprints and heights. Choices: "overture", "osm". Defaults to "overture".
         generate_roads : bool, optional
@@ -167,7 +167,7 @@ class Scene:
             )
 
             # ---------------------------------------------------------------------
-            # 2) Prepare output directories and camera / material settings
+            # Prepare output directories and camera / material settings
             # ---------------------------------------------------------------------
             mesh_data_dir = os.path.join(data_dir, "mesh")
             os.makedirs(os.path.join(mesh_data_dir), exist_ok=True)
@@ -212,18 +212,14 @@ class Scene:
             print_material_info("Building Wall", wall_material_type)
             logger.info("")
 
-
-
             camera_settings = {
                 "rotation": (0, 0, -90),  # Assuming Z-up orientation
                 "fov": 42.854885,
             }
 
             # ---------------------------------------------------------------------
-            # 3) Build the XML scene root
+            # Build the XML scene root
             # ---------------------------------------------------------------------
-
-
             # Default Mitsuba rendering parameters
             spp_default = 4096
             resx_default = 1024
@@ -234,31 +230,25 @@ class Scene:
             ET.SubElement(scene, "default", name="spp", value=str(spp_default))
             ET.SubElement(scene, "default", name="resx", value=str(resx_default))
             ET.SubElement(scene, "default", name="resy", value=str(resy_default))
-
             ET.SubElement(scene, "default", name="scenegen_version", value=str(get_package_version()))
             ET.SubElement(scene, "default", name="scenegen_create_time", value=str(datetime.datetime.now()))
-
             ET.SubElement(scene, "default", name="scenegen_min_lat", value=str(points[0][1]))
             ET.SubElement(scene, "default", name="scenegen_max_lat", value=str(points[1][1]))
             ET.SubElement(scene, "default", name="scenegen_min_lon", value=str(points[0][0]))
             ET.SubElement(scene, "default", name="scenegen_max_lon", value=str(points[2][0]))
-            
             ET.SubElement(scene, "default", name="scenegen_ground_material", value=str(ground_material_type))
             ET.SubElement(scene, "default", name="scenegen_rooftop_material", value=str(rooftop_material_type))
             ET.SubElement(scene, "default", name="scenegen_wall_material", value=str(wall_material_type))
-
             ET.SubElement(scene, "default", name="scenegen_UTM_zone", value=str(projection_UTM_EPSG_code))
-            
+    
             integrator = ET.SubElement(scene, "integrator", type="path")
             ET.SubElement(integrator, "integer", name="max_depth", value="12")
 
             # Define materials
             for material_id, material_content in ITU_MATERIALS.items():
-                
                 # Temporary workaround for Sionna v1.1 : Skip vacuum and P.527 materials.
                 if "vacuum" in material_id in material_id:
                     continue
-
                 if "P.527" not in material_id:
                     bsdf_twosided = ET.SubElement(
                         scene, "bsdf", type="twosided", id=material_id
@@ -276,7 +266,6 @@ class Scene:
                         scene, "bsdf", type="radio-material", id=material_id
                     )
                     
-
             # Add emitter (constant environment light)
             emitter = ET.SubElement(scene, "emitter", type="constant", id="World")
             ET.SubElement(
@@ -316,9 +305,8 @@ class Scene:
             ET.SubElement(film, "integer", name="height", value="$resy")
 
             # ---------------------------------------------------------------------
-            # 4) Create ground polygon (in UTM) and ground mesh
+            # Create ground polygon (in UTM) and ground mesh
             # ---------------------------------------------------------------------
-
             # # Define the points in counter-clockwise order to create the polygon
             # points = [top_left, top_right, bottom_right, bottom_left]
             ground_polygon_4326 = shapely.geometry.Polygon(points)
@@ -337,9 +325,8 @@ class Scene:
             ET.SubElement(scene, "default", name="scenegen_center_lat", value=f"{ground_polygon_4326.envelope.centroid.y:.6f}")
             ET.SubElement(scene, "default", name="scenegen_center_lon", value=f"{ground_polygon_4326.envelope.centroid.x:.6f}")
 
-
             # ---------------------------------------------------------------------
-            # 0) Query USGS 3DEP LiDAR data and generate GEOTIFF file for building height calibration
+            # Query USGS 3DEP LiDAR data and generate GEOTIFF file for building height calibration
             # ---------------------------------------------------------------------
             try:
                 laz_file_path = Path(os.path.join(data_dir, "test_hag.laz"))
@@ -350,6 +337,7 @@ class Scene:
                         from .USGS_LiDAR_HAG import generate_hag
                         
                         generate_hag(affinity.scale(ground_polygon_4326, xfact=ground_scale, yfact=ground_scale, origin='centroid'), data_dir, projection_UTM_EPSG_code)
+
                     if lidar_height_calibration and hag_tiff_path is None and tif_file_path.exists():
                         hag_tiff_path = str(tif_file_path)
                     
@@ -368,7 +356,6 @@ class Scene:
                                 os.path.join(mesh_data_dir, f"lidar_terrain.ply")
                             )
                         else:
-                            
                             generate_terrain_mesh(os.path.join(data_dir, "test_hag.laz"),
                                 os.path.join(mesh_data_dir, f"lidar_terrain.ply"), src_crs=projection_UTM_EPSG_code, dest_crs=projection_UTM_EPSG_code,
                                 plot_figures=False, center_x=center_x, center_y=center_y
@@ -378,11 +365,13 @@ class Scene:
                     return
             except Exception as e:
                 print(e)
+
             if lidar_terrain:
-                lidar_terrain_ply_path = Path(os.path.join(data_dir,"mesh" ,"lidar_terrain.ply"))
+                lidar_terrain_ply_path = Path(os.path.join(data_dir, "mesh", "lidar_terrain.ply"))
                 if not lidar_terrain_ply_path.exists():
                     return 1
                 surface_mesh = pv.read(lidar_terrain_ply_path)
+
             #######Open3D#######
             outer_xy = unique_coords(
                 reorder_localize_coords(ground_polygon.exterior, center_x, center_y)
@@ -406,11 +395,11 @@ class Scene:
             logger.debug(f"Verts: {verts}, Edges: {edges}")
 
             # Triangulate needs to know a single interior point for each hole
-            # Using the centroid works here, but for very non-convex holes may need a more sophisticated method,
+            # Using the centroid works here, but for very non-convex holes, may need a more sophisticated method,
             # e.g. shapely's `polylabel`
             holes = np.array([np.mean(h, axis=0) for h in holes_xy])
 
-            # Because triangulate is a wrapper around a C library the syntax is a little weird, 'p' here means planar straight line graph
+            # Because triangulate is a wrapper around a C library, the syntax is a little weird. 'p' here means planar straight line graph
             d = triangulate(dict(vertices=verts, segments=edges), opts="p")
 
             # Convert back to pyvista
@@ -446,7 +435,7 @@ class Scene:
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             # ---------------------------------------------------------------------
-            # 5) Query buildings within the bounding box
+            # Query buildings within the bounding box
             # ---------------------------------------------------------------------
 
             # ground_polygon_4326_bbox => (west, south, east, north)
@@ -454,6 +443,7 @@ class Scene:
             south = ground_polygon_4326_bbox[1]  # miny
             east = ground_polygon_4326_bbox[2]  # maxx
             north = ground_polygon_4326_bbox[3]  # maxy
+
             # Calculate width/height in UTM
             width = math.ceil(ground_polygon_bbox[2] - ground_polygon_bbox[0])
             height = math.ceil(ground_polygon_bbox[3] - ground_polygon_bbox[1])
@@ -532,7 +522,7 @@ class Scene:
                     parts_by_parent_id.get(str(building.get("id")),[]),
                 )
             ]
-            parent_buildings_to_be_mapped = {building.get("id") for building in building_records}
+
             # buildings where height and num_floors are both None
             buildings_without_height_or_num_floors = []
             # buildings where height is None but num_floors is not None
@@ -556,40 +546,16 @@ class Scene:
                             *parts_with_height
                             ]
             
-            # for b in buildings_list:
-            #     print(b.get("id"), b.get("overture_feature_type"), type(b.get("height")),b.get("height"), b.get("num_floors"))
-            # print("end of printing out building list")
-            # buildings_list.sort(key=resolve_building_base_height)
             logger.info(
-                "Using %d Overture building footprints and %d building parts",
+                "Found %d Overture buildings and %d building parts before pruning",
                 len(building_records),
                 len(part_records),
             )
-            # Deprecated: Using OSM
-            # else:
-            #     # OSMnx features API uses bounding box in the form (north, south, east, west)
-            #     logger.debug(
-            #         f"OSM bounding box: (north={north}, south={south}, east={east}, west={west})"
-            #     )
-            #     # buildings are identified from OSM (look for bounding box and "building" tag)
-            #     buildings = ox.features.features_from_bbox(
-            #         bbox=ground_polygon_4326_bbox, tags={"building": True}
-            #     )
-            #     buildings = buildings.to_crs(projection_UTM_EPSG_code)
-
-            #     # Filter out the building which outside the bounding box since
-            #     # OSM will return some extra buildings.
-            #     filtered_buildings = buildings[buildings.intersects(ground_polygon)]
-            #     buildings_list = filtered_buildings.to_dict("records")
-
-            # ---------------------------------------------------------------------
-            # 6) If generating building map, prepare an empty grayscale image
-            # ---------------------------------------------------------------------
-            # Create a new empty Image, mode 'I' means 32bit integer grayscale image.
+            
             self._building_map = Image.new("I", (width, height), 0)
 
             # ---------------------------------------------------------------------
-            # 7) Init the building height handler. (osm or lidar)
+            # Init the building height handler.
             # ---------------------------------------------------------------------
             if lidar_height_calibration:
                 try:
@@ -600,11 +566,11 @@ class Scene:
                 hag_handler = None
 
             # ---------------------------------------------------------------------
-            # 8) Process each building to create a 3D mesh (extrude by building height)
+            # Process each building to create a 3D mesh (extrude by building height)
             # ---------------------------------------------------------------------
 
             # store centroid and building height information in a dataframe
-            centroids_and_heights = []
+            # centroids_and_heights = []
 
             # convert each record to a Shapely footprint
             for idx, building in tqdm(
@@ -612,9 +578,6 @@ class Scene:
                 total=len(buildings_list),
                 desc="Parsing buildings",
             ):
-                # Debug the inner hole buildings
-                # if building['type'] != "multipolygon":
-                #     continue
                 # Convert building geometry to a shapely polygon
                 geometry = building["geometry"]
                 if isinstance(geometry, BaseGeometry):
@@ -629,44 +592,6 @@ class Scene:
                     continue
 
                 # Height prioritization hierarchy
-                '''
-                # First, try to get building height from LiDAR
-                if hag_handler:
-                    # sample 30 random points within the building footprint
-                    random_points = generate_random_points(building_polygon, 30)
-                    abs_height = []
-                    for point in random_points:
-                        res = hag_handler.query(to_4326.transform(point.x, point.y), False)
-                        abs_height.append(res)
-
-                    # plt.scatter([point.x for point in random_points ],[point.y for point in random_points ], c=abs_height, cmap='viridis')
-                    # plt.colorbar(label='Height above ground (DSM - DEM) meters')
-
-                    # plt.title('Random Points within a Building Polygon')
-                    # plt.xlabel('Longitude EPSG:6933')
-                    # plt.ylabel('Latitude EPSG:6933')
-                    # plt.show()
-                    print("Building height list: ", abs_height)
-                    print()
-                    filtered_list = [
-                        x for x in abs_height if x.size > 0 and x != -9999 and x > 2
-                    ]
-                    print("Building height list: ", abs_height)
-                    print()
-                    try:
-                        # use the mean of valid HAG samples
-                        building_height = np.mean(filtered_list)
-                        print("Avg Building Height: ", building_height)
-                        if math.isnan(building_height):
-                            raise ValueError("The value is NaN")
-                    except Exception as e:
-                        # fallback: random_building_height()
-                        print("Random Building Height: ", building_height)
-                        building_height = random_building_height(building, building_polygon)
-                else:
-                    # if no LiDAR, directly use random_building_height()
-                    building_height = random_building_height(building, building_polygon)
-                '''
                 building_height = resolve_building_height(
                     building,
                     building_polygon,
@@ -708,17 +633,17 @@ class Scene:
                             '''
                             building_base_height = 0.0
 
-                # Skip buildings with height <= 0 m
+                # Skip buildings with non-positive height
                 if building_height <= 0:
                     continue
-                # building_height = NYC_LiDAR_building_height(building, building_polygon)
 
                 outer_xy = unique_coords(
                     reorder_localize_coords(building_polygon.exterior, center_x, center_y)
                 )
                 
                 # USE THE BELOW SECTION FOR BUILDING CENTROID AND HEIGHT INFO
-                # WITH LIDAR TERRAIN TURNED OFF
+                # WITH LIDAR TERRAIN TURNED OFF (also uncomment prev setup line for centroids_and_heights list)
+                """
                 centroid = building_polygon.centroid
                 centroid_lon, centroid_lat = to_4326.transform(
                     centroid.x, centroid.y
@@ -737,6 +662,7 @@ class Scene:
                         "height_above_ground": building_height + building_base_height,
                     }
                 )
+                """
                 # USE THE ABOVE SECTION FOR BUILDING CENTROID AND HEIGHT INFO
                 # WITH LIDAR TERRAIN TURNED OFF
                 
@@ -744,31 +670,6 @@ class Scene:
                     mesh = surface_mesh
                     # Z bounds of the mesh
                     bottom, top = mesh.bounds[-2:]
-                    # buffer = 1.0
-                    # res_z = []
-                    # for points in outer_xy:
-                    #     # Define two points that form a line that interesects the mesh
-                    #     x = points[0]
-                    #     y = points[1]
-                    #     start = [x, y, bottom - buffer]
-                    #     stop = [x, y, top + buffer]
-                        
-                    #     # Perform ray trace
-                    #     points, ind = mesh.ray_trace(start, stop)
-                        
-                    #     # Create geometry to represent ray trace
-                    #     ray = pv.Line(start, stop)
-                    #     intersection = pv.PolyData(points)
-                    #     res_z.append(intersection.bounds[-1])
-
-                    # res_z = np.array(res_z)
-                    # res_z[res_z == -1e+299] = 1e+299
-                    # #print(res_z)
-                    # building_z_value = int(np.floor(np.min(res_z)))
-
-                    
-                    # if building_z_value > 1e+20:
-                    #     building_z_value = 0
 
                     from concurrent.futures import ThreadPoolExecutor
 
@@ -783,19 +684,13 @@ class Scene:
                     with ThreadPoolExecutor() as executor:
                         res_z_parallel = list(executor.map(lambda pt: ray_trace_z(pt[0], pt[1]), outer_xy))
                     building_z_value = int(np.floor(np.min(res_z_parallel)))
-                    #building_z_value = int(np.floor(np.min(res_z)))
-
-                    #assert building_z_value_parallel == building_z_value, f"differ value for parallel and single-thread:\n\t parallel {building_z_value_parallel} single-threaded {building_z_value}"
+ 
                     if building_z_value > 1e+20:
                         building_z_value = 0
+
                 else:
                     building_z_value = 0
                 building_base_z_value = building_z_value + building_base_height
-                    
-            
-                #print("Building's Z-value: ", building_z_value)
-                
-                
 
                 holes_xy = []
                 if len(list(building_polygon.interiors)) != 0:
@@ -819,11 +714,11 @@ class Scene:
                 verts, edges = np.concatenate(verts), np.concatenate(edges)
 
                 # Triangulate needs to know a single interior point for each hole
-                # Using the centroid works here, but for very non-convex holes may need a more sophisticated method,
+                # Using the centroid works here, but for very non-convex holes, may need a more sophisticated method,
                 # e.g. shapely's `polylabel`
                 holes = np.array([np.mean(h, axis=0) for h in holes_xy])
 
-                # Because triangulate is a wrapper around a C library the syntax is a little weird, 'p' here means planar straight line graph
+                # Because triangulate is a wrapper around a C library, the syntax is a little weird. 'p' here means planar straight line graph
                 if len(holes) != 0:
                     d = triangulate(
                         dict(vertices=verts, segments=edges, holes=holes), opts="p"
@@ -835,10 +730,6 @@ class Scene:
                 v, f = d["vertices"], d["triangles"]
                 nv, nf = len(v), len(f)
 
-                # print(v)
-                # print(f)
-
-                #points = np.concatenate([v, np.zeros((nv, 1))], axis=1)
                 points = np.concatenate([v, np.full((nv, 1), fill_value=building_base_z_value)], axis=1)
         
                 mesh_o3d = o3d.t.geometry.TriangleMesh()
@@ -862,10 +753,6 @@ class Scene:
                 top_vertex_indices = np.where(np.isclose(z_values, building_top_z_value))[
                     0
                 ].tolist()  # Indices of top vertices
-                #print("top vertex indices: ", top_vertex_indices)
-                
-
-
 
                 # Extract the top surface
                 top_surface = wedge_t.select_by_index(top_vertex_indices)
@@ -880,14 +767,8 @@ class Scene:
                     print("building z value: ", building_z_value)
                     print("building base height: ", building_base_height)
                     print("building top z value: ", building_top_z_value)
-                    
-                
                     print("other faces np: ", other_faces_np)
-                    print("max height of meshes: ", np.max(z_values))
-                    print("building height: ", building_height)
-                    print("building z value: ", building_z_value)
-                    print("building base height: ", building_base_height)
-                    print("building top z value: ", building_top_z_value)
+
                 # Convert to Open3D Tensor API
                 other_faces_o3c = o3c.Tensor(other_faces_np, dtype=o3c.int32)
 
@@ -907,8 +788,6 @@ class Scene:
                     wall_mesh,
                     write_ascii=write_ply_ascii,
                 )
-
-                # o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
 
                 # Add shape elements for PLY files in the folder
                 sionna_shape = ET.SubElement(
@@ -944,7 +823,7 @@ class Scene:
             del hag_handler
 
             # ---------------------------------------------------------------------
-            # 9) Query Overture roads within the bounding box and mesh them flat
+            # Query Overture roads within the bounding box and mesh them flat
             # ---------------------------------------------------------------------
             if generate_roads:
                 try:
@@ -1080,14 +959,17 @@ class Scene:
                     ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             # Save the centroids and heights to a CSV file
+            """
             centroids_and_heights_df = pd.DataFrame(centroids_and_heights)
             centroids_and_heights_df.to_csv(
                 os.path.join(data_dir, "building_centroids_and_heights.csv"), index=False
             )
+            """
+
             xml_string = ET.tostring(scene, encoding="utf-8")
             xml_pretty = minidom.parseString(xml_string).toprettyxml(
                 indent="    "
-            )  # Adjust the infdent as needed
+            )  # Adjust the indent as needed
 
             with open(
                 os.path.join(data_dir, "scene.xml"), "w", encoding="utf-8"
@@ -1101,6 +983,8 @@ class Scene:
                 )
 
             return np.array(self._building_map)
+
+
         # osm data source
         else:
             if ground_material_type not in ITU_MATERIALS:
@@ -1111,7 +995,7 @@ class Scene:
                 raise ValueError(f"Invalid wall material type: {wall_material_type}")
             
             # ---------------------------------------------------------------------
-            # 1) Setup OSM server and transforms
+            # Setup OSM server and transforms
             # ---------------------------------------------------------------------
             if osm_server_addr:
                 ox.settings.overpass_url = osm_server_addr
@@ -1132,7 +1016,7 @@ class Scene:
             )
 
             # ---------------------------------------------------------------------
-            # 2) Prepare output directories and camera / material settings
+            # Prepare output directories and camera / material settings
             # ---------------------------------------------------------------------
             mesh_data_dir = os.path.join(data_dir, "mesh")
             os.makedirs(os.path.join(mesh_data_dir), exist_ok=True)
@@ -1177,18 +1061,14 @@ class Scene:
             print_material_info("Building Wall", wall_material_type)
             logger.info("")
 
-
-
             camera_settings = {
                 "rotation": (0, 0, -90),  # Assuming Z-up orientation
                 "fov": 42.854885,
             }
 
             # ---------------------------------------------------------------------
-            # 3) Build the XML scene root
+            # Build the XML scene root
             # ---------------------------------------------------------------------
-
-
             # Default Mitsuba rendering parameters
             spp_default = 4096
             resx_default = 1024
@@ -1199,35 +1079,25 @@ class Scene:
             ET.SubElement(scene, "default", name="spp", value=str(spp_default))
             ET.SubElement(scene, "default", name="resx", value=str(resx_default))
             ET.SubElement(scene, "default", name="resy", value=str(resy_default))
-
             ET.SubElement(scene, "default", name="scenegen_version", value=str(get_package_version()))
             ET.SubElement(scene, "default", name="scenegen_create_time", value=str(datetime.datetime.now()))
-
             ET.SubElement(scene, "default", name="scenegen_min_lat", value=str(points[0][1]))
             ET.SubElement(scene, "default", name="scenegen_max_lat", value=str(points[1][1]))
             ET.SubElement(scene, "default", name="scenegen_min_lon", value=str(points[0][0]))
             ET.SubElement(scene, "default", name="scenegen_max_lon", value=str(points[2][0]))
-            
-
-
             ET.SubElement(scene, "default", name="scenegen_ground_material", value=str(ground_material_type))
             ET.SubElement(scene, "default", name="scenegen_rooftop_material", value=str(rooftop_material_type))
             ET.SubElement(scene, "default", name="scenegen_wall_material", value=str(wall_material_type))
-
             ET.SubElement(scene, "default", name="scenegen_UTM_zone", value=str(projection_UTM_EPSG_code))
-            
-        
 
             integrator = ET.SubElement(scene, "integrator", type="path")
             ET.SubElement(integrator, "integer", name="max_depth", value="12")
 
             # Define materials
             for material_id, material_content in ITU_MATERIALS.items():
-                
                 # Temporary workaround for Sionna v1.1 : Skip vacuum and P.527 materials.
                 if "vacuum" in material_id in material_id:
                     continue
-
                 if "P.527" not in material_id:
                     bsdf_twosided = ET.SubElement(
                         scene, "bsdf", type="twosided", id=material_id
@@ -1245,7 +1115,6 @@ class Scene:
                         scene, "bsdf", type="radio-material", id=material_id
                     )
                     
-
             # Add emitter (constant environment light)
             emitter = ET.SubElement(scene, "emitter", type="constant", id="World")
             ET.SubElement(
@@ -1285,10 +1154,9 @@ class Scene:
             ET.SubElement(film, "integer", name="height", value="$resy")
 
             # ---------------------------------------------------------------------
-            # 4) Create ground polygon (in UTM) and ground mesh
+            # Create ground polygon (in UTM) and ground mesh
             # ---------------------------------------------------------------------
-
-            # # Define the points in counter-clockwise order to create the polygon
+            # Define the points in counter-clockwise order to create the polygon
             # points = [top_left, top_right, bottom_right, bottom_left]
             ground_polygon_4326 = shapely.geometry.Polygon(points)
             ground_polygon_4326_bbox = ground_polygon_4326.bounds
@@ -1306,9 +1174,8 @@ class Scene:
             ET.SubElement(scene, "default", name="scenegen_center_lat", value=f"{ground_polygon_4326.envelope.centroid.y:.6f}")
             ET.SubElement(scene, "default", name="scenegen_center_lon", value=f"{ground_polygon_4326.envelope.centroid.x:.6f}")
 
-
             # ---------------------------------------------------------------------
-            # 0) Query USGS 3DEP LiDAR data and generate GEOTIFF file for building height calibration
+            # Query USGS 3DEP LiDAR data and generate GEOTIFF file for building height calibration
             # ---------------------------------------------------------------------
             try:
                 laz_file_path = Path(os.path.join(data_dir, "test_hag.laz"))
@@ -1320,28 +1187,19 @@ class Scene:
                         
                         generate_hag(affinity.scale(ground_polygon_4326, xfact=ground_scale, yfact=ground_scale, origin='centroid'), data_dir, projection_UTM_EPSG_code)
                     
-        
-                
-
-        
                 if lidar_terrain:
                     from .lidar_terrain_mesh import generate_terrain_mesh
-        
-        
-        
+    
                     assert laz_file_path.exists(), f"LAZ file does not exist: {laz_file_path}"
-        
                     assert tif_file_path.exists(), f"TIF file does not exist: {tif_file_path}"
                     print("Skip the lidar_terrain.ply")
                     if not Path(os.path.join(data_dir,"mesh" ,"lidar_terrain.ply")).exists():
-
                         if dem_terrain:
                             generate_terrain_mesh_dem(
                                 affinity.scale(ground_polygon_4326, xfact=ground_scale, yfact=ground_scale, origin='centroid'),
                                 os.path.join(mesh_data_dir, f"lidar_terrain.ply")
                             )
                         else:
-                            
                             generate_terrain_mesh(os.path.join(data_dir, "test_hag.laz"),
                                 os.path.join(mesh_data_dir, f"lidar_terrain.ply"), src_crs=projection_UTM_EPSG_code, dest_crs=projection_UTM_EPSG_code,
                                 plot_figures=False, center_x=center_x, center_y=center_y
@@ -1356,6 +1214,7 @@ class Scene:
                 if not lidar_terrain_ply_path.exists():
                     return 1
                 surface_mesh = pv.read(lidar_terrain_ply_path)
+
             #######Open3D#######
             outer_xy = unique_coords(
                 reorder_localize_coords(ground_polygon.exterior, center_x, center_y)
@@ -1379,11 +1238,11 @@ class Scene:
             logger.debug(f"Verts: {verts}, Edges: {edges}")
 
             # Triangulate needs to know a single interior point for each hole
-            # Using the centroid works here, but for very non-convex holes may need a more sophisticated method,
+            # Using the centroid works here, but for very non-convex holes, may need a more sophisticated method,
             # e.g. shapely's `polylabel`
             holes = np.array([np.mean(h, axis=0) for h in holes_xy])
 
-            # Because triangulate is a wrapper around a C library the syntax is a little weird, 'p' here means planar straight line graph
+            # Because triangulate is a wrapper around a C library, the syntax is a little weird. 'p' here means planar straight line graph
             d = triangulate(dict(vertices=verts, segments=edges), opts="p")
 
             # Convert back to pyvista
@@ -1392,14 +1251,11 @@ class Scene:
             points = np.concatenate([v, np.zeros((nv, 1))], axis=1)
 
             logger.debug(f"points from triangulate: {points}")
-            # print("faces from triangulate", faces)
 
             # Build Open3D TriangleMesh
             mesh_o3d = o3d.t.geometry.TriangleMesh()
             mesh_o3d.vertex.positions = o3d.core.Tensor(points)
             mesh_o3d.triangle.indices = o3d.core.Tensor(f)
-
-            # logger.debug(f"mesh_o3d.get_center():{mesh_o3d.scale(1.2, mesh_o3d.get_center())}" )
 
             mesh_o3d.scale(ground_scale, mesh_o3d.get_center())
             o3d.t.io.write_triangle_mesh(
@@ -1419,7 +1275,7 @@ class Scene:
             ET.SubElement(sionna_shape, "boolean", name="face_normals", value="true")
 
             # ---------------------------------------------------------------------
-            # 5) Query OSM for buildings within the bounding box
+            # Query OSM for buildings within the bounding box
             # ---------------------------------------------------------------------
 
             # ground_polygon_4326_bbox => (west, south, east, north)
@@ -1435,10 +1291,6 @@ class Scene:
             ET.SubElement(scene, "default", name="scenegen_bbox_width", value=str(width))
             ET.SubElement(scene, "default", name="scenegen_bbox_length", value=str(height))
 
-            # if width > 5000 or height > 5000:
-            #     logger.warning(f"Too large!")
-            #     exit(-1)
-
             # OSMnx features API uses bounding box in the form (north, south, east, west)
             logger.debug(
                 f"OSM bounding box: (north={north}, south={south}, east={east}, west={west})"
@@ -1448,19 +1300,19 @@ class Scene:
             )
             buildings = buildings.to_crs(projection_UTM_EPSG_code)
 
-            # Filter out the building which outside the bounding box since
+            # Filter out the buildings which are outside the bounding box since
             # OSM will return some extra buildings.
             filtered_buildings = buildings[buildings.intersects(ground_polygon)]
             buildings_list = filtered_buildings.to_dict("records")
 
             # ---------------------------------------------------------------------
-            # 6) If generating building map, prepare an empty grayscale image
+            # If generating building map, prepare an empty grayscale image
             # ---------------------------------------------------------------------
             # Create a new empty Image, mode 'I' means 32bit grayscale image.
             self._building_map = Image.new("I", (width, height), 0)
 
             # ---------------------------------------------------------------------
-            # 7) Init the building height handler. (osm or lidar)
+            # Init the building height handler
             # ---------------------------------------------------------------------
             if lidar_height_calibration:
                 try:
@@ -1471,19 +1323,16 @@ class Scene:
                 hag_handler = None
 
             # ---------------------------------------------------------------------
-            # 8) Process each building to create a 3D mesh (extrude by building height)
+            # Process each building to create a 3D mesh (extrude by building height)
             # ---------------------------------------------------------------------
 
-            centroids_and_heights = []
+            # centroids_and_heights = []
 
             for idx, building in tqdm(
                 enumerate(buildings_list),
                 total=len(buildings_list),
                 desc="Parsing buildings",
             ):
-                # Debug the inner hole buildings
-                # if building['type'] != "multipolygon":
-                #     continue
                 # Convert building geometry to a shapely polygon
                 building_polygon = shape(building["geometry"])
 
@@ -1493,7 +1342,7 @@ class Scene:
                     )
                     continue
 
-                # First try to get building height from LiDAR
+                # First, try to get building height from LiDAR
                 if hag_handler:
                     random_points = generate_random_points(building_polygon, 30)
                     abs_height = []
@@ -1501,34 +1350,24 @@ class Scene:
                         res = hag_handler.query(to_4326.transform(point.x, point.y), False)
                         abs_height.append(res)
 
-                    # plt.scatter([point.x for point in random_points ],[point.y for point in random_points ], c=abs_height, cmap='viridis')
-                    # plt.colorbar(label='Height above ground (DSM - DEM) meters')
-
-                    # plt.title('Random Points within a Building Polygon')
-                    # plt.xlabel('Longitude EPSG:6933')
-                    # plt.ylabel('Latitude EPSG:6933')
-                    # plt.show()
-                    print("Building height list: ", abs_height)
-                    print()
                     filtered_list = [
                         x for x in abs_height if x.size > 0 and x != -9999 and x > 2
                     ]
-                    print("Building height list: ", abs_height)
-                    print()
+
                     try:
                         building_height = np.mean(filtered_list)
-                        print("Avg Building Height: ", building_height)
+
                         if math.isnan(building_height):
                             raise ValueError("The value is NaN")
                     except Exception as e:
-                        print("Random Building Height: ", building_height)
                         building_height = random_building_height(building, building_polygon)
+
                 else:
                     building_height = random_building_height(building, building_polygon)
 
                 # USE THE BELOW SECTION FOR BUILDING CENTROID AND HEIGHT INFO
                 # WITH LIDAR TERRAIN TURNED OFF
-
+                """
                 centroid = building_polygon.centroid
                 centroid_lon, centroid_lat = to_4326.transform(
                     centroid.x, centroid.y
@@ -1545,48 +1384,22 @@ class Scene:
                         "height_above_ground": building_height,
                     }
                 )
+                """
                 # USE THE ABOVE SECTION FOR BUILDING CENTROID AND HEIGHT INFO
                 # WITH LIDAR TERRAIN TURNED OFF
                 
-                # Skip buildings with height <= 0
-                if building_height <=0:
+                # Skip buildings with non-positive height
+                if building_height <= 0:
                     continue
-                # building_height = NYC_LiDAR_building_height(building, building_polygon)
 
                 outer_xy = unique_coords(
                     reorder_localize_coords(building_polygon.exterior, center_x, center_y)
                 )
                 
-                
                 if lidar_terrain:
                     mesh = surface_mesh
                     # Z bounds of the mesh
                     bottom, top = mesh.bounds[-2:]
-                    # buffer = 1.0
-                    # res_z = []
-                    # for points in outer_xy:
-                    #     # Define two points that form a line that interesects the mesh
-                    #     x = points[0]
-                    #     y = points[1]
-                    #     start = [x, y, bottom - buffer]
-                    #     stop = [x, y, top + buffer]
-                        
-                    #     # Perform ray trace
-                    #     points, ind = mesh.ray_trace(start, stop)
-                        
-                    #     # Create geometry to represent ray trace
-                    #     ray = pv.Line(start, stop)
-                    #     intersection = pv.PolyData(points)
-                    #     res_z.append(intersection.bounds[-1])
-
-                    # res_z = np.array(res_z)
-                    # res_z[res_z == -1e+299] = 1e+299
-                    # #print(res_z)
-                    # building_z_value = int(np.floor(np.min(res_z)))
-
-                    
-                    # if building_z_value > 1e+20:
-                    #     building_z_value = 0
 
                     from concurrent.futures import ThreadPoolExecutor
 
@@ -1601,18 +1414,12 @@ class Scene:
                     with ThreadPoolExecutor() as executor:
                         res_z_parallel = list(executor.map(lambda pt: ray_trace_z(pt[0], pt[1]), outer_xy))
                     building_z_value = int(np.floor(np.min(res_z_parallel)))
-                    #building_z_value = int(np.floor(np.min(res_z)))
 
-                    #assert building_z_value_parallel == building_z_value, f"differ value for parallel and single-thread:\n\t parallel {building_z_value_parallel} single-threaded {building_z_value}"
                     if building_z_value > 1e+20:
                         building_z_value = 0
+
                 else:
                     building_z_value = 0
-                    
-            
-                #print("Building's Z-value: ", building_z_value)
-                
-                
 
                 holes_xy = []
                 if len(list(building_polygon.interiors)) != 0:
@@ -1636,11 +1443,11 @@ class Scene:
                 verts, edges = np.concatenate(verts), np.concatenate(edges)
 
                 # Triangulate needs to know a single interior point for each hole
-                # Using the centroid works here, but for very non-convex holes may need a more sophisticated method,
+                # Using the centroid works here, but for very non-convex holes, may need a more sophisticated method,
                 # e.g. shapely's `polylabel`
                 holes = np.array([np.mean(h, axis=0) for h in holes_xy])
 
-                # Because triangulate is a wrapper around a C library the syntax is a little weird, 'p' here means planar straight line graph
+                # Because triangulate is a wrapper around a C library, the syntax is a little weird. 'p' here means planar straight line graph
                 if len(holes) != 0:
                     d = triangulate(
                         dict(vertices=verts, segments=edges, holes=holes), opts="p"
@@ -1652,10 +1459,6 @@ class Scene:
                 v, f = d["vertices"], d["triangles"]
                 nv, nf = len(v), len(f)
 
-                # print(v)
-                # print(f)
-
-                #points = np.concatenate([v, np.zeros((nv, 1))], axis=1)
                 points = np.concatenate([v, np.full((nv, 1), fill_value=building_z_value)], axis=1)
         
                 mesh_o3d = o3d.t.geometry.TriangleMesh()
@@ -1678,15 +1481,11 @@ class Scene:
                 top_vertex_indices = np.where(z_values == building_height + building_z_value)[
                     0
                 ].tolist()  # Indices of top vertices
-                #print("top vertex indices: ", top_vertex_indices)
-                
-
-
 
                 # Extract the top surface
                 top_surface = wedge_t.select_by_index(top_vertex_indices)
 
-                other_faces_np = faces_np[face_centroids[:, 2] < building_height+building_z_value]
+                other_faces_np = faces_np[face_centroids[:, 2] < building_height + building_z_value]
                 if len(other_faces_np) == 0:
                     print("All vertices: ", vertices_np)
                     print("top vertex indices: ", top_vertex_indices)
@@ -1694,14 +1493,9 @@ class Scene:
                     print("min height of meshes: ", np.min(z_values))
                     print("building height: ", building_height)
                     print("building z value: ", building_z_value)
-                    print("building height + building z value: ", building_height + building_z_value)
-                    
-                
+                    print("building height + building z value: ", building_height + building_z_value)               
                     print("other faces np: ", other_faces_np)
-                    print("max height of meshes: ", np.max(z_values))
-                    print("building height: ", building_height)
-                    print("building z value: ", building_z_value)
-                    print("building height + building z value: ", building_height + building_z_value)
+
                 # Convert to Open3D Tensor API
                 other_faces_o3c = o3c.Tensor(other_faces_np, dtype=o3c.int32)
 
@@ -1721,8 +1515,6 @@ class Scene:
                     wall_mesh,
                     write_ascii=write_ply_ascii,
                 )
-
-                # o3d.t.io.write_triangle_mesh(os.path.join(mesh_data_dir, f"building_{idx}.ply"), wedge, write_ascii=write_ply_ascii)
 
                 # Add shape elements for PLY files in the folder
                 sionna_shape = ET.SubElement(
@@ -1754,14 +1546,14 @@ class Scene:
 
             del hag_handler
             # save centroids_and_heights to a CSV file
-            centroids_and_heights_df = pd.DataFrame(centroids_and_heights)
-            centroids_and_heights_df.to_csv(
-                os.path.join(data_dir, "building_centroids_and_heights.csv"), index=False
-            )
+            # centroids_and_heights_df = pd.DataFrame(centroids_and_heights)
+            # centroids_and_heights_df.to_csv(
+            #     os.path.join(data_dir, "building_centroids_and_heights.csv"), index=False
+            # )
             xml_string = ET.tostring(scene, encoding="utf-8")
             xml_pretty = minidom.parseString(xml_string).toprettyxml(
                 indent="    "
-            )  # Adjust the infdent as needed
+            )  # Adjust the indent as needed
 
             with open(
                 os.path.join(data_dir, "scene.xml"), "w", encoding="utf-8"

@@ -183,7 +183,7 @@ def main():
     )
 
     common_parser.add_argument(
-        "--generate_roads",
+        "--generate-roads",
         action="store_true",
         help="Enable road generation from Overture data. Only applicable when building_data_source is 'overture' and LiDAR and DEM terrain are disabled."
     )

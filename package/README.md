@@ -187,7 +187,7 @@ Material properties based on ITU-R Recommendation P.2040-2:
 ```
 
 ### 5) Generate Roads When Building Data Source is Overture
-You can generate roads when using Overture as the building data source. Use the `--generate-roads` flag, and specify a material type with `--road-visual-material` (followed by a `<MATERIAL_ID>`) that is visually distinct from the ground material (by default, the road visual material will be the same as the ground material and therefore not visible).
+You can generate roads when using Overture as the building data source and LiDAR/DEM terrain are disabled. Use the `--generate-roads` flag, and specify a material type with `--road-visual-material` (followed by a `<MATERIAL_ID>`) that is visually distinct from the ground material (by default, the road visual material will be the same as the ground material and therefore not visible).
 
 ```
 console
@@ -216,3 +216,65 @@ Parsing roads: 100%|████████████████████
 ### 6) Preview 3D Scene in Sionna
 
 After the above example command, the 3D scene file is saved to the corresponding folder under `./scenes/`. You can load it directly in Sionna to explore or run ray tracing simulations. Please refer to [Tutorial #1](../research/examples/1_sionna_coverage_map.ipynb) and [Tutorial #2](../research/examples/2_sionna_rays_analysis.ipynb) for two example notebooks.
+
+## Visualizing the Scene Generation Pipeline
+```
+                              GPS bounding box
+                                     │
+          ┌──────────────────────────┼──────────────────────────┐
+          │                          │                          │
+          ▼                          ▼                          ▼
+ building_data_source?        USGS LiDAR query          Terrain query
+          │                          │               (LiDAR or DEM)
+     ┌────┴────┐                     │                          │
+     │         │                     │                          ▼
+     ▼         ▼                     ├──────────────► terrain mesh (PLY)
+ OSM query  Overture query           │
+     │         │                     └──────────────► HAG point cloud
+     │         │
+     │         ▼
+     │   Parent/part resolution
+     │   & pruning
+     │         │
+     └────┬────┘
+          ▼
+   Building footprints
+          │
+          ▼
+   Height determination
+          │
+    ┌─────┴───────────────────────────────────────────────┐
+    │                                                     │
+    │ OSM hierarchy                                       │
+    │   1. LiDAR HAG sampling (optional)                  │
+    │   2. building:height                                │
+    │   3. height                                         │
+    │   4. building:levels × 3.5 m                        │
+    │   5. levels × 3.5 m                                 │
+    │   6. random fallback                                │
+    │                                                     │
+    │ Overture hierarchy                                  │
+    │   1. height                                         │
+    │   2. num_floors × 3.5 m                             │
+    │   3. LiDAR HAG sampling (optional)                  │
+    │   4. random fallback                                │
+    └─────────────────────────────────────────────────────┘
+          │
+          ▼
+  (Overture only)
+  • minimum-height offset
+  • contributor discrepancy calibration
+          │
+          ▼
+ Extruded building meshes (PLY)
+          │
+          ├──────────────────────────────────────┐
+          │                                      │
+          ▼                                      ▼
+ Combine with ground mesh                Building Height Map (.npy)
+ (terrain mesh if enabled)
+          │
+          ▼
+      scene.xml
+(geometry + materials + metadata)
+```

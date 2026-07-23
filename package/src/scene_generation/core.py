@@ -124,7 +124,7 @@ class Scene:
         building_data_source : str, optional
             Choose which data source to use for building footprints and heights. Choices: "overture", "osm". Defaults to "overture".
         generate_roads : bool, optional
-            If True (default) and ``building_data_source == "overture"``, query Overture.
+            If True (default) and ``building_data_source == "overture"`` and ``lidar_terrain == False`` and ``dem_terrain == False``, query Overture.
             transportation segments (``subtype == "road"``) for the AOI, buffer each
             centerline into a flat footprint using a per-class default width, and add them to the scene as flat meshes.
         road_material_type : str, optional
@@ -825,7 +825,7 @@ class Scene:
             # ---------------------------------------------------------------------
             # Query Overture roads within the bounding box and mesh them flat
             # ---------------------------------------------------------------------
-            if generate_roads:
+            if not lidar_terrain and not dem_terrain and generate_roads:
                 try:
                     roads = load_overture_roads_for_aoi(
                         ground_polygon_4326_bbox,

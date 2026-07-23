@@ -4,7 +4,7 @@
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-yellow.svg)](https://github.com/functions-lab/geo2sigmap/blob/main/LICENSE)
 
 Welcome to the Geo2SigMap. Our repository has been divided into two primary components: 
-- **Scene Generation**: A pure Python-based pipeline for generating 3D scenes for arbitrary areas of interest. This new Python-based pipeline replaces the scene generation pipeline used in our [DySPAN'24 paper](https://ieeexplore.ieee.org/document/10632773), and is more scalable, efficient and user-friendly.
+- **Scene Generation**: A pure Python-based pipeline for generating 3D scenes for arbitrary areas of interest. This new Python-based pipeline replaces the scene generation pipeline used in our [DySPAN'24 paper](https://ieeexplore.ieee.org/document/10632773), and is more scalable, efficient and user-friendly. See our package README (#./package/README.md)for a helpful visual of the scene generation pipeline.
 - **ML-based Propagation Model**: ML-based signal coverage prediction using our pre-trained model based on the cascaded U-Net architecture, also described in our DySPAN'24 paper.
 
 Our newest release **v2.0.0** has enhanced the original scene generation pipeline by incoporating LiDAR terrain data and downstream Digital Elevation Models (DEM). Data was sourced from the USGS 3D Elevation Program (https://www.usgs.gov/3d-elevation-program). The tool does not depend on this data for its operation. In areas with insufficient data, a flat terrain can still be assumed.

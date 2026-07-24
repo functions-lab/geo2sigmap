@@ -13,3 +13,4 @@ cache/
 plot_temp.png
 **/resources.geojson
 **/scenes
+*.pth

@@ -1,7 +1,6 @@
+import os
 import laspy
 import numpy as np
-import pyvista as pv
-
 import pyvista as pv
 
 from pyproj import Transformer
@@ -18,18 +17,7 @@ def generate_terrain_mesh(lidar_laz_file_path, ply_save_path, src_crs="EPSG:3857
     
     # Load the LAZ file
     las = laspy.read(lidar_laz_file_path)
-    # Check for VLRs
-    # for vlr in las.vlrs:
-    #     print(vlr.description)
-    #     print(vlr.record_id)
-    #     print(vlr)
-    # # Access the WKT (Well-Known Text) CRS if available
-    # if las.header.evlrs:
-    #     for evlr in las.header.evlrs:
-    #         if evlr.description == "WKT":
-    #             print("CRS WKT:", evlr.string)
 
-    
     # Extract the classification field and filter out ground points (classification == 2)
     ground_mask = las.classification == 2
     
@@ -74,22 +62,12 @@ def generate_terrain_mesh(lidar_laz_file_path, ply_save_path, src_crs="EPSG:3857
 
     points = np.vstack((x_ground, y_ground, z_ground)).T
     point_cloud = pv.PolyData(points)
-    # point_cloud["Height"] = points[:, 2]
-    # plotter = pv.Plotter()
-    # plotter.add_points(point_cloud, scalars="Height", cmap="viridis", point_size=5)
-    
-    # # Show the plot
-    # plotter.show()
-    
-    
+
     surface_mesh = point_cloud.delaunay_2d()
-    
+
     print("Ori # of faces: ", surface_mesh.n_faces)
 
-    pro_decimated = surface_mesh.decimate_pro(0.90, preserve_topology=True)
-    print("pro_decimated # of faces: ", pro_decimated.n_faces)
-    surface_mesh = surface_mesh
-            # Extract vertices and faces from the PyVista surface mesh
+    # Extract vertices and faces from the PyVista surface mesh
     vertices = surface_mesh.points
     faces = surface_mesh.faces.reshape(-1, 4)[:, 1:4]  # Ignore the first element which is the number of vertices per face
 
@@ -104,8 +82,6 @@ def generate_terrain_mesh(lidar_laz_file_path, ply_save_path, src_crs="EPSG:3857
     # Write the PLY file manually using plyfile
     PlyData([vertex_element, face_element], text=False).write(ply_save_path)
 
-    
-    #surface_mesh.save(ply_save_path)
     # Plot the triangulated terrain
     if(plot_figures):
         pv.set_jupyter_backend('client')
@@ -113,35 +89,6 @@ def generate_terrain_mesh(lidar_laz_file_path, ply_save_path, src_crs="EPSG:3857
         plotter.add_mesh(surface_mesh, scalars=surface_mesh.points[:, 2], cmap="terrain")
         plotter.show()
     return surface_mesh
-
-def remove_obj_info_from_ply(input_ply_path, output_ply_path):
-    # Open the input PLY file in binary read mode
-    with open(input_ply_path, 'rb') as infile:
-        # Read the first few lines (assuming the header)
-        header_lines = []
-        for _ in range(5):
-            line = infile.readline()
-            header_lines.append(line)
-        
-        # Filter out lines that start with "obj_info" after decoding
-        cleaned_header = [
-            line for line in header_lines if not line.decode("utf-8", errors="ignore").startswith("obj_info")
-        ]
-        
-        # Read the remaining content of the file
-        remaining_data = infile.read()
-    
-    # Write the cleaned header and the rest of the binary content to the output file
-    with open(output_ply_path, 'wb') as outfile:
-        outfile.writelines(cleaned_header)
-        outfile.write(remaining_data)
-
-# # Example usage
-# remove_obj_info_from_ply("input.ply", "cleaned_output.ply")
-
-
-# Example usage
-
 
 if __name__ == '__main__':
     data_dir = "output"

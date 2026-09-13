@@ -24,6 +24,9 @@ dependencies = [
 ]
 requires-python = ">=3.9"
 
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
 
 [project.scripts]
 scenegen = "scene_generation.cli:main"
@@ -36,3 +39,8 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "scene_generation.data" = ["*.csv"]
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

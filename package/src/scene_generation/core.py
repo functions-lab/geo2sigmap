@@ -77,15 +77,15 @@ class Scene:
         generate_building_map: bool = True,
         write_ply_ascii: bool = False,
         ground_scale: float = 1.5,
-        ground_material_type="mat-itu_wet_ground",
-        rooftop_material_type="mat-itu_metal",
-        wall_material_type="mat-itu_concrete",
+        ground_material_type: str ="mat-itu_wet_ground",
+        rooftop_material_type: str ="mat-itu_metal",
+        wall_material_type: str ="mat-itu_concrete",
+        road_material_type: str = "mat-itu_concrete",
         lidar_terrain:bool = False,
         dem_terrain:bool = False,
         gen_lidar_terrain_only:bool = False,
         building_data_source: str = "overture",
         generate_roads: bool = False,
-        road_material_type: str = None,
     ):
         """
         Generate a ground mesh from the given polygon (defined by `points`), extrude them into 3D meshes,
@@ -467,7 +467,7 @@ class Scene:
                     "Unable to load Overture building footprints; skipping buildings: %s",
                     exc,
                 )
-                buildings_list = []
+                filtered_buildings = None
             try:
                 building_parts = load_overture_building_parts_for_aoi(
                     ground_polygon_4326_bbox,
@@ -503,7 +503,11 @@ class Scene:
                     continue
                 parts_without_height_or_num_floors.append(part)
 
-            all_building_records = filtered_buildings.to_dict("records")
+            all_building_records = (
+                filtered_buildings.to_dict("records")
+                if filtered_buildings is not None
+                else []
+            )
             parent_building_by_id = {
                 str(building.get("id")): building                    
                 for building in all_building_records

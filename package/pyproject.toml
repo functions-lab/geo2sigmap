@@ -18,9 +18,14 @@ dependencies = [
     "plyfile",
     "trimesh",
     "pooch",
-    "boto3"
+    "boto3",
+    "duckdb",
+    "geopandas"
 ]
 requires-python = ">=3.9"
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
 
 
 [project.scripts]
@@ -34,3 +39,8 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "scene_generation.data" = ["*.csv"]
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

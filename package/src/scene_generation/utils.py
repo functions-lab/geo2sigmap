@@ -7,8 +7,6 @@ from pyproj import Transformer, CRS
 
 from shapely.geometry import (
     Polygon,
-    MultiPolygon,
-    LinearRing,
     Point
 )
 
@@ -238,64 +236,6 @@ def rect_from_point_and_size(
 # -------------------------------------------------------------------
 # 2) Polygon/Coordinates Related
 # -------------------------------------------------------------------
-def round_polygon_coordinates(polygon: Polygon, decimal_places: int = 0) -> Polygon:
-    """
-    Round the exterior and interior coordinates of a single Polygon to the specified
-    number of decimal places.
-
-    Parameters
-    ----------
-    polygon : Polygon
-        A shapely Polygon whose coordinates should be rounded.
-    decimal_places : int, optional
-        Number of decimal places to round to (default 0 = integer rounding).
-
-    Returns
-    -------
-    Polygon
-        A new Polygon with rounded exterior and interior coordinates.
-    """
-    rounded_exterior = LinearRing([
-        (round(x, decimal_places), round(y, decimal_places))
-        for x, y in polygon.exterior.coords
-    ])
-    rounded_interiors = [
-        LinearRing([
-            (round(x, decimal_places), round(y, decimal_places))
-            for x, y in interior.coords
-        ])
-        for interior in polygon.interiors
-    ]
-    return Polygon(rounded_exterior, rounded_interiors)
-
-def round_geometry_coords(geometry, decimal_places: int = 0):
-    """
-    Round the coordinates of a geometry (Polygon or MultiPolygon) to the
-    specified number of decimal places.
-
-    Parameters
-    ----------
-    geometry : Polygon or MultiPolygon
-        Shapely geometry whose coordinates should be rounded.
-    decimal_places : int, optional
-        Number of decimal places for rounding (default 0 = integer).
-
-    Returns
-    -------
-    Polygon or MultiPolygon
-        The same geometry type with rounded coordinates.
-    """
-    if geometry.geom_type == 'Polygon':
-        return round_polygon_coordinates(geometry, decimal_places)
-    elif geometry.geom_type == 'MultiPolygon':
-        return MultiPolygon([
-            round_polygon_coordinates(poly, decimal_places)
-            for poly in geometry
-        ])
-    else:
-        # If not a Polygon or MultiPolygon, return unchanged
-        return geometry
-
 def generate_random_points(poly: Polygon, num_points: int):
     """
     Generate a given number of random points that lie within the Polygon (including holes).
@@ -397,13 +337,13 @@ def random_building_height(building: dict, building_polygon: Polygon) -> float:
         building_height = float(building['building:height'])
     elif 'height' in building and is_float(building['height']):
         building_height = float(building['height'])
-    elif 'building:levels' not in building or not is_float(building['building:levels']):
+    elif 'building:levels' in building and is_float(building['building:levels']):
+        building_height = float(building['building:levels']) * 3.5
+    elif 'levels' in building and is_float(building['levels']):
+        building_height = float(building['levels']) * 3.5
+    else:
         # Fallback random height (units: meters)
         building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
-    elif 'level' not in building or not is_float(building['level']):
-        building_height = 3.5 * max(1, min(15, int(np.random.normal(loc=5, scale=1))))
-    else:
-        building_height = float(building['building:levels']) * 3.5
 
     return building_height
 
@@ -429,55 +369,6 @@ def get_center_subarray(arr, x, y):
     
     # Extract the subarray
     return arr[start_x : start_x + x, start_y : start_y + y]
-
-
-
-def error_tolerance_rate(y_true, y_pred, threshold, relative=False):
-    """
-    Computes the percentage of predictions that fall within a specified error threshold.
-
-    This function calculates the proportion of predictions that have errors within the given threshold,
-    supporting both absolute and relative error calculations.
-
-    Parameters:
-    ----------
-    y_true : np.ndarray
-        Array of actual (ground truth) values.
-    y_pred : np.ndarray
-        Array of predicted values.
-    threshold : float
-        The maximum allowed error for a prediction to be considered within tolerance.
-    relative : bool, optional (default=False)
-        If True, computes relative errors (normalized by `y_true`). If False, uses absolute errors.
-
-    Returns:
-    -------
-    float
-        The percentage of predictions within the specified error tolerance.
-    
-    Notes:
-    ------
-    - If `relative=True`, zero values in `y_true` are ignored to avoid division by zero.
-    - The function returns a percentage (0 to 100) rather than a fraction.
-    """
-    
-    if relative:
-        # Mask to exclude zero values in `y_true` to prevent division by zero
-        valid_mask = (y_true != 0)
-        y_true = y_true[valid_mask]
-        y_pred = y_pred[valid_mask]
-
-        # Compute relative errors
-        errors = np.abs((y_true - y_pred) / y_true)
-    else:
-        # Compute absolute errors
-        errors = np.abs(y_true - y_pred)
-
-    # Count predictions within the specified error threshold
-    within_tolerance = np.sum(errors <= threshold)
-
-    # Return the percentage of values within tolerance
-    return (within_tolerance / len(y_true)) * 100 if len(y_true) > 0 else 0.0
 
 
 

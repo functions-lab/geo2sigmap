@@ -40,7 +40,7 @@ def clip_reproject_dem_to_wgs84_utm(
 
     def _log(msg: str):
         if debug:
-            _log(msg)
+            print(msg)
     def _utm_zone_from_lon(lon: float) -> int:
         return int(math.floor((lon + 180.0) / 6.0) + 1)
 
@@ -329,9 +329,6 @@ def clip_reproject_dem_to_wgs84_utm(
     return result
 
 
-import numpy as np
-import rasterio
-from rasterio.warp import calculate_default_transform, reproject, Resampling
 import trimesh
 
 def dem_to_ply(
@@ -382,11 +379,7 @@ def dem_to_ply(
 
     # --- Center mesh at (0,0,0) ---
     center = verts.mean(axis=0)   # centroid
-    # print(verts.mean(axis=0))
-    # print(center)
-
     verts -= center
-    # print(verts.mean(axis=0))
 
     # Build faces for a regular grid (2 triangles per cell)
     # Vertex index helper
@@ -426,27 +419,11 @@ def dem_to_ply(
 
     # Build and export with trimesh
     mesh = trimesh.Trimesh(vertices=verts, faces=faces, process=False)
-    # (Optional) compute normals
     mesh.rezero()
-    #mesh.remove_degenerate_faces()
     mesh.update_faces(mesh.nondegenerate_faces())
-    #mesh.remove_duplicate_faces()
     mesh.update_faces(mesh.unique_faces())
     mesh.remove_unreferenced_vertices()
     mesh.vertices -= mesh.centroid
 
-
     mesh.export(out_ply)
-    # return {
-    #     "vertices": verts.shape[0],
-    #     "faces": faces.shape[0],
-    #     "crs": str(crs) if crs else None,
-    #     "stride": stride,
-    #     "outfile": out_ply
-    # }
-
-# Example:
-# info = dem_to_ply("./res/103.tif", "./res/103.ply", stride=1, z_scale=1.0)
-# # print(info)
-
 

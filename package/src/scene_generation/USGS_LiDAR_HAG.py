@@ -1,15 +1,10 @@
-import copy
 import geopandas as gpd
 import json
-import math
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
 import os
 import pdal
 import pyproj
 import requests
-from shapely.geometry import shape, Point, Polygon
+from shapely.geometry import Polygon
 from shapely.ops import transform
 
 def proj_to_3857(poly, orig_crs):
@@ -302,54 +297,6 @@ def make_DEM_pipeline(extent_epsg3857, usgs_3dep_dataset_name, pc_resolution, de
 
     return dem_pipeline
 
-class CoverageChecker:
-    def __init__(self, file_path: str="resources.geojson"):
-        print("Loading 3DEP resources.geojson...")
-        if not os.path.exists("resources.geojson"):
-            #print("Requesting, loading, and projecting 3DEP dataset polygons...")
-            url = 'https://raw.githubusercontent.com/hobuinc/usgs-lidar/master/boundaries/resources.geojson'
-            r = requests.get(url)
-            with open('resources.geojson', 'w') as f:
-                f.write(r.content.decode("utf-8"))
-        with open('resources.geojson', 'r') as f:
-            df =  gpd.read_file(f) 
-            self.names = df['name']
-            self.urls = df['url']
-            self.num_points = df['count']
-            self.df =df
-            projected_geoms = []
-            for geometry in self.df['geometry']:
-                projected_geoms.append(gcs_to_proj(geometry))
-
-            self.geometries_GCS = self.df['geometry']
-            self.geometries_EPSG3857 = gpd.GeoSeries(projected_geoms)
-
-    def is_polygon_inside_3DEP(self, polygon: Polygon, polygon_CRS="EPSG:3857") -> bool:
-        """
-        Checks if a given polygon is inside LiDAR dataset geometries.
-
-        Parameters:
-            polygon (Polygon): The Shapely polygon to check.
-
-        Returns:
-            bool: True if condition is met, otherwise False.
-        """
-        
-
-        AOI_EPSG3857 = proj_to_3857(polygon, "EPSG:4326")[1]
-
-        intersecting_polys = []
-        for i, geom in enumerate(self.geometries_EPSG3857):
-            #if geom.intersects(AOI_EPSG3857):
-            if AOI_EPSG3857.within(geom):
-                intersecting_polys.append((self.names[i], self.geometries_GCS[i], self.geometries_EPSG3857[i], self.urls[i], self.num_points[i]))
-
-        if len(intersecting_polys) ==0:
-            return False
-        return True
-
-    
-
 def generate_hag(polygon, data_dir, CRS="EPSG:3857"):
     """
     Generate Height Above Ground (HAG) data for a given polygon area.
@@ -390,9 +337,11 @@ def generate_hag(polygon, data_dir, CRS="EPSG:3857"):
 
     intersecting_polys = []
     for i, geom in enumerate(geometries_EPSG3857):
-        # if geom.intersects(AOI_EPSG3857):
         if AOI_EPSG3857.within(geom):
             intersecting_polys.append((names[i], geometries_GCS[i], geometries_EPSG3857[i], urls[i], num_points[i]))
+            # print information about dataset
+            print(names[i])
+            print(urls[i])
 
     print(f"Found {len(intersecting_polys)} intersecting datasets")
     if len(intersecting_polys) ==0:
@@ -434,13 +383,8 @@ def main():
     Creates a test polygon and generates HAG data for it.
     """ 
                                                                                                                                                                                                                         
-    # Create a test polygon (example: a small area in Colorado)
+    # Create a test polygon (example: a small area in Boston, MA)
     test_polygon = Polygon([
-        # (-80.853247558587682, 35.218940598812395),
-        # (-80.848318480301486, 35.234570940294113),
-        # (-80.827192375413446, 35.230082242372461),
-        # (-80.832124690884896, 35.214454483322911),
-        # (-80.853247558587682, 35.218940598812395),
         (-71.0602, 42.3512),
         (-71.0602, 42.3591),
         (-71.0484, 42.3591),
@@ -459,14 +403,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-'''
-Prerequisites:
-1. Install PDAL
-    conda install -c conda-forge pdal
-    conda install -c conda-forge pdal gdal sqlite
-    ln /home/test/miniconda3/envs/geo2sigmap/lib/libsqlite3.so.3.50.1 /home/test/miniconda3/envs/geo2sigmap/lib/libsqlite3.so
-
-'''

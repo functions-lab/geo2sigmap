@@ -1,7 +1,6 @@
 from typing import List, Optional
 import geopandas as gpd
 from shapely.geometry.base import BaseGeometry
-from urllib.parse import urlparse, parse_qs
 import requests, os, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
@@ -9,7 +8,8 @@ from requests.adapters import HTTPAdapter, Retry
 
 class USGS1mLocator:
     """
-    Same semantics as your original class.
+    Locates USGS 1m DEM tile download URLs covering an area of interest,
+    resolving intersecting grid cells in parallel.
     """
 
     def __init__(self, fesm_path: str, grid_path: str, debug: bool = True, max_workers: Optional[int] = None):
@@ -54,7 +54,8 @@ class USGS1mLocator:
 
     def get_links(self, aoi_4326: BaseGeometry) -> List[str]:
         """
-        Same behavior as before, but parallelizes URL resolution when many cells intersect.
+        Resolve DEM tile download URLs for an AOI, parallelizing URL
+        resolution when many grid cells intersect.
         """
         self._log(f"[Q] AOI bounds (4326): {aoi_4326.bounds}")
 
@@ -107,12 +108,6 @@ class USGS1mLocator:
         return uniq
 
     # ---------- internals ----------
-
-    def _get_last_segment(self, url: str) -> str:
-        parsed = urlparse(url)
-        query = parse_qs(parsed.query)
-        path = query.get("prefix", [parsed.path])[0]
-        return path.rstrip("/").split("/")[-1]
 
     # --- Manifest fetching & search ---
 
